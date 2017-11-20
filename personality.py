@@ -270,12 +270,13 @@ def k_fold(data, folds=10):
     kf = KFold(n_splits=folds,shuffle=True, random_state=1)
     fold_number = 0
     folds = pd.DataFrame(data = data.index , columns=['user_id'])
-    print folds
     folds['fold'] = 0
+    folds.set_index('user_id', inplace=True)
+    print folds
     print folds.index
     for train_index, test_index in kf.split(np.ones(data.shape[0])):
-        test_index = [idx for idx in folds.index if idx in test_index]
-        folds[test_index ]['fold'] = fold_number
+        # test_index = [idx for idx in folds.index if idx in test_index]
+        folds[test_index]['fold'] = fold_number
         fold_number+=1
 
     return folds
@@ -310,8 +311,8 @@ def cv(data, labels, foldsdf, folds, pre):
     for i in range(folds):
 
         # prepare train and test data
-        test_ids = foldsdf[foldsdf['fold'] == i].user_id.tolist()
-        train_ids = foldsdf[foldsdf['fold'] != i].user_id.tolist()
+        test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
+        train_ids = foldsdf[foldsdf['fold'] != i].index.tolist()
         Xtrain = data[train_ids]
         ytrain = labels[train_ids]
         Xtest = data[test_ids]
