@@ -132,13 +132,14 @@ def run_tfidf(train_tweets, test_tweets=[]):
 
 def run_tfidf_dataframe(data, index_name=''):
     print ('run_tfidf_dataframe...')
-    tfidf = run_tfidf(data.values)
+    tfidf = run_tfidf(data.values.tolist())
     print ('type(tfidf): ' , type(tfidf))
-    print ('tfidf.shape: ', tfidf.shape )
+    print ('tfidf.shape: ', len(tfidf) )
     if (len(index_name) > 0):
         data = pd.DataFrame(data = tfidf, index = data[index_name])
     else:
         data = pd.DataFrame(data = tfidf, index = data.index)
+    print ( 'data.shape: ' , data.shape)
     return data
 
 
