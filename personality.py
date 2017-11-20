@@ -266,7 +266,7 @@ def main():
 
 
 def k_fold(data, folds=10):
-
+    print ('k_fold...')
     kf = KFold(n_splits=folds,shuffle=True, random_state=1)
     fold_number = 0
     folds = pd.DataFrame(data = data.index , columns=['user_id'])
