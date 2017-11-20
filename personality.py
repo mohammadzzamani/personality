@@ -26,20 +26,23 @@ demog_feats = ['demog_age_fixed', 'demog_gender']
 control_feats = personality_feats + demog_feats
 
 def connectToDB():
-        # Create SQL engine
-        myDB = URL(drivername='mysql', database=database, query={
-            'read_default_file' : '/home/mzamani/.my.cnf' })
-        engine = create_engine(name_or_url=myDB)
-        connection = engine.connect()
-        return connection
+    print ('connectToDB...')
+    # Create SQL engine
+    myDB = URL(drivername='mysql', database=database, query={
+        'read_default_file' : '/home/mzamani/.my.cnf' })
+    engine = create_engine(name_or_url=myDB)
+    connection = engine.connect()
+    return connection
 
 def connectMysqlDB():
-        conn = MySQLdb.connect(host, user, password, database)
-        c = conn.cursor()
-        return c
+    print ('connectMysqlDB...')
+    conn = MySQLdb.connect(host, user, password, database)
+    c = conn.cursor()
+    return c
 
 
 def load_data_train_test(fname):
+    print('load_data_train_test...')
     data = {"test": {}, "train": {}}
     with open(fname) as f:
         for line in f:
@@ -65,6 +68,7 @@ def load_data_train_test(fname):
 
 
 def load_language(cursor):
+    print('load_language...')
     sql = "select user_id , message from {0}".format(msg_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
@@ -73,6 +77,7 @@ def load_language(cursor):
 
 
 def load_controls(cursor):
+    print('load_controls...')
     feats_str  = ','.join(control_feats)
     sql = "select user_id , {0} from {1}".format(feats_str, control_table)
     query = cursor.execute(sql)
@@ -82,11 +87,13 @@ def load_controls(cursor):
 
 
 def msg_to_user_langauge(language_df):
+    print ('msg_to_user_langauge...')
     language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
     return language_df
 
 
 def load_data():
+    print('load_data...')
     try:
         cursor = connectToDB()
     except:
@@ -99,6 +106,7 @@ def load_data():
     return language_df, control_df
 
 def run_tfidf(train_tweets, test_tweets=[]):
+    print ('run_tfidf...')
     tokenizer = Tokenizer()
     tfidf_vectorizer = TfidfVectorizer(input="content",
                                        strip_accents="ascii",
@@ -124,6 +132,7 @@ def run_tfidf(train_tweets, test_tweets=[]):
 
 
 def run_kmeans(train_tfidf, d):
+    print ('run_kmeans...')
     km = KMeans(n_clusters=d, random_state=123, max_iter=1000,
                 n_init=10)
     km.fit(train_tfidf)
@@ -133,6 +142,7 @@ def run_kmeans(train_tfidf, d):
 
 def output_factors(train_uids, train_tfidf, test_uids, test_tfidf, cluster_centers,
                    output_f):
+    print ('output_factors...')
     uid_list = [train_uids, test_uids]
     feat_list = [train_tfidf, test_tfidf]
 
@@ -149,6 +159,7 @@ def output_factors(train_uids, train_tfidf, test_uids, test_tfidf, cluster_cente
 
 
 def parse_cmd_input():
+    print ('parse_cmd_input...')
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", metavar="F", type=str,
                         help="tab-separated input file where each line is in format USER_ID<tab>TEST/TRAIN<tab>TWEET")
@@ -163,6 +174,7 @@ def parse_cmd_input():
 
 
 def main():
+    print ('main...')
     input_f, output_f, d = parse_cmd_input()
     train_tweets, train_uids, test_tweets, test_uids = load_data(input_f)
 
@@ -175,12 +187,14 @@ def main():
     output_factors(train_uids, train_tfidf, test_uids, test_tfidf, cluster_centers, output_f)
 
 def myMain():
+    print('myMain...')
     language_df, control_df = load_data()
     language_df = msg_to_user_langauge(language_df)
 
     multiply(control_df, language_df, output_filename = 'multiplied_data.csv')
 
 def multiply(controls, language, output_filename):
+    print ('multiply...')
     print ('multiply ...')
     all_df = language
     for col in controls.columns:
@@ -193,6 +207,7 @@ def multiply(controls, language, output_filename):
 
 
 def min_max_transformation(data):
+    print ('min_max_transformation...')
     print ('min_max_transformation...')
     data.set_index('parcelid', inplace=True)
     data = (data - data.min())/(data.max()- data.min())
