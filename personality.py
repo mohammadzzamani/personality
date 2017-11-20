@@ -158,8 +158,9 @@ def load_data():
         # language_df = load_tweets(cursor)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
+        personality_df = load_controls(cursor, personality_feats)
 
-    return topic_df, control_df, demog_df
+    return topic_df, control_df, demog_df, personality_df
 
 def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
@@ -331,7 +332,7 @@ def cv(data, labels, foldsdf, folds, pre):
 
 def myMain():
     print('myMain...')
-    language_df, control_df, demog_df = load_data()
+    language_df, control_df, demog_df, personality_df = load_data()
     print ('demog_df.shape: ', demog_df.shape)
     print ('control_df.shape: ', control_df.shape)
     print ('language_df.shape: ', language_df.shape)
@@ -349,7 +350,7 @@ def myMain():
     #
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
-    cross_validation()
+    cross_validation(language_df, demog_df, personality_df)
 
 
 def multiply(controls, language, output_filename):
