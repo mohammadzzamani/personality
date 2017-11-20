@@ -86,12 +86,32 @@ def load_1to3grams(cursor):
     # language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
     # return language_df
 
-def load_topics(cursor):
+def load_topics(cursor, gft = 500):
     print('load_topics...')
-    sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    sql = "select disctinct(group_id) from {0}".format(topic_table)
     query = cursor.execute(sql)
-    result =  query.fetchall()
-    topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    user_ids =  query.fetchall()
+
+    topic_df = None
+    counter = 0
+    for user_id in user_ids:
+        counter+=1
+        sql = 'select group_id , feat, value, group_norm from {0} where group_id = \"{1}\" '.format(topic_table, user_id)
+        query = cursor.execute(sql)
+        result =  query.fetchall()
+        result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'value', 'group_norm'])
+        uwt = result_df.value.sum()
+        if uwt >= gft:
+            if topic_df is not None:
+                topic_df = pd.concat([topic_df,result_df])
+            else:
+                topic_df = result_df
+        if counter % 500 == 0:
+            print (counter , '  ' , topic_df.shape)
+    # sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    # query = cursor.execute(sql)
+    # result =  query.fetchall()
+    # topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
     print ('topic_df.shape after pivot: ' , topic_df.shape)
