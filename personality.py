@@ -299,7 +299,9 @@ def min_max_transformation(data, index_name=''):
     if (len(index_name) > 0):
         data.set_index(index_name, inplace=True)
     data = (data - data.min())/(data.max()- data.min())
+    print (data.shape)
     data.dropna(axis=1, how='any', inplace=True)
+    print (data.shape)
     if (len(index_name) > 0):
         data.reset_index(inplace=True)
     return data
