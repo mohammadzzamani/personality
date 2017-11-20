@@ -297,6 +297,11 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
 
 def cv(data, labels, foldsdf, folds, pre):
 
+    print 'data: ' , data
+
+    print 'labels: ' , labels
+
+    print 'foldsdf: ' , foldsdf
     all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
     all_df = pd.merge(all_df, foldsdf, how='inner', left_index=True, right_index=True)
     data = all_df[[col for col in all_df.columns if col in data.columns]]
@@ -322,7 +327,7 @@ def cv(data, labels, foldsdf, folds, pre):
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         train_ids = foldsdf[foldsdf['fold'] != i].index.tolist()
 
-        print ( 'ids: ' , test_ids.shape, ' , ' , train_ids)
+        print ( 'ids: ' , len(test_ids), ' , ' , len(train_ids))
 
         Xtrain = data[train_ids]
         ytrain = labels[train_ids]
