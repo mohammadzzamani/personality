@@ -97,11 +97,13 @@ def load_topics(cursor, gft = 500):
     for user_id in user_ids:
         counter+=1
         sql = 'select group_id , feat, value, group_norm from {0} where group_id = \"{1}\" '.format(topic_table, user_id)
+
         query = cursor.execute(sql)
         result =  query.fetchall()
         result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'value', 'group_norm'])
         uwt = result_df.value.sum()
         if counter % 50 == 0:
+            print (sql)
             print ('uwt: ' , uwt, ' , ', result_df.shape)
         if uwt >= gft:
             if topic_df is not None:
