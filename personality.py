@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from happierfuntokenizing.happierfuntokenizing import Tokenizer
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+import cPickle as pickle
 
 
 user= ''
@@ -108,7 +109,7 @@ def load_data():
 
     return language_df, control_df
 
-def run_tfidf(train_tweets, test_tweets=[]):
+def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
     tokenizer = Tokenizer()
     tfidf_vectorizer = TfidfVectorizer(input="content",
@@ -123,7 +124,13 @@ def run_tfidf(train_tweets, test_tweets=[]):
                                        use_idf=True,
                                        max_features=200000)
 
+    print ('fit_transforming')
     train_tfidf = tfidf_vectorizer.fit_transform(train_tweets)
+    print ('fit_transformed')
+
+    with open(pickle_name, 'wb') as fin:
+        pickle.dump(tfidf_vectorizer, fin)
+
     if (len(test_tweets) != 0):
         test_tfidf = tfidf_vectorizer.transform(test_tweets)
         return train_tfidf, test_tfidf
@@ -135,8 +142,8 @@ def run_tfidf_dataframe(data, col_name, index_name=''):
     tweets = data[col_name]
     print (type(tweets), ' , ', len(tweets))
     print (len(tweets[0]))
-    print (tweets[0], ' , ', data.loc[0])
-    print (tweets[1], ' , ', data.loc[1])
+    print (tweets[0], ' , ', data.loc[[0]])
+    print (tweets[1], ' , ', data.loc[[1]])
     tfidf = run_tfidf(tweets)
     print ('type(tfidf): ' , type(tfidf))
     print ('tfidf.shape: ', len(tfidf) )
