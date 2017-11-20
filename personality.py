@@ -279,7 +279,7 @@ def k_fold(data, folds=10):
         print ('test_index: ' , test_index.shape)
         print (test_index.tolist())
         # mask = folds.index in test_index
-        folds.iloc[test_index.tolist(),'fold'] = fold_number
+        folds.iloc[test_index.tolist(),folds.columns.get_loc('fold')] = fold_number
         print (folds.iloc[test_index])
         fold_number+=1
 
