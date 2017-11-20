@@ -329,12 +329,14 @@ def cv(data, labels, foldsdf, folds, pre):
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         train_ids = foldsdf[foldsdf['fold'] != i].index.tolist()
 
-        print ( 'ids: ' , len(test_ids), ' , ' , len(train_ids))
 
-        Xtrain = data[train_ids]
-        ytrain = labels[train_ids]
-        Xtest = data[test_ids]
-        ytest = labels[test_ids]
+        print ( 'ids: ' , len(test_ids), ' , ' , len(train_ids))
+        print (data)
+        print ( train_ids)
+        Xtrain = data.loc[train_ids].values
+        ytrain = labels.loc[train_ids].values
+        Xtest = data.loc[test_ids].values
+        ytest = labels.loc[test_ids].values
 
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
