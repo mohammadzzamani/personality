@@ -212,7 +212,7 @@ def myMain():
 
     language_df = msg_to_user_langauge(language_df)
 
-    language_df = run_tfidf_dataframe(language_df)
+    language_df = run_tfidf_dataframe(language_df, col_name='message')
 
     language_df = min_max_transformation(language_df)
 
