@@ -214,9 +214,13 @@ def myMain():
 
     language_df = run_tfidf_dataframe(language_df, col_name='message')
 
+    language_df.to_csv('multiplied_data.csv')
+
     language_df = min_max_transformation(language_df)
 
-    multiply(control_df, language_df, output_filename = 'multiplied_data.csv')
+    language_df.to_csv('multiplied_transformed_data.csv')
+    #
+    # multiply(control_df, language_df, output_filename = 'multiplied_data.csv')
 
 def multiply(controls, language, output_filename):
     print ('multiply...')
