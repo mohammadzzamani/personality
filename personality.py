@@ -278,7 +278,7 @@ def k_fold(data, folds=10):
         # test_index = [idx for idx in folds.index if idx in test_index]
         # print ('test_index: ' , test_index)
 
-        folds.iloc[test_index]['fold'] = fold_number
+        folds.iloc[test_index,'fold'] = fold_number
         fold_number+=1
 
     return folds
