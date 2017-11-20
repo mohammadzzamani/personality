@@ -303,6 +303,9 @@ def cv(data, labels, foldsdf, folds, pre):
     labels = all_df[[col for col in all_df.columns if col in labels.columns]]
     foldsdf = all_df[[col for col in all_df.columns if col in foldsdf.columns]]
 
+
+    print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
+
     ESTIMATORS = {
             'mean':mean_est(),
             # RidgeCV(alphas=alphas),
@@ -318,10 +321,16 @@ def cv(data, labels, foldsdf, folds, pre):
         # prepare train and test data
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         train_ids = foldsdf[foldsdf['fold'] != i].index.tolist()
+
+        print ( 'ids: ' , test_ids.shape, ' , ' , train_ids)
+
         Xtrain = data[train_ids]
         ytrain = labels[train_ids]
         Xtest = data[test_ids]
         ytest = labels[test_ids]
+
+
+        print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
         Ypreds = None
         for estimator_name, estimator in ESTIMATORS.iteritems():
