@@ -142,8 +142,9 @@ def run_tfidf_dataframe(data, col_name, index_name=''):
     tweets = data[col_name]
     print (type(tweets), ' , ', len(tweets))
     print (len(tweets[0]))
-    print (tweets[0], ' , ', data.loc[[0]])
-    print (tweets[1], ' , ', data.loc[[1]])
+    print (tweets[0])
+    print (tweets[1])
+    print (data.iloc[[0,1]])
     tfidf = run_tfidf(tweets)
     print ('type(tfidf): ' , type(tfidf))
     print ('tfidf.shape: ', len(tfidf) )
