@@ -88,9 +88,10 @@ def load_controls(cursor):
 
 def msg_to_user_langauge(language_df):
     print ('msg_to_user_langauge...')
-    print ('language_df.shape: ' , language_df)
-    language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
-    print ('language_df.shape after group by: ' , language_df)
+    print ('language_df.shape: ' , language_df.shape)
+    language_df = language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
+    print ('language_df.shape after group by: ' , language_df.shape)
+    print ('language_df.columns: ' , language_df.columns)
     return language_df
 
 
