@@ -91,22 +91,18 @@ def load_topics(cursor, gft = 500):
     sql = "select distinct(group_id) from {0}".format(topic_table)
     query = cursor.execute(sql)
     user_ids =  query.fetchall()
-    # user_ids = user_ids[:][0]
+
     topic_df = None
     counter = 0
-    print type(user_ids)
-    # print user_ids
     for user_id in user_ids:
         user_id = user_id[0]
         counter+=1
-        print user_id
         sql = 'select group_id , feat, value, group_norm from {0} where group_id = \'{1}\' '.format(topic_table, user_id)
-
         query = cursor.execute(sql)
         result =  query.fetchall()
         result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'value', 'group_norm'])
         uwt = result_df.value.sum()
-        if counter % 50 == 0:
+        if counter % gft == 1:
             print (sql)
             print ('uwt: ' , uwt, ' , ', result_df.shape)
         if uwt >= gft:
