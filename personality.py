@@ -266,7 +266,7 @@ def myMain():
     print ('language_df.shape: ', language_df.shape)
     control_df.set_index('user_id', inplace=True)
     demog_df.set_index('user_id', inplace=True)
-    print ('control_df.shape after set_index: ', demog_df.shape)
+    print ('demog_df.shape after set_index: ', demog_df.shape)
 
     # language_df = msg_to_user_langauge(language_df)
     # language_df = run_tfidf_dataframe(language_df, col_name='message')
@@ -280,6 +280,8 @@ def myMain():
 
 def multiply(controls, language, output_filename):
     print ('multiply...')
+    print ('language.shape: ', language.shape)
+    print ('controls.shape: ' , controls.shape)
     all_df = language
     for col in controls.columns:
         languageMultiplyC = language.multiply(controls[col], axis="index")
