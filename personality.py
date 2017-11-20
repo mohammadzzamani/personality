@@ -298,8 +298,10 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
 def cv(data, labels, foldsdf, folds, pre):
 
     all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
+    all_df = pd.merge(all_df, foldsdf, how='inner', left_index=True, right_index=True)
     data = all_df[[col for col in all_df.columns if col in data.columns]]
     labels = all_df[[col for col in all_df.columns if col in labels.columns]]
+    foldsdf = all_df[[col for col in all_df.columns if col in foldsdf.columns]]
 
     ESTIMATORS = {
             'mean':mean_est(),
