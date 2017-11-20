@@ -88,7 +88,7 @@ def load_1to3grams(cursor):
 
 def load_topics(cursor, gft = 500):
     print('load_topics...')
-    sql = "select disctinct(group_id) from {0}".format(topic_table)
+    sql = "select distinct(group_id) from {0}".format(topic_table)
     query = cursor.execute(sql)
     user_ids =  query.fetchall()
 
