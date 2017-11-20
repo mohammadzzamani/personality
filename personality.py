@@ -88,7 +88,9 @@ def load_controls(cursor):
 
 def msg_to_user_langauge(language_df):
     print ('msg_to_user_langauge...')
+    print ('language_df.shape: ' , language_df)
     language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
+    print ('language_df.shape after group by: ' , language_df)
     return language_df
 
 
@@ -189,13 +191,21 @@ def main():
 def myMain():
     print('myMain...')
     language_df, control_df = load_data()
+    print ('control_df.shape: ', control_df.shape)
+    print ('language_df.shape: ', language_df.shape)
+    control_df.set_index('user_id', inplace=True)
+    print ('control_df.shape after set_index: ', control_df.shape)
+
     language_df = msg_to_user_langauge(language_df)
+    language_df = min_max_transformation(language_df)
+
+
+    language_df.set_index('user_id', inplace=True)
 
     multiply(control_df, language_df, output_filename = 'multiplied_data.csv')
 
 def multiply(controls, language, output_filename):
     print ('multiply...')
-    print ('multiply ...')
     all_df = language
     for col in controls.columns:
         languageMultiplyC = language.multiply(controls[col], axis="index")
@@ -206,13 +216,14 @@ def multiply(controls, language, output_filename):
     return all_df
 
 
-def min_max_transformation(data):
+def min_max_transformation(data, index_name=''):
     print ('min_max_transformation...')
-    print ('min_max_transformation...')
-    data.set_index('parcelid', inplace=True)
+    if (len(index_name) > 0):
+        data.set_index(index_name, inplace=True)
     data = (data - data.min())/(data.max()- data.min())
     data.dropna(axis=1, how='any', inplace=True)
-    data.reset_index(inplace=True)
+    if (len(index_name) > 0):
+        data.reset_index(inplace=True)
     return data
     # scaler = MinMaxScaler()
     # data = scaler.transform(data)
