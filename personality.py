@@ -132,6 +132,9 @@ def run_tfidf(train_tweets, test_tweets=[]):
 
 def run_tfidf_dataframe(data, index_name=''):
     print ('run_tfidf_dataframe...')
+    tweets = data.values.tolist()
+    print (type(tweets), ' , ', len(tweets))
+    print (len(tweets[0]))
     tfidf = run_tfidf(data.values.tolist())
     print ('type(tfidf): ' , type(tfidf))
     print ('tfidf.shape: ', len(tfidf) )
