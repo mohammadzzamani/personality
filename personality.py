@@ -87,42 +87,42 @@ def load_1to3grams(cursor):
     # return language_df
 
 def load_topics(cursor, gft = 500):
-    print('load_topics...')
-    sql = "select distinct(group_id) from {0}".format(topic_table)
-    query = cursor.execute(sql)
-    user_ids =  query.fetchall()
-
-    topic_df = None
-    counter = 0
-    for user_id in user_ids:
-        user_id = user_id[0]
-        counter+=1
-        sql = 'select group_id , feat, value, group_norm from {0} where group_id = \'{1}\' '.format(topic_table, user_id)
-        query = cursor.execute(sql)
-        result =  query.fetchall()
-        result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'value', 'group_norm'])
-        uwt = result_df.value.sum()
-        if counter % gft == 1:
-            print (sql)
-            print ('uwt: ' , uwt, ' , ', result_df.shape)
-        if uwt >= gft:
-            if topic_df is not None:
-                topic_df = pd.concat([topic_df,result_df])
-            else:
-                topic_df = result_df
-        if counter % gft == 0:
-            print (counter , '  ' , topic_df.shape)
-
-    # sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    # print('load_topics...')
+    # sql = "select distinct(group_id) from {0}".format(topic_table)
     # query = cursor.execute(sql)
-    # result =  query.fetchall()
-    # topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    # user_ids =  query.fetchall()
+    #
+    # topic_df = None
+    # counter = 0
+    # for user_id in user_ids:
+    #     user_id = user_id[0]
+    #     counter+=1
+    #     sql = 'select group_id , feat, value, group_norm from {0} where group_id = \'{1}\' '.format(topic_table, user_id)
+    #     query = cursor.execute(sql)
+    #     result =  query.fetchall()
+    #     result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'value', 'group_norm'])
+    #     uwt = result_df.value.sum()
+    #     if counter % gft == 1:
+    #         print (sql)
+    #         print ('uwt: ' , uwt, ' , ', result_df.shape)
+    #     if uwt >= gft:
+    #         if topic_df is not None:
+    #             topic_df = pd.concat([topic_df,result_df])
+    #         else:
+    #             topic_df = result_df
+    #     if counter % gft == 0:
+    #         print (counter , '  ' , topic_df.shape)
+
+    sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    query = cursor.execute(sql)
+    result =  query.fetchall()
+    topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
-def load_controls(cursor):
+def load_controls(cursor, control_feats = control_feats):
     print('load_controls...')
     feats_str  = ','.join(control_feats)
     sql = "select user_id , {0} from {1}".format(feats_str, control_table)
@@ -150,10 +150,11 @@ def load_data():
         raise
     if(cursor is not None):
         topic_df = load_topics(cursor)
-        language_df = load_tweets(cursor)
-        control_df = load_controls(cursor)
+        # language_df = load_tweets(cursor)
+        control_df = load_controls(cursor, control_feats)
+        demog_df = load_controls(cursor, demog_feats)
 
-    return topic_df, control_df
+    return topic_df, control_df, demog_df
 
 def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
@@ -259,23 +260,23 @@ def main():
 
 def myMain():
     print('myMain...')
-    language_df, control_df = load_data()
+    language_df, control_df, demog_df = load_data()
+    print ('demog_df.shape: ', demog_df.shape)
     print ('control_df.shape: ', control_df.shape)
     print ('language_df.shape: ', language_df.shape)
     control_df.set_index('user_id', inplace=True)
-    print ('control_df.shape after set_index: ', control_df.shape)
+    demog_df.set_index('user_id', inplace=True)
+    print ('control_df.shape after set_index: ', demog_df.shape)
 
-    language_df = msg_to_user_langauge(language_df)
-
-    language_df = run_tfidf_dataframe(language_df, col_name='message')
-
-    language_df.to_csv('multiplied_data.csv')
+    # language_df = msg_to_user_langauge(language_df)
+    # language_df = run_tfidf_dataframe(language_df, col_name='message')
+    # language_df.to_csv('language_data.csv')
 
     language_df = min_max_transformation(language_df)
 
-    language_df.to_csv('multiplied_transformed_data.csv')
+    language_df.to_csv('transformed_data.csv')
     #
-    # multiply(control_df, language_df, output_filename = 'multiplied_data.csv')
+    multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
 def multiply(controls, language, output_filename):
     print ('multiply...')
@@ -286,6 +287,8 @@ def multiply(controls, language, output_filename):
         all_df = pd.concat([all_df, languageMultiplyC] , axis=1, join='inner')
 
     all_df.to_csv(output_filename)
+    print ('multiplied_df.shape: ' , all_df.shape)
+    print (all_df.iloc[[0,1]])
     return all_df
 
 
