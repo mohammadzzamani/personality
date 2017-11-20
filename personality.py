@@ -290,8 +290,9 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
 
     for col in personality_df.columns:
         foldsdf = k_fold(data, folds=folds)
-        cv(data, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
-        cv(language_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
+        print (type(personality_df[[col]]))
+        cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
+        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
 
 
 def cv(data, labels, foldsdf, folds, pre):
