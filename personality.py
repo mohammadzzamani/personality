@@ -361,6 +361,7 @@ def myMain():
     print ('language_df.shape: ', language_df.shape)
     control_df.set_index('user_id', inplace=True)
     demog_df.set_index('user_id', inplace=True)
+    personality_df.set_index('user_id', inplace=True)
     print ('demog_df.shape after set_index: ', demog_df.shape)
 
     # language_df = msg_to_user_langauge(language_df)
