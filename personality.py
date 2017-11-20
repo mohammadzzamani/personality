@@ -273,10 +273,12 @@ def k_fold(data, folds=10):
     folds['fold'] = 0
     folds.set_index('user_id', inplace=True)
     print folds
-    print folds.index
+    print ('folds.index: ' , folds.index )
     for train_index, test_index in kf.split(folds.index):
         # test_index = [idx for idx in folds.index if idx in test_index]
-        folds[test_index]['fold'] = fold_number
+        # print ('test_index: ' , test_index)
+
+        folds.iloc[test_index]['fold'] = fold_number
         fold_number+=1
 
     return folds
