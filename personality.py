@@ -96,7 +96,8 @@ def load_topics(cursor, gft = 500):
     counter = 0
     for user_id in user_ids:
         counter+=1
-        sql = 'select group_id , feat, value, group_norm from {0} where group_id = \"{1}\" '.format(topic_table, user_id)
+        print user_id
+        sql = 'select group_id , feat, value, group_norm from {0} where group_id = \'{1}\' '.format(topic_table, user_id)
 
         query = cursor.execute(sql)
         result =  query.fetchall()
