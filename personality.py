@@ -25,7 +25,7 @@ personality_feats = ['big5_ope', 'big5_ext', 'big5_neu', 'big5_agr', 'big5_con']
 demog_feats = ['demog_age_fixed', 'demog_gender']
 control_feats = personality_feats + demog_feats
 
-def connectToDB(self):
+def connectToDB():
         # Create SQL engine
         myDB = URL(drivername='mysql', database=self.database, query={
             'read_default_file' : '/home/mzamani/.my.cnf' })
@@ -33,7 +33,7 @@ def connectToDB(self):
         connection = engine.connect()
         return connection
 
-def connectMysqlDB(self):
+def connectMysqlDB():
         conn = MySQLdb.connect(self.host, self.user, self.password, self.database)
         c = conn.cursor()
         return c
