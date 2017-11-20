@@ -270,9 +270,12 @@ def k_fold(data, folds=10):
     kf = KFold(n_splits=folds,shuffle=True, random_state=1)
     fold_number = 0
     folds = pd.DataFrame(data = data.index , columns=['user_id'])
+    print folds
     folds['fold'] = 0
+    print folds.index
     for train_index, test_index in kf.split(np.ones(data.shape[0])):
-        folds[test_index]['fold'] = fold_number
+
+        folds[ folds.index in test_index ]['fold'] = fold_number
         fold_number+=1
 
     return folds
