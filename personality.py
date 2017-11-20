@@ -27,14 +27,14 @@ control_feats = personality_feats + demog_feats
 
 def connectToDB():
         # Create SQL engine
-        myDB = URL(drivername='mysql', database=self.database, query={
+        myDB = URL(drivername='mysql', database=database, query={
             'read_default_file' : '/home/mzamani/.my.cnf' })
         engine = create_engine(name_or_url=myDB)
         connection = engine.connect()
         return connection
 
 def connectMysqlDB():
-        conn = MySQLdb.connect(self.host, self.user, self.password, self.database)
+        conn = MySQLdb.connect(host, user, password, database)
         c = conn.cursor()
         return c
 
