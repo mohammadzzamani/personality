@@ -79,7 +79,7 @@ def load_tweets(cursor):
 
 
 def load_1to3grams(cursor):
-    # print('load_1to3grams...')
+    print('load_1to3grams...')
     # sql = "select user_id , message from {0}".format(msg_table)
     # query = cursor.execute(sql)
     # result =  query.fetchall()
