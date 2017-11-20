@@ -91,7 +91,7 @@ def load_topics(cursor, gft = 500):
     sql = "select distinct(group_id) from {0}".format(topic_table)
     query = cursor.execute(sql)
     user_ids =  query.fetchall()
-    user_ids = user_ids[:,0]
+    user_ids = user_ids[:][0]
     topic_df = None
     counter = 0
     print type(user_ids)
