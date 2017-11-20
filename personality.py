@@ -148,7 +148,7 @@ def load_data():
         language_df = load_tweets(cursor)
         control_df = load_controls(cursor)
 
-    return language_df, control_df
+    return topic_df, control_df
 
 def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
