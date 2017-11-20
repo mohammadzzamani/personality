@@ -14,6 +14,11 @@ from happierfuntokenizing.happierfuntokenizing import Tokenizer
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import cPickle as pickle
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from Util import *
+from sklearn.linear_model import RidgeCV
+from sklearn.ensemble import GradientBoostingRegressor
 
 
 user= ''
@@ -258,6 +263,72 @@ def main():
 
     output_factors(train_uids, train_tfidf, test_uids, test_tfidf, cluster_centers, output_f)
 
+
+def k_fold(data, folds=10):
+
+    kf = KFold(n_splits=folds,shuffle=True, random_state=1)
+    fold_number = 0
+    folds = pd.DataFrame(data = data.index , columns=['user_id'])
+    folds['fold'] = 0
+    for train_index, test_index in kf.split(np.ones(data.shape[0])):
+        folds[test_index]['fold'] = fold_number
+        fold_number+=1
+
+    return folds
+
+def cross_validation(language_df, demog_df, personality_df, folds = 10):
+
+
+    data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+
+    for col in personality_df.columns:
+        foldsdf = k_fold(data, folds=folds)
+        cv(data, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
+        cv(language_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
+
+
+def cv(data, labels, foldsdf, folds, pre):
+
+    all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
+    data = all_df[[col for col in all_df.columns if col in data.columns]]
+    labels = all_df[[col for col in all_df.columns if col in labels.columns]]
+
+    ESTIMATORS = {
+            'mean':mean_est(),
+            # RidgeCV(alphas=alphas),
+            'ridgecv':RidgeCV(),
+            # 'gbr_lad':GradientBoostingRegressor(n_estimators= 300, loss='lad', random_state=1, subsample=0.75, max_depth=6, max_features=0.75), #, min_impurity_decrease=0.05),
+            # 'gbr_ls':GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75) #, min_impurity_decrease=0.05),
+            # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
+    }
+
+    YpredsAll = None
+    for i in range(folds):
+
+        # prepare train and test data
+        test_ids = foldsdf[foldsdf['fold'] == i].user_id.tolist()
+        train_ids = foldsdf[foldsdf['fold'] != i].user_id.tolist()
+        Xtrain = data[train_ids]
+        ytrain = labels[train_ids]
+        Xtest = data[test_ids]
+        ytest = labels[test_ids]
+
+        Ypreds = None
+        for estimator_name, estimator in ESTIMATORS.iteritems():
+            estimator.fit(Xtrain, ytrain)
+            ypred = estimator.predict(Xtest)
+            Ypreds = stack_folds_preds(ypred, Ypreds, 'vertical')
+            evaluate(ytest, ypred, pre=pre+'_'+i+'_'+estimator_name+'_')
+
+        Ypreds = stack_folds_preds(ytest, Ypreds, 'vertical')
+        YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'horizontal')
+
+
+    for i in range(YpredsAll.shape[0]-1):
+        evaluate(YpredsAll[YpredsAll.shape[0]-1], YpredsAll[i,:], pre=pre+'_'+i+'_')
+
+
+
 def myMain():
     print('myMain...')
     language_df, control_df, demog_df = load_data()
@@ -276,7 +347,10 @@ def myMain():
 
     language_df.to_csv('transformed_data.csv')
     #
-    multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+    # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+
+    cross_validation()
+
 
 def multiply(controls, language, output_filename):
     print ('multiply...')
