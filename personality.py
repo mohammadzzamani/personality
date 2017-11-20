@@ -274,7 +274,7 @@ def k_fold(data, folds=10):
     folds.set_index('user_id', inplace=True)
     print folds
     print folds.index
-    for train_index, test_index in kf.split(np.ones(data.shape[0])):
+    for train_index, test_index in kf.split(data.index):
         # test_index = [idx for idx in folds.index if idx in test_index]
         folds[test_index]['fold'] = fold_number
         fold_number+=1
