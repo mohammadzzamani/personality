@@ -21,6 +21,7 @@ password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
 personality_feats = ['big5_ope', 'big5_ext', 'big5_neu', 'big5_agr', 'big5_con']
 demog_feats = ['demog_age_fixed', 'demog_gender']
@@ -68,14 +69,33 @@ def load_data_train_test(fname):
     return train_tweets, train_uids, test_tweets, test_uids
 
 
-def load_language(cursor):
-    print('load_language...')
+def load_tweets(cursor):
+    print('load_tweets...')
     sql = "select user_id , message from {0}".format(msg_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
     return language_df
 
+
+def load_1to3grams(cursor):
+    # print('load_1to3grams...')
+    # sql = "select user_id , message from {0}".format(msg_table)
+    # query = cursor.execute(sql)
+    # result =  query.fetchall()
+    # language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
+    # return language_df
+
+def load_topics(cursor):
+    print('load_topics...')
+    sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    query = cursor.execute(sql)
+    result =  query.fetchall()
+    topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    print ('topic_df.shape: ' , topic_df.shape)
+    topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
+    print ('topic_df.shape after pivot: ' , topic_df.shape)
+    return topic_df
 
 def load_controls(cursor):
     print('load_controls...')
@@ -104,7 +124,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        language_df = load_language(cursor)
+        topic_df = load_topics(cursor)
+        language_df = load_tweets(cursor)
         control_df = load_controls(cursor)
 
     return language_df, control_df
