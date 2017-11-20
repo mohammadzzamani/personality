@@ -130,8 +130,16 @@ def run_tfidf(train_tweets, test_tweets=[]):
     else:
         return train_tfidf
 
-
-
+def run_tfidf_dataframe(data, index_name=''):
+    print ('run_tfidf_dataframe...')
+    tfidf = run_tfidf(data.values)
+    print ('type(tfidf): ' , type(tfidf))
+    print ('tfidf.shape: ', tfidf.shape )
+    if (len(index_name) > 0):
+        data = pd.DataFrame(data = tfidf, index = data[index_name])
+    else:
+        data = pd.DataFrame(data = tfidf, index = data.index)
+    return data
 
 
 def run_kmeans(train_tfidf, d):
@@ -198,10 +206,10 @@ def myMain():
     print ('control_df.shape after set_index: ', control_df.shape)
 
     language_df = msg_to_user_langauge(language_df)
+
+    language_df = run_tfidf_dataframe(language_df)
+
     language_df = min_max_transformation(language_df)
-
-
-    language_df.set_index('user_id', inplace=True)
 
     multiply(control_df, language_df, output_filename = 'multiplied_data.csv')
 
