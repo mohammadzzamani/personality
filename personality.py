@@ -94,6 +94,8 @@ def load_topics(cursor, gft = 500):
 
     topic_df = None
     counter = 0
+    print type(user_ids)
+    print user_ids
     for user_id in user_ids:
         counter+=1
         print user_id
