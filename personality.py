@@ -204,4 +204,4 @@ def min_max_transformation(data):
     # return data
 
 if __name__ == '__main__':
-    main()
+    myMain()
