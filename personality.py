@@ -364,8 +364,8 @@ def cv(data, labels, foldsdf, folds, pre):
         print ('ypredsAll.shape: ' , YpredsAll.shape)
 
 
-    for i in range(YpredsAll.shape[0]-1):
-        evaluate(YpredsAll[:,YpredsAll.shape[1]-1], YpredsAll[:,i], pre=pre+'_'+str(i)+'_')
+    for i in range(YpredsAll.shape[1]-1):
+        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,i].transpose(), pre=pre+'_'+str(i)+'_')
 
 
 
