@@ -356,15 +356,16 @@ def cv(data, labels, foldsdf, folds, pre):
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
-            Ypreds = stack_folds_preds(ypred, Ypreds, 'vertical')
+            Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+estimator_name+'_')
 
-        Ypreds = stack_folds_preds(ytest, Ypreds, 'vertical')
-        YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'horizontal')
+        Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
+        YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
+        print ('ypredsAll.shape: ' , YpredsAll.shape)
 
 
     for i in range(YpredsAll.shape[0]-1):
-        evaluate(YpredsAll[YpredsAll.shape[0]-1], YpredsAll[i,:], pre=pre+'_'+str(i)+'_')
+        evaluate(YpredsAll[:,YpredsAll.shape[1]-1], YpredsAll[:,i], pre=pre+'_'+str(i)+'_')
 
 
 
