@@ -133,6 +133,7 @@ def load_topics(cursor, gft = 500):
 def load_controls(cursor, control_feats = control_feats):
     print('load_controls...')
     feats_str  = ','.join(control_feats)
+    print ('feats_str: ' , feats_str)
     sql = "select user_id , {0} from {1}".format(feats_str, control_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
