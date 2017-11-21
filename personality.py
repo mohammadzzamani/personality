@@ -94,37 +94,37 @@ def load_1to3grams(cursor):
 
 def load_topics(cursor, gft = 500):
     print('load_topics...')
-    limit = 5000
-    sql = "select distinct(group_id) from {0} order by rand() limit {1}".format(topic_table, limit)
-    query = cursor.execute(sql)
-    user_ids =  query.fetchall()
-
-    topic_df = None
-    counter = 0
-    for user_id in user_ids:
-        user_id = user_id[0]
-        counter+=1
-        sql = 'select group_id , feat, group_norm from {0} where group_id = \'{1}\' '.format(topic_table, user_id)
-        query = cursor.execute(sql)
-        result =  query.fetchall()
-        result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'group_norm'])
-        # uwt = result_df.value.sum()
-        # if counter % gft == 1:
-        #     print (sql)
-        #     print ('uwt: ' , uwt, ' , ', result_df.shape)
-        # if uwt >= gft:
-        # if topic_df is not None:
-        #     topic_df = pd.concat([topic_df,result_df])
-        # else:
-        topic_df = result_df if topic_df is  None else pd.concat([topic_df,result_df])
-        if counter % gft == 0:
-            print (counter , '  ' , topic_df.shape)
-
-
-    # sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    # limit = 5000
+    # sql = "select distinct(group_id) from {0} order by rand() limit {1}".format(topic_table, limit)
     # query = cursor.execute(sql)
-    # result =  query.fetchall()
-    # topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    # user_ids =  query.fetchall()
+    #
+    # topic_df = None
+    # counter = 0
+    # for user_id in user_ids:
+    #     user_id = user_id[0]
+    #     counter+=1
+    #     sql = 'select group_id , feat, group_norm from {0} where group_id = \'{1}\' '.format(topic_table, user_id)
+    #     query = cursor.execute(sql)
+    #     result =  query.fetchall()
+    #     result_df = pd.DataFrame(data = result, columns = ['user_id', 'feat', 'group_norm'])
+    #     # uwt = result_df.value.sum()
+    #     # if counter % gft == 1:
+    #     #     print (sql)
+    #     #     print ('uwt: ' , uwt, ' , ', result_df.shape)
+    #     # if uwt >= gft:
+    #     # if topic_df is not None:
+    #     #     topic_df = pd.concat([topic_df,result_df])
+    #     # else:
+    #     topic_df = result_df if topic_df is  None else pd.concat([topic_df,result_df])
+    #     if counter % gft == 0:
+    #         print (counter , '  ' , topic_df.shape)
+
+
+    sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    query = cursor.execute(sql)
+    result =  query.fetchall()
+    topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
     print ('topic_df.shape after pivot: ' , topic_df.shape)
