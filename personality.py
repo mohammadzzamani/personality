@@ -287,7 +287,6 @@ def k_fold(data, folds=10):
 
 def cross_validation(language_df, demog_df, personality_df, folds = 10):
 
-
     data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
     for col in personality_df.columns:
@@ -297,6 +296,16 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
 
 
+
+def mach_ids(dataList):
+    for data in dataList:
+        all_df = data if all_df is None else pd.merge(all_df, data, how='inner', left_index=True, right_index=True)
+
+    for i in range(len(dataList)):
+        data[i] = all_df[[col for col in all_df.columns if col in data[i].columns]]
+
+    return dataList
+
 def cv(data, labels, foldsdf, folds, pre):
 
     print 'data: ' , data
@@ -304,12 +313,17 @@ def cv(data, labels, foldsdf, folds, pre):
     print 'labels: ' , labels
 
     print 'foldsdf: ' , foldsdf
-    all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
-    all_df = pd.merge(all_df, foldsdf, how='inner', left_index=True, right_index=True)
-    data = all_df[[col for col in all_df.columns if col in data.columns]]
-    labels = all_df[[col for col in all_df.columns if col in labels.columns]]
-    foldsdf = all_df[[col for col in all_df.columns if col in foldsdf.columns]]
 
+
+    [data, labels, foldsdf] = mach_ids([data, labels, foldsdf])
+
+    # all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
+    # all_df = pd.merge(all_df, foldsdf, how='inner', left_index=True, right_index=True)
+    # data = all_df[[col for col in all_df.columns if col in data.columns]]
+    # labels = all_df[[col for col in all_df.columns if col in labels.columns]]
+    # foldsdf = all_df[[col for col in all_df.columns if col in foldsdf.columns]]
+
+    data.fillna(data.mean(), inplace=True)
 
     print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
