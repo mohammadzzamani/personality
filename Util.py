@@ -226,6 +226,6 @@ def mach_ids(dataList):
         all_df = data if all_df is None else pd.merge(all_df, data, how='inner', left_index=True, right_index=True)
 
     for i in range(len(dataList)):
-        data[i] = all_df[[col for col in all_df.columns if col in data[i].columns]]
+        dataList[i] = all_df[[col for col in all_df.columns if col in dataList[i].columns]]
 
     return dataList
