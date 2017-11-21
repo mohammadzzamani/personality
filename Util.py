@@ -25,7 +25,11 @@ def stack_folds_preds( pred_fold, pred_all=None, type='vertical'):
     if pred_all is None:
         pred_all = pred_fold
     else:
-        pred_all = np.vstack((pred_all, pred_fold)) if type=='vertical' else np.hstack((pred_all, pred_fold))
+        try:
+            pred_all = np.vstack((pred_all, pred_fold)) if type=='vertical' else np.hstack((pred_all, pred_fold))
+        except:
+            print ( pred_all.shape, '  ' , pred_fold.shape, ' type: ' , type )
+            raise
     return pred_all
 
 
