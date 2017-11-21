@@ -282,24 +282,25 @@ def k_fold(data, folds=10):
     print ('folds.index: ' , folds.index )
     for train_index, test_index in kf.split(folds.index):
         # test_index = [idx for idx in folds.index if idx in test_index]
-        print ('test_index: ' , test_index.shape)
-        print (test_index.tolist())
+        # print ('test_index: ' , test_index.shape)
+        # print (test_index.tolist())
         # mask = folds.index in test_index
         folds.iloc[test_index.tolist(),folds.columns.get_loc('fold')] = fold_number
-        print (folds.iloc[test_index])
+        # print (folds.iloc[test_index])
         fold_number+=1
 
     return folds
 
 def cross_validation(language_df, demog_df, personality_df, folds = 10):
-
+    print ('cross_validation...')
     data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
-
+    foldsdf = k_fold(data, folds=folds)
+    print (data.shape , '  ,  ' , language_df.shape)
     for col in personality_df.columns:
-        foldsdf = k_fold(data, folds=folds)
         print (type(personality_df[[col]]))
-        cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
+        cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
+
 
 
 def cv(data, labels, foldsdf, folds, pre):
