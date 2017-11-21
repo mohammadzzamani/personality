@@ -132,13 +132,13 @@ def load_topics(cursor, gft = 500):
 
 def load_controls(cursor, control_feats = control_feats):
     print('load_controls...')
-    feats_str  = ','.join(control_feats)
+    feats_str  = ' , '.join(control_feats)
     print ('feats_str: ' , feats_str)
     sql = "select user_id , {0} from {1}".format(feats_str, control_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = ['user_id'] + control_feats)
-    control_df.dropna(axis=1, how='any', inplace=True)
+    control_df.dropna(axis=0, how='any', inplace=True)
     return control_df
 
 
