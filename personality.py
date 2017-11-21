@@ -159,8 +159,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        # topic_df = load_topics(cursor)
-        topic_df = pd.read_csv('multiplied_transformed_data.csv')
+        topic_df = load_topics(cursor)
+        # topic_df = pd.read_csv('multiplied_transformed_data.csv')
         # language_df = load_tweets(cursor)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
