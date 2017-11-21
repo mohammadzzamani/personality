@@ -26,7 +26,7 @@ password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
-topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$r5k'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
 control_table = 'masterstats'
 personality_feats = ['big5_ope', 'big5_ext', 'big5_neu', 'big5_agr', 'big5_con']
 demog_feats = ['demog_age_fixed', 'demog_gender']
@@ -349,6 +349,7 @@ def cv(data, labels, foldsdf, folds, pre):
         for estimator_name, estimator in ESTIMATORS.iteritems():
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
+            ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
             Ypreds = stack_folds_preds(ypred, Ypreds, 'vertical')
             evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+estimator_name+'_')
 
