@@ -119,7 +119,7 @@ def load_topics(cursor, gft = 500):
         topic_df = result_df if topic_df is  None else pd.concat([topic_df,result_df])
         if counter % gft == 0:
             print (counter , '  ' , topic_df.shape)
-        
+
 
     # sql = "select group_id , feat, group_norm from {0}".format(topic_table)
     # query = cursor.execute(sql)
@@ -137,6 +137,7 @@ def load_controls(cursor, control_feats = control_feats):
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = ['user_id'] + control_feats)
+    control_df.dropna(axis=1, how='any', inplace=True)
     return control_df
 
 
@@ -157,7 +158,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        topic_df = load_topics(cursor)
+        # topic_df = load_topics(cursor)
+        topic_df = pd.read_csv('multiplied_transformed_data.csv')
         # language_df = load_tweets(cursor)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
@@ -301,11 +303,11 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
 
 def cv(data, labels, foldsdf, folds, pre):
 
-    print 'data: ' , data
-
-    print 'labels: ' , labels
-
-    print 'foldsdf: ' , foldsdf
+    # print 'data: ' , data
+    #
+    # print 'labels: ' , labels
+    #
+    # print 'foldsdf: ' , foldsdf
 
 
     [data, labels, foldsdf] = mach_ids([data, labels, foldsdf])
