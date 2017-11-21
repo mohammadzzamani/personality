@@ -296,16 +296,6 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
 
 
-
-def mach_ids(dataList):
-    for data in dataList:
-        all_df = data if all_df is None else pd.merge(all_df, data, how='inner', left_index=True, right_index=True)
-
-    for i in range(len(dataList)):
-        data[i] = all_df[[col for col in all_df.columns if col in data[i].columns]]
-
-    return dataList
-
 def cv(data, labels, foldsdf, folds, pre):
 
     print 'data: ' , data

@@ -216,3 +216,16 @@ def prepare_final_submission(submission_df, Ypred, type=0, output_filename='data
     # final_submission_name = 'data/final_submission_outlierDetection.csv'
 
     submission_df.to_csv(output_filename)
+
+
+
+
+def mach_ids(dataList):
+    all_df = None
+    for data in dataList:
+        all_df = data if all_df is None else pd.merge(all_df, data, how='inner', left_index=True, right_index=True)
+
+    for i in range(len(dataList)):
+        data[i] = all_df[[col for col in all_df.columns if col in data[i].columns]]
+
+    return dataList
