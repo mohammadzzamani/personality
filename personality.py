@@ -398,6 +398,7 @@ def multiply(controls, language, output_filename):
     print ('controls.shape: ' , controls.shape)
     all_df = language
     for col in controls.columns:
+        print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
         languageMultiplyC = language.multiply(controls[col], axis="index")
         languageMultiplyC.columns = [ s+'_'+col for s in language.columns]
         all_df = pd.concat([all_df, languageMultiplyC] , axis=1, join='inner')
