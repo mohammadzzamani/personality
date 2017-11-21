@@ -324,15 +324,15 @@ def cv(data, labels, foldsdf, folds, pre):
 
     print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
-    ESTIMATORS = {
-            'mean':mean_est(),
+    ESTIMATORS = [
+            mean_est(),
             # RidgeCV(alphas=alphas),
-            'ridgecv':RidgeCV(),
+            RidgeCV(),
             # 'gbr_lad':GradientBoostingRegressor(n_estimators= 300, loss='lad', random_state=1, subsample=0.75, max_depth=6, max_features=0.75), #, min_impurity_decrease=0.05),
             # 'gbr_ls':GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75) #, min_impurity_decrease=0.05),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
-    }
-
+    ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv']
     YpredsAll = None
     for i in range(folds):
 
@@ -353,12 +353,13 @@ def cv(data, labels, foldsdf, folds, pre):
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
         Ypreds = None
-        for estimator_name, estimator in ESTIMATORS.iteritems():
+        for i in range(len(ESTIMATORS)):
+            estimator = ESTIMATORS[i]
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
-            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+estimator_name+'_')
+            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[i]+'_')
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
@@ -366,7 +367,7 @@ def cv(data, labels, foldsdf, folds, pre):
 
 
     for i in range(YpredsAll.shape[1]-1):
-        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,i].transpose(), pre=pre+'_'+ESTIMATORS[i]+'_')
+        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,i].transpose(), pre=pre+'_'+ESTIMATORS_NAME[i]+'_')
 
 
 
