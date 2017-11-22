@@ -107,7 +107,7 @@ def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', trnsfrm = None, sto
             data = pd.DataFrame(data = np.hstack((yt,yp)))
 
             if store == True:
-                myfile.write(pre + '\t mae: \t' + str(mae)+ '\t mse: \t' + str(mse) + '\t corr: \t' + data.corr()[0][1] + ' \n' )
+                myfile.write(pre + '\t mae: \t' + str(mae)+ '\t mse: \t' + str(mse) + '\t corr: \t' + str(data.corr()[0][1]) + ' \n' )
             print (pre, ' mae: ' , mae, ' , mse: ', mse)
 
 
