@@ -307,8 +307,8 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     data.set_index('user_id', inplace=True)
     print (data.shape, ' , ', data.columns)
 
-    language_df = pd.read_csv('csv/language.csv')
-    language_df.set_index('user_id', inplace=True)
+    # language_df = pd.read_csv('csv/language.csv')
+    # language_df.set_index('user_id', inplace=True)
 
     demog_df = pd.read_csv('csv/demog.csv')
     demog_df.set_index('user_id', inplace=True)
@@ -435,10 +435,12 @@ def cv(data, labels, foldsdf, folds, pre):
 
 def myMain():
     print('myMain...')
-    # language_df, control_df, demog_df, personality_df = load_data()
+    language_df, control_df, demog_df, personality_df = load_data()
     # print ('demog_df.shape: ', demog_df.shape)
     # print ('control_df.shape: ', control_df.shape)
-    # print ('language_df.shape: ', language_df.shape)
+    print ('language_df.shape: ', language_df.shape)
+    language_df.set_index('user_id', inplace=True)
+    print ('language_df.shape: ', language_df.shape)
     # control_df.set_index('user_id', inplace=True)
     # demog_df.set_index('user_id', inplace=True)
     # personality_df.set_index('user_id', inplace=True)
@@ -452,7 +454,7 @@ def myMain():
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
     # cross_validation(language_df, demog_df, personality_df)
 
-    cross_validation(folds=10)
+    cross_validation(language_df=language_df, folds=10)
 
 
 def multiply(controls, language, output_filename,  all_df = None):
