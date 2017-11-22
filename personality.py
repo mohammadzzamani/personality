@@ -391,13 +391,12 @@ def cv(data, labels, foldsdf, folds, pre):
     ESTIMATORS = [
             mean_est(),
             RidgeCV(alphas=alphas),
-            LassoCV,
             GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
             GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             KNeighborsRegressor(n_neighbors=25)
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'lassocv', 'gbr_lad','gbr_ls' , 'knn' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_lad','gbr_ls' , 'knn' ]
     YpredsAll = None
     for i in range(folds):
 
