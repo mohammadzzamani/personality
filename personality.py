@@ -318,7 +318,8 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
 
 
     [data, language_df, demog_df, personality_df] = match_ids([data, language_df, demog_df, personality_df])
-
+    data.fillna(data.mean(), inplace=True)
+    language_df.fillna(language_df.mean(), inplace=True)
 
     pca = PCA(n_components=2)
     dataPCA = pca.fit_transform(data)
@@ -347,6 +348,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
         # data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
         data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
         data_all_factors.set_index('user_id', inplace=True)
+        data_all_factors.fillna(data_all_factors.mean(), inplace=True)
         pca = PCA(n_components=100)
         data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
         data_all_factors.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
@@ -362,7 +364,7 @@ def cv(data, labels, foldsdf, folds, pre):
     # print 'foldsdf: ' , foldsdf
 
 
-    [data, labels, foldsdf] = mach_ids([data, labels, foldsdf])
+    [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
 
     # all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
     # all_df = pd.merge(all_df, foldsdf, how='inner', left_index=True, right_index=True)
