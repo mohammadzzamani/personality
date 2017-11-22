@@ -89,7 +89,7 @@ class mean_est:
 #             print ('accuracy: ' , (2-mae)/2)
 #     return [mae , mse]
 
-def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', trnsfrm = None):
+def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', trnsfrm = None, store=True):
     print ('evaluate...')
     if not trnsfrm is None:
         Ytrue = trnsfrm.transform_back(Ytrue)
@@ -102,7 +102,8 @@ def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', trnsfrm = None):
     with open("res.txt", "a") as myfile:
         if type is 'regression':
             # print ('type: ' , type)
-            myfile.write(pre + 'mae: ' + str(mae)+ ' , mse: ' + str(mse) + ' \n' )
+            if store == True:
+                myfile.write(pre + 'mae: ' + str(mae)+ ' , mse: ' + str(mse) + ' \n' )
             print (pre, ' mae: ' , mae, ' , mse: ', mse)
         elif type is 'classification2':
             print ('accuracy: ' , (2-mae)/2)
