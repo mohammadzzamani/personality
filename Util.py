@@ -229,7 +229,6 @@ def prepare_final_submission(submission_df, Ypred, type=0, output_filename='data
 
 
 
-
 def match_ids(dataList):
     users = None
     for data in dataList:

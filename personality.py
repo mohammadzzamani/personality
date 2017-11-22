@@ -317,6 +317,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     personality_df.set_index('user_id', inplace=True)
 
     print ('language_df.shape is: ' , language_df.shape)
+    print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
     [data, language_df, demog_df, personality_df] = match_ids([data, language_df, demog_df, personality_df])
     print ('language_df.shape is: ' , language_df.shape)
     data.fillna(data.mean(), inplace=True)
