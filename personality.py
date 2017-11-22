@@ -332,6 +332,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     pca = PCA(n_components=50)
     dataPCA = pca.fit_transform(language_df)
     print ('languagedf PCA: ')
+    print ( language_df.iloc[1:2,:])
     print (language_df.shape)
     print (dataPCA[0:1,:])
     print (language_df.index[0:1])
