@@ -355,7 +355,7 @@ def cv(data, labels, foldsdf, folds, pre):
 
         Ypreds = None
         for j in range(len(ESTIMATORS)):
-            estimator = ESTIMATORS[i]
+            estimator = ESTIMATORS[j]
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
