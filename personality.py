@@ -293,9 +293,11 @@ def k_fold(data, folds=10):
 
 def cross_validation(language_df, demog_df, personality_df, folds = 10):
     print ('cross_validation...')
-    data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+    data = multiply(demog_df, language_df, output_filename = 'multiplied_data.csv')
 
-
+    language_df.to_csv('language.csv')
+    demog_df.to_csv('demog.csv')
+    personality_df.to_csv('personlity.csv')
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
     foldsdf = k_fold(data, folds=folds)
@@ -304,7 +306,7 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
         print (type(personality_df[[col]]))
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
         cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
-        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != 'col'], language_df, output_filename = 'multiplied_transformed_data.csv', all_df=data)
+        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'multiplied_'+col+'_data.csv', all_df=data)
         cv(data_all_factors, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
 
 
@@ -402,10 +404,10 @@ def myMain():
 
 def multiply(controls, language, output_filename,  all_df = None):
     print ('multiply...')
-    print ('shapes: ', controls.shape, language.shape)
+
     if all_df is None:
         all_df = language
-        print ('all_df.shape: ' , all_df.shape)
+    print ('shapes: ', controls.shape, language.shape , all_df.shape)
     for col in controls.columns:
         print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
         languageMultiplyC = language.multiply(controls[col], axis="index")
