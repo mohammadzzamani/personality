@@ -232,7 +232,8 @@ def prepare_final_submission(submission_df, Ypred, type=0, output_filename='data
 def match_ids(dataList):
     users = None
     for data in dataList:
-        users = pd.DataFrame(index=data.index) if users is None else pd.merge(users.index, data.index, how='inner', left_index=True, right_index=True)
+        # users = pd.DataFrame(index=data.index) if users is None else pd.merge(users, data, how='inner', left_index=True, right_index=True)
+        users = data.index if users is None else users.intersection(data.index)
 
     for i in range(len(dataList)):
         # dataList[i] = all_df[[col for col in all_df.columns if col in dataList[i].columns]]
