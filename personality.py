@@ -294,6 +294,9 @@ def k_fold(data, folds=10):
 def cross_validation(language_df, demog_df, personality_df, folds = 10):
     print ('cross_validation...')
     data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+
+
+
     # data = pd.read_csv('multiplied_transformed_data.csv')
     foldsdf = k_fold(data, folds=folds)
     print (data.shape , '  ,  ' , language_df.shape)
@@ -301,7 +304,8 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
         print (type(personality_df[[col]]))
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
         cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
-
+        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != 'col'], language_df, output_filename = 'multiplied_transformed_data.csv', all_df=data)
+        cv(data_all_factors, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
 
 
 def cv(data, labels, foldsdf, folds, pre):
@@ -360,7 +364,7 @@ def cv(data, labels, foldsdf, folds, pre):
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
-            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_')
+            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
@@ -396,11 +400,12 @@ def myMain():
     cross_validation(language_df, demog_df, personality_df)
 
 
-def multiply(controls, language, output_filename):
+def multiply(controls, language, output_filename,  all_df = None):
     print ('multiply...')
     print ('language.shape: ', language.shape)
     print ('controls.shape: ' , controls.shape)
-    all_df = language
+    if all_df == None:
+        all_df = language
     for col in controls.columns:
         print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
         languageMultiplyC = language.multiply(controls[col], axis="index")
