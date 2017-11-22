@@ -21,18 +21,21 @@ from sklearn.linear_model import RidgeCV, LassoCV
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.decomposition import PCA
+from scipy.sparse import csr_matrix
 
 user= ''
 password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
-# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
-topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
+# topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
+ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
 personality_feats = ['big5_ope', 'big5_ext', 'big5_neu', 'big5_agr', 'big5_con']
 demog_feats = ['demog_age_fixed', 'demog_gender']
 control_feats = personality_feats + demog_feats
+
 
 alphas=[0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001 , 0.0001,0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000]
 
@@ -89,11 +92,22 @@ def load_tweets(cursor):
 
 def load_1to3grams(cursor):
     print('load_1to3grams...')
-    # sql = "select user_id , message from {0}".format(msg_table)
-    # query = cursor.execute(sql)
-    # result =  query.fetchall()
-    # language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
-    # return language_df
+    sql = "select distinct( feat) from {0}".format(ngrams_table)
+    query = cursor.execute(sql)
+    result =  query.fetchall()
+    words = []
+    for res in result:
+        words.append(res[0])
+
+    sql = "select group_id , feat, group_norm from {0}".format(ngrams_table)
+    query = cursor.execute(sql)
+    result =  query.fetchall()
+    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    language_df.feat = language_df.feat.map(lambda x: words.index(x))
+    language_df = csr_matrix()
+    print (language_df.iloc[0:2])
+
+    return language_df
 
 def load_topics(cursor, gft = 500):
     print('load_topics...')
@@ -296,58 +310,55 @@ def k_fold(data, folds=10):
 
 def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 10):
     print ('cross_validation...')
-    # data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
-    # language_df.to_csv('csv/language.csv')
-    # demog_df.to_csv('csv/demog.csv')
-    # personality_df.to_csv('csv/personlity.csv')
+    data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+    language_df.to_csv('csv/language.csv')
+    demog_df.to_csv('csv/demog.csv')
+    personality_df.to_csv('csv/personlity.csv')
 
 
 
-    data = pd.read_csv('csv/multiplied_data.csv')
-    data.set_index('user_id', inplace=True)
-    print (data.shape, ' , ', data.columns)
 
-    # language_df = pd.read_csv('csv/language.csv')
-    # language_df.set_index('user_id', inplace=True)
+    # data = pd.read_csv('csv/multiplied_data.csv')
+    # data.set_index('user_id', inplace=True)
+    # print (data.shape, ' , ', data.columns)
 
-    demog_df = pd.read_csv('csv/demog.csv')
-    demog_df.set_index('user_id', inplace=True)
-    print (demog_df.shape, ' , ', demog_df.columns)
-    personality_df = pd.read_csv('csv/personlity.csv')
-    personality_df.set_index('user_id', inplace=True)
+    ## language_df = pd.read_csv('csv/language.csv')
+    ## language_df.set_index('user_id', inplace=True)
+
+    # demog_df = pd.read_csv('csv/demog.csv')
+    # demog_df.set_index('user_id', inplace=True)
+    # print (demog_df.shape, ' , ', demog_df.columns)
+    # personality_df = pd.read_csv('csv/personlity.csv')
+    # personality_df.set_index('user_id', inplace=True)
 
     print ('language_df.shape is: ' , language_df.shape)
-    print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
+    # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
     [data, language_df, demog_df, personality_df] = match_ids([data, language_df, demog_df, personality_df])
-    print ('language_df.shape is: ' , language_df.shape)
     data.fillna(data.mean(), inplace=True)
     language_df.fillna(language_df.mean(), inplace=True)
-    print ('language_df.shape is: ' , language_df.shape)
 
     pca = PCA(n_components=300)
     dataPCA = pca.fit_transform(data)
-    print ('data PCA: ')
-    print (data.shape)
-    print (dataPCA[0:1,:])
-    print (data.index[0:1])
+    # print ('data PCA: ')
+    # print (data.shape)
+    # print (dataPCA[0:1,:])
+    # print (data.index[0:1])
     data = pd.DataFrame(data = dataPCA, index=data.index)
 
     pca = PCA(n_components=200)
-
-    print ('languagedf PCA: ')
-    print ( language_df.iloc[1:2,:])
-    print (language_df.shape)
+    # print ('languagedf PCA: ')
+    # print ( language_df.iloc[1:2,:])
+    # print (language_df.shape)
     dataPCA = pca.fit_transform(language_df)
-    print (dataPCA[0:1,:])
-    print (language_df.index[0:1])
+    # print (dataPCA[0:1,:])
+    # print (language_df.index[0:1])
     language_df = pd.DataFrame(data = dataPCA, index=language_df.index)
 
 
 
     data.to_csv('csv/multiplied_data_pca.csv')
     language_df.to_csv('csv/language_pca.csv')
-    demog_df.to_csv('csv/demog_pca.csv')
-    personality_df.to_csv('csv/personlity_pca.csv')
+
 
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
@@ -357,9 +368,9 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
         print (type(personality_df[[col]]))
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
         cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
-        # data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
-        data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
-        data_all_factors.set_index('user_id', inplace=True)
+        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
+        # data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
+        # data_all_factors.set_index('user_id', inplace=True)
         data_all_factors.fillna(data_all_factors.mean(), inplace=True)
         pca = PCA(n_components=500)
         data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
@@ -438,13 +449,17 @@ def cv(data, labels, foldsdf, folds, pre):
 def myMain():
     print('myMain...')
     language_df, control_df, demog_df, personality_df = load_data()
-    # print ('demog_df.shape: ', demog_df.shape)
-    # print ('control_df.shape: ', control_df.shape)
+    print ('demog_df.shape: ', demog_df.shape)
+    print ('control_df.shape: ', control_df.shape)
     print ('language_df.shape: ', language_df.shape)
+    print ( 'personality_df.shape: ', personality_df.shape)
 
-    # control_df.set_index('user_id', inplace=True)
-    # demog_df.set_index('user_id', inplace=True)
-    # personality_df.set_index('user_id', inplace=True)
+    control_df.set_index('user_id', inplace=True)
+    demog_df.set_index('user_id', inplace=True)
+    personality_df.set_index('user_id', inplace=True)
+    if 'user_id' in language_df.columns:
+        language_df.set_index('user_id', inplace=True)
+        print 'user_id was not index ------------------'
     # print ('demog_df.shape after set_index: ', demog_df.shape)
 
     # language_df = msg_to_user_langauge(language_df)
@@ -453,9 +468,9 @@ def myMain():
     # language_df = min_max_transformation(language_df)
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
-    # cross_validation(language_df, demog_df, personality_df)
+    cross_validation(language_df, demog_df, personality_df)
 
-    cross_validation(language_df=language_df, folds=10)
+    # cross_validation(language_df=language_df, folds=10)
 
 
 def multiply(controls, language, output_filename,  all_df = None):
