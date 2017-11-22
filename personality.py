@@ -316,10 +316,12 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     personality_df = pd.read_csv('csv/personlity.csv')
     personality_df.set_index('user_id', inplace=True)
 
-
+    print ('language_df.shape is: ' , language_df.shape)
     [data, language_df, demog_df, personality_df] = match_ids([data, language_df, demog_df, personality_df])
+    print ('language_df.shape is: ' , language_df.shape)
     data.fillna(data.mean(), inplace=True)
     language_df.fillna(language_df.mean(), inplace=True)
+    print ('language_df.shape is: ' , language_df.shape)
 
     pca = PCA(n_components=75)
     dataPCA = pca.fit_transform(data)
@@ -439,7 +441,7 @@ def myMain():
     # print ('demog_df.shape: ', demog_df.shape)
     # print ('control_df.shape: ', control_df.shape)
     print ('language_df.shape: ', language_df.shape)
-    
+
     # control_df.set_index('user_id', inplace=True)
     # demog_df.set_index('user_id', inplace=True)
     # personality_df.set_index('user_id', inplace=True)
