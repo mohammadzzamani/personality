@@ -402,10 +402,10 @@ def myMain():
 
 def multiply(controls, language, output_filename,  all_df = None):
     print ('multiply...')
-    print ('language.shape: ', language.shape)
-    print ('controls.shape: ' , controls.shape)
-    if all_df == None:
+    print ('shapes: ', controls.shape, language.shape)
+    if all_df is None:
         all_df = language
+        print ('all_df.shape: ' , all_df.shape)
     for col in controls.columns:
         print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
         languageMultiplyC = language.multiply(controls[col], axis="index")
