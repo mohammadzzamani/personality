@@ -19,7 +19,8 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from Util import *
 from sklearn.linear_model import RidgeCV, LassoCV
 from sklearn.ensemble import GradientBoostingRegressor
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.decomposition import PCA
 
 user= ''
 password = ''
@@ -293,13 +294,33 @@ def k_fold(data, folds=10):
 
     return folds
 
-def cross_validation(language_df, demog_df, personality_df, folds = 10):
+def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 10):
     print ('cross_validation...')
-    data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+    # data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+    # language_df.to_csv('csv/language.csv')
+    # demog_df.to_csv('csv/demog.csv')
+    # personality_df.to_csv('csv/personlity.csv')
 
-    language_df.to_csv('csv/language.csv')
-    demog_df.to_csv('csv/demog.csv')
-    personality_df.to_csv('csv/personlity.csv')
+    data = pd.read_csv('csv/multiplied_data.csv')
+    print (data.shape, ' , ', data.columns)
+    pca = PCA(n_components=75)
+    data = pd.DataFrame(data = pca.fit_transform(data), index=data.index)
+
+
+    language_df = pd.read_csv('csv/language.csv')
+    pca = PCA(n_components=50)
+    language_df = pd.DataFrame(data = pca.fit_transform(language_df), index=language_df.index)
+
+    demog_df = pd.read_csv('csv/demog.csv')
+    print (demog_df.shape, ' , ', demog_df.columns)
+    personality_df = pd.read_csv('csv/personlity.csv')
+
+
+    data.to_csv('csv/multiplied_data_pca.csv')
+    language_df.to_csv('csv/language_pca.csv')
+    demog_df.to_csv('csv/demog_pca.csv')
+    personality_df.to_csv('csv/personlity_pca.csv')
+
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
     foldsdf = k_fold(data, folds=folds)
@@ -308,7 +329,11 @@ def cross_validation(language_df, demog_df, personality_df, folds = 10):
         print (type(personality_df[[col]]))
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
         cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
-        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
+        # data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
+        data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
+        pca = PCA(n_components=100)
+        data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
+        data_all_factors.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
         cv(data_all_factors, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
 
 
@@ -338,11 +363,11 @@ def cv(data, labels, foldsdf, folds, pre):
             RidgeCV(alphas=alphas),
             LassoCV,
             GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75) #, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
-
+            KNeighborsRegressor(n_neighbors=25)
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'lassocv', 'gbr_lad','gbr_ls' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'lassocv', 'gbr_lad','gbr_ls' , 'knn' ]
     YpredsAll = None
     for i in range(folds):
 
@@ -383,26 +408,24 @@ def cv(data, labels, foldsdf, folds, pre):
 
 def myMain():
     print('myMain...')
-    language_df, control_df, demog_df, personality_df = load_data()
-    print ('demog_df.shape: ', demog_df.shape)
-    print ('control_df.shape: ', control_df.shape)
-    print ('language_df.shape: ', language_df.shape)
-    control_df.set_index('user_id', inplace=True)
-    demog_df.set_index('user_id', inplace=True)
-    personality_df.set_index('user_id', inplace=True)
-    print ('demog_df.shape after set_index: ', demog_df.shape)
+    # language_df, control_df, demog_df, personality_df = load_data()
+    # print ('demog_df.shape: ', demog_df.shape)
+    # print ('control_df.shape: ', control_df.shape)
+    # print ('language_df.shape: ', language_df.shape)
+    # control_df.set_index('user_id', inplace=True)
+    # demog_df.set_index('user_id', inplace=True)
+    # personality_df.set_index('user_id', inplace=True)
+    # print ('demog_df.shape after set_index: ', demog_df.shape)
 
     # language_df = msg_to_user_langauge(language_df)
     # language_df = run_tfidf_dataframe(language_df, col_name='message')
     # language_df.to_csv('language_data.csv')
-
     # language_df = min_max_transformation(language_df)
-
     # language_df.to_csv('transformed_data.csv')
-    #
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+    # cross_validation(language_df, demog_df, personality_df)
 
-    cross_validation(language_df, demog_df, personality_df)
+    cross_validation(folds=10)
 
 
 def multiply(controls, language, output_filename,  all_df = None):
@@ -416,6 +439,7 @@ def multiply(controls, language, output_filename,  all_df = None):
         languageMultiplyC = language.multiply(controls[col], axis="index")
         languageMultiplyC.columns = [ s+'_'+col for s in language.columns]
         all_df = pd.concat([all_df, languageMultiplyC] , axis=1, join='inner')
+
 
     all_df.to_csv(output_filename)
     print ('multiplied_df.shape: ' , all_df.shape)
