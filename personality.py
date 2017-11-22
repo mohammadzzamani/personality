@@ -302,18 +302,22 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     # personality_df.to_csv('csv/personlity.csv')
 
     data = pd.read_csv('csv/multiplied_data.csv')
+    data.set_index('user_id', inplace=True)
     print (data.shape, ' , ', data.columns)
     pca = PCA(n_components=75)
     data = pd.DataFrame(data = pca.fit_transform(data), index=data.index)
 
 
     language_df = pd.read_csv('csv/language.csv')
+    language_df.set_index('user_id', inplace=True)
     pca = PCA(n_components=50)
     language_df = pd.DataFrame(data = pca.fit_transform(language_df), index=language_df.index)
 
     demog_df = pd.read_csv('csv/demog.csv')
+    demog_df.set_index('user_id', inplace=True)
     print (demog_df.shape, ' , ', demog_df.columns)
     personality_df = pd.read_csv('csv/personlity.csv')
+    personality_df.set_index('user_id', inplace=True)
 
 
     data.to_csv('csv/multiplied_data_pca.csv')
@@ -331,6 +335,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
         cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
         # data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
         data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
+        data_all_factors.set_index('user_id', inplace=True)
         pca = PCA(n_components=100)
         data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
         data_all_factors.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
