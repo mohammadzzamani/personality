@@ -333,11 +333,11 @@ def cv(data, labels, foldsdf, folds, pre):
             mean_est(),
             # RidgeCV(alphas=alphas),
             RidgeCV(),
-            # 'gbr_lad':GradientBoostingRegressor(n_estimators= 300, loss='lad', random_state=1, subsample=0.75, max_depth=6, max_features=0.75), #, min_impurity_decrease=0.05),
-            # 'gbr_ls':GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75) #, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 150, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 150, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75) #, min_impurity_decrease=0.05),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv']
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_lad','gbr_ls' ]
     YpredsAll = None
     for i in range(folds):
 
