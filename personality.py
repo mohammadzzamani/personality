@@ -159,8 +159,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        # topic_df = load_topics(cursor)
-        topic_df = pd.read_csv('transformed_data.csv')
+        topic_df = load_topics(cursor)
+        # topic_df = pd.read_csv('transformed_data.csv')
         # language_df = load_tweets(cursor)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
@@ -293,8 +293,8 @@ def k_fold(data, folds=10):
 
 def cross_validation(language_df, demog_df, personality_df, folds = 10):
     print ('cross_validation...')
-    # data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
-    data = pd.read_csv('multiplied_transformed_data.csv')
+    data = multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
+    # data = pd.read_csv('multiplied_transformed_data.csv')
     foldsdf = k_fold(data, folds=folds)
     print (data.shape , '  ,  ' , language_df.shape)
     for col in personality_df.columns:
