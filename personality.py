@@ -17,7 +17,7 @@ import cPickle as pickle
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from Util import *
-from sklearn.linear_model import RidgeCV
+from sklearn.linear_model import RidgeCV, LassoCV
 from sklearn.ensemble import GradientBoostingRegressor
 
 
@@ -32,6 +32,8 @@ control_table = 'masterstats'
 personality_feats = ['big5_ope', 'big5_ext', 'big5_neu', 'big5_agr', 'big5_con']
 demog_feats = ['demog_age_fixed', 'demog_gender']
 control_feats = personality_feats + demog_feats
+
+alphas=[0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001 , 0.0001,0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000]
 
 def connectToDB():
     print ('connectToDB...')
@@ -333,13 +335,14 @@ def cv(data, labels, foldsdf, folds, pre):
 
     ESTIMATORS = [
             mean_est(),
-            # RidgeCV(alphas=alphas),
-            RidgeCV(),
-            GradientBoostingRegressor(n_estimators= 150, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= 150, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75) #, min_impurity_decrease=0.05),
+            RidgeCV(alphas=alphas),
+            LassoCV,
+            GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75) #, min_impurity_decrease=0.05),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
+
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_lad','gbr_ls' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'lassocv', 'gbr_lad','gbr_ls' ]
     YpredsAll = None
     for i in range(folds):
 

@@ -99,12 +99,18 @@ def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', trnsfrm = None, sto
     mae = mean_absolute_error(Ytrue,Ypred)
     mse = mean_squared_error(Ytrue,Ypred)
     # print ('mae: '  , mae)
-    with open("res.txt", "a") as myfile:
+    with open("res_with_corr.txt", "a") as myfile:
         if type is 'regression':
             # print ('type: ' , type)
+            yt = np.reshape(Ytrue, (len(Ytrue) , 1))
+            yp = np.reshape(Ypred, (len(Ypred) , 1))
+            data = pd.DataFrame(data = np.hstack((yt,yp)))
+            data.corr()[0][1]
             if store == True:
-                myfile.write(pre + 'mae: ' + str(mae)+ ' , mse: ' + str(mse) + ' \n' )
+                myfile.write(pre + '\t mae: \t ' + str(mae)+ ' \t mse: \t ' + str(mse) + ' \n' )
             print (pre, ' mae: ' , mae, ' , mse: ', mse)
+
+
         elif type is 'classification2':
             print ('accuracy: ' , (2-mae)/2)
     return [mae , mse]
