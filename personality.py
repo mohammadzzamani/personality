@@ -439,8 +439,7 @@ def myMain():
     # print ('demog_df.shape: ', demog_df.shape)
     # print ('control_df.shape: ', control_df.shape)
     print ('language_df.shape: ', language_df.shape)
-    language_df.set_index('user_id', inplace=True)
-    print ('language_df.shape: ', language_df.shape)
+    
     # control_df.set_index('user_id', inplace=True)
     # demog_df.set_index('user_id', inplace=True)
     # personality_df.set_index('user_id', inplace=True)
