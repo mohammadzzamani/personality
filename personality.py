@@ -353,21 +353,21 @@ def cv(data, labels, foldsdf, folds, pre):
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
         Ypreds = None
-        for i in range(len(ESTIMATORS)):
+        for j in range(len(ESTIMATORS)):
             estimator = ESTIMATORS[i]
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
-            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[i]+'_')
+            evaluate(ytest, ypred, pre=pre+'_'+i+'_'+ESTIMATORS_NAME[j]+'_')
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
         print ('ypredsAll.shape: ' , YpredsAll.shape)
 
 
-    for i in range(YpredsAll.shape[1]-1):
-        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,i].transpose(), pre=pre+'_'+ESTIMATORS_NAME[i]+'_')
+    for j in range(YpredsAll.shape[1]-1):
+        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
 
 
