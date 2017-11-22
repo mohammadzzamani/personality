@@ -321,11 +321,11 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     data.fillna(data.mean(), inplace=True)
     language_df.fillna(language_df.mean(), inplace=True)
 
-    pca = PCA(n_components=2)
-    dataPCA = pca.fit_transform(data)
-    print (dataPCA.iloc[0,1,:])
-    print (data.index[0,1])
-    data = pd.DataFrame(data = dataPCA, index=data.index)
+    pca = PCA(n_components=75)
+    # dataPCA = pca.fit_transform(data)
+    # print (dataPCA.iloc[0,1,:])
+    # print (data.index[0,1])
+    data = pd.DataFrame(data = pca.fit_transform(data), index=data.index)
 
     pca = PCA(n_components=50)
     language_df = pd.DataFrame(data = pca.fit_transform(language_df), index=language_df.index)
