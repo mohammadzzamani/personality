@@ -230,7 +230,7 @@ def prepare_final_submission(submission_df, Ypred, type=0, output_filename='data
 
 
 
-def mach_ids(dataList):
+def match_ids(dataList):
     all_df = None
     for data in dataList:
         all_df = data if all_df is None else pd.merge(all_df, data, how='inner', left_index=True, right_index=True)

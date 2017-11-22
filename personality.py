@@ -301,23 +301,31 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     # demog_df.to_csv('csv/demog.csv')
     # personality_df.to_csv('csv/personlity.csv')
 
+
+
     data = pd.read_csv('csv/multiplied_data.csv')
     data.set_index('user_id', inplace=True)
     print (data.shape, ' , ', data.columns)
-    pca = PCA(n_components=75)
-    data = pd.DataFrame(data = pca.fit_transform(data), index=data.index)
-
 
     language_df = pd.read_csv('csv/language.csv')
     language_df.set_index('user_id', inplace=True)
-    pca = PCA(n_components=50)
-    language_df = pd.DataFrame(data = pca.fit_transform(language_df), index=language_df.index)
 
     demog_df = pd.read_csv('csv/demog.csv')
     demog_df.set_index('user_id', inplace=True)
     print (demog_df.shape, ' , ', demog_df.columns)
     personality_df = pd.read_csv('csv/personlity.csv')
     personality_df.set_index('user_id', inplace=True)
+
+
+    [data, language_df, demog_df, personality_df] = match_ids([data, language_df, demog_df, personality_df])
+
+    
+    pca = PCA(n_components=75)
+    data = pd.DataFrame(data = pca.fit_transform(data), index=data.index)
+
+    pca = PCA(n_components=50)
+    language_df = pd.DataFrame(data = pca.fit_transform(language_df), index=language_df.index)
+
 
 
     data.to_csv('csv/multiplied_data_pca.csv')
