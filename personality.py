@@ -22,6 +22,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.decomposition import PCA
 from scipy.sparse import csr_matrix
+from sklearn.preprocessing import StandardScaler
 
 user= ''
 password = ''
@@ -232,31 +233,7 @@ def run_tfidf_dataframe(data, col_name, index_name=''):
     return data
 
 
-def run_kmeans(train_tfidf, d):
-    print ('run_kmeans...')
-    km = KMeans(n_clusters=d, random_state=123, max_iter=1000,
-                n_init=10)
-    km.fit(train_tfidf)
 
-    return km.cluster_centers_
-
-
-def output_factors(train_uids, train_tfidf, test_uids, test_tfidf, cluster_centers,
-                   output_f):
-    print ('output_factors...')
-    uid_list = [train_uids, test_uids]
-    feat_list = [train_tfidf, test_tfidf]
-
-    with open(output_f, "w") as f:
-        header = ["UID"] + ["Factor {}".format(i + 1) for i in range(len(cluster_centers))]
-        f.write("\t".join(header) + "\n")
-        for i in range(len(uid_list)):
-            us = uid_list[i]
-            dists = euclidean_distances(feat_list[i], cluster_centers)
-            for j in range(len(us)):
-                dist = list(dists[j])
-                row = [us[j]] + [str(1 / (factor + .01)) for factor in dist]
-                f.write("\t".join(row) + "\n")
 
 
 def parse_cmd_input():
@@ -274,18 +251,6 @@ def parse_cmd_input():
     return args.input_file, args.output_file, args.d
 
 
-def main():
-    print ('main...')
-    input_f, output_f, d = parse_cmd_input()
-    train_tweets, train_uids, test_tweets, test_uids = load_data(input_f)
-
-    print "Running tf-idf"
-    train_tfidf, test_tfidf = run_tfidf(train_tweets, test_tweets)
-
-    print "Running k-means"
-    cluster_centers = run_kmeans(train_tfidf, d)
-
-    output_factors(train_uids, train_tfidf, test_uids, test_tfidf, cluster_centers, output_f)
 
 
 def k_fold(data, folds=10):
@@ -308,9 +273,26 @@ def k_fold(data, folds=10):
 
     return folds
 
+
+def transform(data, type='minmax'):
+    scaler = MinMaxScaler() if type=='minmax' else StandardScaler()
+    scaled = scaler.fit_transform(data.values)
+    data = pd.DataFrame(data = scaled, index = data.index, columns = data.columns)
+    if type == 'minmax':
+        data.fillna(0, inplace=True)
+    else:
+        data.fillna(data.mean(), inplace=True)
+    return [data, scaler]
+
 def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 10):
     print ('cross_validation...')
-    data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+
+    # min_max transform controls
+    [demog_df , demog_scaler] = transform(demog_df, type='minmax')
+    [personality_df , personality_scaler] = transform(personality_df, type='minmax')
+
+
+
     language_df.to_csv('csv/language.csv')
     demog_df.to_csv('csv/demog.csv')
     personality_df.to_csv('csv/personlity.csv')
@@ -333,49 +315,59 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
 
     print ('language_df.shape is: ' , language_df.shape)
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
-    [data, language_df, demog_df, personality_df] = match_ids([data, language_df, demog_df, personality_df])
-    data.fillna(data.mean(), inplace=True)
-    language_df.fillna(language_df.mean(), inplace=True)
+    [language_df, demog_df, personality_df] = match_ids([language_df, demog_df, personality_df])
 
-    pca = PCA(n_components=300)
-    dataPCA = pca.fit_transform(data)
+    # standardize data and language
+    [language_df, language_scaler] = transform(language_df, type='standard')
+
+    pca = PCA(n_components=100)
+    languagePCA = pca.fit_transform(language_df)
     # print ('data PCA: ')
     # print (data.shape)
     # print (dataPCA[0:1,:])
     # print (data.index[0:1])
-    data = pd.DataFrame(data = dataPCA, index=data.index)
-
-    pca = PCA(n_components=200)
-    # print ('languagedf PCA: ')
-    # print ( language_df.iloc[1:2,:])
-    # print (language_df.shape)
-    dataPCA = pca.fit_transform(language_df)
-    # print (dataPCA[0:1,:])
-    # print (language_df.index[0:1])
-    language_df = pd.DataFrame(data = dataPCA, index=language_df.index)
+    language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
 
 
+    adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+    [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
 
-    data.to_csv('csv/multiplied_data_pca.csv')
+    # pca = PCA(n_components=200)
+    # # print ('languagedf PCA: ')
+    # # print ( language_df.iloc[1:2,:])
+    # # print (language_df.shape)
+    # adaptedLangPCA = pca.fit_transform(adaptedLang)
+    # # print (dataPCA[0:1,:])
+    # # print (language_df.index[0:1])
+    # adaptedLangPCA = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
+
+
+
+
+    adaptedLang.to_csv('csv/adaptedLang.csv')
     language_df.to_csv('csv/language_pca.csv')
 
 
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
-    foldsdf = k_fold(data, folds=folds)
-    print (data.shape , '  ,  ' , language_df.shape)
+    foldsdf = k_fold(adaptedLang, folds=folds)
+    print (adaptedLang.shape , '  ,  ' , adaptedLang.shape, ' , ', language_df.shape)
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
-        cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
-        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
+
+        all_factors_adapted = multiply(personality_df.loc[:, personality_df.columns != col], adaptedLang, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
         # data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
         # data_all_factors.set_index('user_id', inplace=True)
-        data_all_factors.fillna(data_all_factors.mean(), inplace=True)
-        pca = PCA(n_components=500)
-        data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
-        data_all_factors.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
-        cv(data_all_factors, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
+        all_factors_adapted.fillna(all_factors_adapted.mean(), inplace=True)
+        pca = PCA(n_components=150)
+        all_factors_adapted = pd.DataFrame(data = pca.fit_transform(all_factors_adapted) , index= all_factors_adapted.index)
+        all_factors_adapted.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
+        cv(all_factors_adapted, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
+
+        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'language_'+col)
+        cv(adaptedLang, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'age&gender_adapted_'+col)
+
+
 
 
 def cross_validation_with_saved_data(language_df=None, demog_df=None, personality_df=None, folds = 10):
@@ -405,17 +397,35 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
 
 
     [language_df, demog_df, personality_df] = match_ids([language_df, demog_df, personality_df])
-
     data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
 
+
+
+    # remove nan
     data.fillna(data.mean(), inplace=True)
     language_df.fillna(language_df.mean(), inplace=True)
 
 
+    # standardize data and language
+    language_scaler = StandardScaler()
+    scaled_language = language_scaler.fit_transform(language_df.values)
+    language_df = pd.DataFrame(scaled_language, index=language_df.index, columns=language_df.columns)
+
+    data_scaler = StandardScaler()
+    scaled_data = data_scaler.fit_transform(data.values)
+    data = pd.DataFrame(scaled_data, index=data.index, columns=data.columns)
+
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
+
+    # randomly assign fold
     foldsdf = k_fold(data, folds=folds)
     print (data.shape , '  ,  ' , language_df.shape)
+
+    # for col in personality_df.columns:
+    #     print (type(personality_df[[col]]))
+
+
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
@@ -428,6 +438,54 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
 
         cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
         cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
+
+
+
+def language_infer(data, labels, foldsdf, folds, pre):
+
+    [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
+    # data.fillna(data.mean(), inplace=True)
+    print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
+
+    ESTIMATORS = [
+            mean_est(),
+            RidgeCV(alphas=alphas),
+            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
+    ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' ]
+    YpredsAll = None
+    for i in range(folds):
+
+        # prepare train and test data
+        test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
+        train_ids = foldsdf[foldsdf['fold'] != i].index.tolist()
+
+        Xtrain = data.loc[train_ids].values
+        ytrain = labels.loc[train_ids].values
+        Xtest = data.loc[test_ids].values
+        ytest = labels.loc[test_ids].values
+
+
+        print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
+
+        Ypreds = None
+        for j in range(len(ESTIMATORS)):
+            estimator = ESTIMATORS[j]
+            estimator.fit(Xtrain, ytrain)
+            ypred = estimator.predict(Xtest)
+            ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
+            Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
+            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
+
+        Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
+        YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
+        print ('ypredsAll.shape: ' , YpredsAll.shape)
+
+
+    for j in range(YpredsAll.shape[1]-1):
+        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
+
+    return YpredsAll[:,2]
 
 
 def cv(data, labels, foldsdf, folds, pre):
@@ -454,12 +512,12 @@ def cv(data, labels, foldsdf, folds, pre):
     ESTIMATORS = [
             mean_est(),
             RidgeCV(alphas=alphas),
-            GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
+            # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
-            KNeighborsRegressor(n_neighbors=25)
+            KNeighborsRegressor(n_neighbors=5)
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_lad','gbr_ls' , 'knn' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
     YpredsAll = None
     for i in range(folds):
 
@@ -468,7 +526,7 @@ def cv(data, labels, foldsdf, folds, pre):
         train_ids = foldsdf[foldsdf['fold'] != i].index.tolist()
 
 
-        print ( 'ids: ' , len(test_ids), ' , ' , len(train_ids))
+        # print ( 'ids: ' , len(test_ids), ' , ' , len(train_ids))
         # print (data)
         # print ( train_ids)
         Xtrain = data.loc[train_ids].values
@@ -520,9 +578,9 @@ def myMain():
     # language_df = min_max_transformation(language_df)
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
-    # cross_validation(language_df, demog_df, personality_df)
+    cross_validation(language_df, demog_df, personality_df)
 
-    cross_validation_with_saved_data(language_df=language_df, folds=10)
+    # cross_validation_with_saved_data(language_df=language_df, folds=10)
 
 
 def multiply(controls, language, output_filename=None,  all_df = None):
