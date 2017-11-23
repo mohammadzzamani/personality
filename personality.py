@@ -90,7 +90,7 @@ def load_tweets(cursor, topic_df):
     print user_ids
     user_ids =  '( \'' +  user_ids  + '\' )'
 
-    sql = "select user_id , message from {0} where user_id in \'{1}\'".format(msg_table, user_ids)
+    sql = "select user_id , message from {0} where user_id in {1}".format(msg_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
