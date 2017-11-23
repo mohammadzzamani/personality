@@ -2,7 +2,7 @@
 
 #! /usr/bin/env python
 import sys
-import MySQLdb
+# import MySQLdb
 import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
