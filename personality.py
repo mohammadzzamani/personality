@@ -2,7 +2,7 @@
 
 #! /usr/bin/env python
 import sys
-# import MySQLdb
+import MySQLdb
 import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
@@ -188,8 +188,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        # topic_df = load_topics(cursor)
-        topic_df = pd.read_csv('csv/language.csv')
+        topic_df = load_topics(cursor)
+        # topic_df = pd.read_csv('csv/language.csv')
         topic_df = topic_df.iloc[:100]
         language_df = load_tweets(cursor, topic_df)
         control_df = load_controls(cursor, control_feats)
