@@ -240,9 +240,9 @@ def run_tfidf_dataframe(data, col_name, index_name=''):
     print ('data.index: ' , data.index)
     print ('tfidf: ', tfidf)
     if (len(index_name) > 0):
-        data = pd.DataFrame(data = tfidf, index = data[index_name])
+        data = pd.DataFrame(data = tfidf.todense(), index = data[index_name])
     else:
-        data = pd.DataFrame(data = tfidf, index = data.index)
+        data = pd.DataFrame(data = tfidf.todense(), index = data.index)
     print ( 'data.shape: ' , data.shape)
     return data
 
