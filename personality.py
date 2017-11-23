@@ -428,14 +428,18 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
     foldsdf = k_fold(data, folds=folds)
     print (data.shape , '  ,  ' , language_df.shape)
 
-    # for col in personality_df.columns:
-    #     print (type(personality_df[[col]]))
+    inferred_presonality = pd.DataFrame(data=personality_df.index, columns='user_id')
 
+    for col in personality_df.columns:
+        print (type(personality_df[[col]]))
+        inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
+
+    inferred_presonality.set_index('user_id', inplace=True)
 
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
-        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, all_df=data)
+        data_all_factors = multiply(inferred_presonality.loc[:, inferred_presonality.columns != col], language_df, all_df=data)
         data_all_factors.fillna(data_all_factors.mean(), inplace=True)
         # pca = PCA(n_components=500)
         # data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
@@ -447,7 +451,7 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
 
 
 
-def language_infer(data, labels, foldsdf, folds, pre):
+def infer_personality(data, labels, foldsdf, folds, pre):
 
     [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
     # data.fillna(data.mean(), inplace=True)
@@ -456,9 +460,9 @@ def language_infer(data, labels, foldsdf, folds, pre):
     ESTIMATORS = [
             mean_est(),
             RidgeCV(alphas=alphas),
-            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
+            # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv'] #, 'gbr_ls' ]
     YpredsAll = None
     for i in range(folds):
 
@@ -491,7 +495,7 @@ def language_infer(data, labels, foldsdf, folds, pre):
     for j in range(YpredsAll.shape[1]-1):
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
-    return YpredsAll[:,2]
+    return YpredsAll[:,1]
 
 
 def cv(data, labels, foldsdf, folds, pre, scaler=None):
@@ -572,9 +576,9 @@ def myMain():
 
 
     control_df.set_index('user_id', inplace=True)
-    control_df.to_csv('csv/controls.csv')
-    print control_df.corr()
-    return
+    # control_df.to_csv('csv/controls.csv')
+    # print control_df.corr()
+
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
     if 'user_id' in language_df.columns:
