@@ -474,8 +474,8 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     ESTIMATORS = [
             mean_est(),
             # RidgeCV(alphas=alphas),
-            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=7, max_features=0.75, min_impurity_decrease=0.075),
+            GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.025),
+            # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=7, max_features=0.75, min_impurity_decrease=0.075),
     ]
     ESTIMATORS_NAME = [ 'mean' , 'gbr_ls6', 'gbr_ls7' ]
     YpredsAll = None
