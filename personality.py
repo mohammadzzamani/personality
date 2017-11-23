@@ -86,8 +86,9 @@ def load_tweets(cursor, topic_df):
     print('load_tweets...')
 
     language_df = None
-
-    user_ids =  '( \'' +  '\' , \''.join(topic_df.index.values.tolist()) + '\' )'
+    user_ids = ','.join(topic_df.index.values.tolist())
+    print user_ids
+    user_ids =  '( ' +  user_ids  + ' )'
 
     sql = "select user_id , message from {0} where user_id in \'{1}\'".format(msg_table, user_ids)
     query = cursor.execute(sql)
@@ -189,6 +190,7 @@ def load_data():
     if(cursor is not None):
         # topic_df = load_topics(cursor)
         topic_df = pd.read_csv('csv/language.csv')
+        topic_df = topic_df.iloc[:100]
         language_df = load_tweets(cursor, topic_df)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
