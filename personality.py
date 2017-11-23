@@ -217,8 +217,8 @@ def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickl
     train_tfidf = tfidf_vectorizer.fit_transform(train_tweets)
     print ('fit_transformed')
 
-    with open(pickle_name, 'wb') as fin:
-        pickle.dump(tfidf_vectorizer, fin)
+    # with open(pickle_name, 'wb') as fin:
+    #     pickle.dump(tfidf_vectorizer, fin)
 
     if (len(test_tweets) != 0):
         test_tfidf = tfidf_vectorizer.transform(test_tweets)
