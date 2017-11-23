@@ -176,8 +176,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        topic_df = load_topics(cursor)
-        # topic_df = pd.read_csv('transformed_data.csv')
+        # topic_df = load_topics(cursor)
+        topic_df = pd.read_csv('transformed_data.csv')
         # language_df = load_tweets(cursor)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
@@ -378,6 +378,58 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
         cv(data_all_factors, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
 
 
+def cross_validation_with_saved_data(language_df=None, demog_df=None, personality_df=None, folds = 10):
+    print ('cross_validation...')
+
+
+
+
+
+    # data = pd.read_csv('csv/multiplied_data.csv')
+    # data.set_index('user_id', inplace=True)
+    # print (data.shape, ' , ', data.columns)
+
+    ## language_df = pd.read_csv('csv/language.csv')
+    ## language_df.set_index('user_id', inplace=True)
+
+    demog_df = pd.read_csv('csv/demog.csv')
+    demog_df.set_index('user_id', inplace=True)
+    print (demog_df.shape, ' , ', demog_df.columns)
+    personality_df = pd.read_csv('csv/personlity.csv')
+    personality_df.set_index('user_id', inplace=True)
+
+    language_df = pd.read_csv('csv/language_pca.csv')
+    language_df.set_index('user_id', inplace=True)
+    print ('language_df.shape is: ' , language_df.shape)
+
+
+
+    [language_df, demog_df, personality_df] = match_ids([language_df, demog_df, personality_df])
+
+    data = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+
+    data.fillna(data.mean(), inplace=True)
+    language_df.fillna(language_df.mean(), inplace=True)
+
+
+
+    # data = pd.read_csv('multiplied_transformed_data.csv')
+    foldsdf = k_fold(data, folds=folds)
+    print (data.shape , '  ,  ' , language_df.shape)
+    for col in personality_df.columns:
+        print (type(personality_df[[col]]))
+
+        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, all_df=data)
+        data_all_factors.fillna(data_all_factors.mean(), inplace=True)
+        # pca = PCA(n_components=500)
+        # data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
+        # data_all_factors.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
+        cv(data_all_factors, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
+
+        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col)
+        cv(data, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col)
+
+
 def cv(data, labels, foldsdf, folds, pre):
 
     # print 'data: ' , data
@@ -468,12 +520,12 @@ def myMain():
     # language_df = min_max_transformation(language_df)
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
-    cross_validation(language_df, demog_df, personality_df)
+    # cross_validation(language_df, demog_df, personality_df)
 
-    # cross_validation(language_df=language_df, folds=10)
+    cross_validation_with_saved_data(language_df=language_df, folds=10)
 
 
-def multiply(controls, language, output_filename,  all_df = None):
+def multiply(controls, language, output_filename=None,  all_df = None):
     print ('multiply...')
 
     if all_df is None:
@@ -482,11 +534,12 @@ def multiply(controls, language, output_filename,  all_df = None):
     for col in controls.columns:
         print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
         languageMultiplyC = language.multiply(controls[col], axis="index")
-        languageMultiplyC.columns = [ s+'_'+col for s in language.columns]
+        languageMultiplyC.columns = [ str(s)+'_'+str(col) for s in language.columns]
         all_df = pd.concat([all_df, languageMultiplyC] , axis=1, join='inner')
 
 
-    all_df.to_csv(output_filename)
+    if  output_filename is not None:
+        all_df.to_csv(output_filename)
     print ('multiplied_df.shape: ' , all_df.shape)
     print (all_df.iloc[[0,1]])
     return all_df
