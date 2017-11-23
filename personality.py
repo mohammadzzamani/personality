@@ -353,6 +353,8 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
 
 
 
+    foldsdf = k_fold(adaptedLang, folds=folds)
+
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
@@ -362,7 +364,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
 
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-            inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
+        inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
 
     # inferred_presonality.set_index('user_id', inplace=True)
 
