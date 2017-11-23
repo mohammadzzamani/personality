@@ -87,7 +87,7 @@ def load_tweets(cursor, topic_df):
 
     language_df = None
     user_ids = '\' , \''.join(topic_df.user_id.values.tolist())
-    print user_ids
+    print (user_ids)
     user_ids =  '( \'' +  user_ids  + '\' )'
 
     sql = "select user_id , message from {0} where user_id in {1}".format(msg_table, user_ids)
