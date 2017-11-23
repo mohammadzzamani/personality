@@ -86,7 +86,7 @@ def load_tweets(cursor, topic_df):
     print('load_tweets...')
 
     language_df = None
-    user_ids = '\' , \''.join(topic_df.user_id.values.tolist())
+    user_ids = '\' , \''.join(topic_df.index.values.tolist())
     print (user_ids)
     user_ids =  '( \'' +  user_ids  + '\' )'
 
