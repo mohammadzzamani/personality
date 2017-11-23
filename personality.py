@@ -82,12 +82,19 @@ def load_data_train_test(fname):
     return train_tweets, train_uids, test_tweets, test_uids
 
 
-def load_tweets(cursor):
+def load_tweets(cursor, topic_df):
     print('load_tweets...')
-    sql = "select user_id , message from {0}".format(msg_table)
-    query = cursor.execute(sql)
-    result =  query.fetchall()
-    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
+
+    language_df = None
+    for user_id in topic_df.index.values.tolist():
+        sql = "select user_id , message from {0} where user_id = \'{1}\'".format(msg_table, user_id)
+        query = cursor.execute(sql)
+        result =  query.fetchall()
+        result_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
+        result_df = result_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
+        language_df = result_df if language_df is None else pd.concat([language_df, result_df])
+
+    print ('language_df.shape: ', language_df.shape)
     return language_df
 
 
@@ -179,12 +186,12 @@ def load_data():
     if(cursor is not None):
         # topic_df = load_topics(cursor)
         topic_df = pd.read_csv('csv/language.csv')
-        # language_df = load_tweets(cursor)
+        language_df = load_tweets(cursor, topic_df)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
         personality_df = load_controls(cursor, personality_feats)
 
-    return topic_df, control_df, demog_df, personality_df
+    return topic_df, language_df, control_df, demog_df, personality_df
 
 def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
@@ -288,7 +295,7 @@ def transform(data, type='minmax'):
 
     return [data, scaler]
 
-def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 5):
+def cross_validation(topic_df = None, language_df=None, demog_df=None, personality_df=None, folds = 5):
     print ('cross_validation...')
 
     # min_max transform controls
@@ -296,7 +303,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     [personality_df , personality_scaler] = transform(personality_df, type='minmax')
 
 
-
+    topic_df.to_csv('csv/topic.csv')
     language_df.to_csv('csv/language.csv')
     demog_df.to_csv('csv/demog.csv')
     personality_df.to_csv('csv/personlity.csv')
@@ -583,11 +590,12 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None):
 
 def myMain():
     print('myMain...')
-    language_df, control_df, demog_df, personality_df = load_data()
+    topic_df, language_df, control_df, demog_df, personality_df = load_data()
+    print ('topic_df.shape: ', topic_df.shape)
     print ('demog_df.shape: ', demog_df.shape)
     print ('control_df.shape: ', control_df.shape)
     print ('language_df.shape: ', language_df.shape)
-    print ( 'personality_df.shape: ', personality_df.shape)
+    print ('personality_df.shape: ', personality_df.shape)
 
 
     control_df.set_index('user_id', inplace=True)
@@ -596,18 +604,21 @@ def myMain():
 
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
-    if 'user_id' in language_df.columns:
-        language_df.set_index('user_id', inplace=True)
-        print 'user_id was not index ------------------'
+    topic_df.set_index('user_id', inplace=True)
+    language_df.set_index('user_id', inplace=True)
+    control_df.set_index('user_id', inplace=True)
+
     # print ('demog_df.shape after set_index: ', demog_df.shape)
 
     # language_df = msg_to_user_langauge(language_df)
-    # language_df = run_tfidf_dataframe(language_df, col_name='message')
+    language_df = run_tfidf_dataframe(language_df, col_name='message')
+    print ('language_df(tfidf).shape: ', language_df.shape)
     # language_df.to_csv('language_data.csv')
     # language_df = min_max_transformation(language_df)
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
-    cross_validation(language_df, demog_df, personality_df)
+
+    cross_validation(topic_df, language_df, demog_df, personality_df)
 
     # cross_validation_with_saved_data(language_df=language_df, folds=10)
 
