@@ -276,12 +276,16 @@ def k_fold(data, folds=10):
 
 def transform(data, type='minmax'):
     scaler = MinMaxScaler() if type=='minmax' else StandardScaler()
+
+    if type == 'standard':
+        data.fillna(data.mean(), inplace=True)
+
     scaled = scaler.fit_transform(data.values)
     data = pd.DataFrame(data = scaled, index = data.index, columns = data.columns)
+
     if type == 'minmax':
         data.fillna(0, inplace=True)
-    else:
-        data.fillna(data.mean(), inplace=True)
+
     return [data, scaler]
 
 def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 10):
