@@ -177,7 +177,7 @@ def load_data():
         raise
     if(cursor is not None):
         # topic_df = load_topics(cursor)
-        topic_df = pd.read_csv('transformed_data.csv')
+        topic_df = pd.read_csv('csv/language.csv')
         # language_df = load_tweets(cursor)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
