@@ -378,7 +378,9 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
-        all_factors_adapted = multiply(controls=inferred_presonality.loc[:, inferred_presonality.columns != col], language=language_df,
+        # all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
+        #                                output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
+        all_factors_adapted = multiply(controls=inferred_presonality, language=language_df,
                                        output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
         # data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
         # data_all_factors.set_index('user_id', inplace=True)
@@ -471,10 +473,11 @@ def infer_personality(data, labels, foldsdf, folds, pre):
 
     ESTIMATORS = [
             mean_est(),
-            RidgeCV(alphas=alphas),
-            # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
+            # RidgeCV(alphas=alphas),
+            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=7, max_features=0.75, min_impurity_decrease=0.075),
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv'] #, 'gbr_ls' ]
+    ESTIMATORS_NAME = [ 'mean' , 'gbr_ls6', 'gbr_ls7' ]
     YpredsAll = None
     for i in range(folds):
 
