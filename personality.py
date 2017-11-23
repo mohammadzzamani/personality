@@ -352,13 +352,19 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     language_df.to_csv('csv/language_pca.csv')
 
 
-    inferred_presonality = pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
+
+    # inferred_presonality = personality_df
+    # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
+
+    print('personality index : ' , personality_df.index)
+
+    inferred_presonality = pd.DataFrame(index=personality_df.index)
 
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
+            inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
 
-    inferred_presonality.set_index('user_id', inplace=True)
+    # inferred_presonality.set_index('user_id', inplace=True)
 
     print ('<<<<< personality inferred >>>>>')
 
