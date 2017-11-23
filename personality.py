@@ -86,13 +86,16 @@ def load_tweets(cursor, topic_df):
     print('load_tweets...')
 
     language_df = None
-    for user_id in topic_df.index.values.tolist():
-        sql = "select user_id , message from {0} where user_id = \'{1}\'".format(msg_table, user_id)
-        query = cursor.execute(sql)
-        result =  query.fetchall()
-        result_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
-        result_df = result_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
-        language_df = result_df if language_df is None else pd.concat([language_df, result_df])
+
+    user_ids =  '( \'' +  '\' , \''.join(topic_df.index.values.tolist()) + '\' )'
+
+    sql = "select user_id , message from {0} where user_id in \'{1}\'".format(msg_table, user_ids)
+    query = cursor.execute(sql)
+    result =  query.fetchall()
+    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
+    print ('language_df.shape: ', language_df.shape)
+    language_df = language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
+    # language_df = result_df if language_df is None else pd.concat([language_df, result_df])
 
     print ('language_df.shape: ', language_df.shape)
     return language_df
