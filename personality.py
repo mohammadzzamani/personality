@@ -593,7 +593,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None):
 
 
 
-def myMain():
+def main():
     print('myMain...')
     topic_df, language_df, control_df, demog_df, personality_df = load_data()
     print ('topic_df.shape: ', topic_df.shape)
@@ -607,7 +607,7 @@ def myMain():
 
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
-    topic_df.set_index('user_id', inplace=True)
+    # topic_df.set_index('user_id', inplace=True)
     # language_df.set_index('user_id', inplace=True)
     control_df.set_index('user_id', inplace=True)
 
@@ -662,4 +662,4 @@ def min_max_transformation(data, index_name=''):
     # return data
 
 if __name__ == '__main__':
-    myMain()
+    main()
