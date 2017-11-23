@@ -236,7 +236,7 @@ def run_tfidf_dataframe(data, col_name, index_name=''):
     print (data.iloc[[0,1]])
     tfidf = run_tfidf(tweets)
     print ('type(tfidf): ' , type(tfidf))
-    print ('tfidf.shape: ', len(tfidf) )
+    print ('tfidf.shape: ', tfidf.shape )
     if (len(index_name) > 0):
         data = pd.DataFrame(data = tfidf, index = data[index_name])
     else:
