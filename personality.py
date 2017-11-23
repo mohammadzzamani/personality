@@ -288,7 +288,7 @@ def transform(data, type='minmax'):
 
     return [data, scaler]
 
-def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 10):
+def cross_validation(language_df=None, demog_df=None, personality_df=None, folds = 5):
     print ('cross_validation...')
 
     # min_max transform controls
@@ -367,11 +367,11 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
         pca = PCA(n_components=150)
         all_factors_adapted = pd.DataFrame(data = pca.fit_transform(all_factors_adapted) , index= all_factors_adapted.index)
         all_factors_adapted.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
-        cv(all_factors_adapted, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5,
+        cv(all_factors_adapted, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds,
            pre = 'age&gender&personality_adapted_'+col, scaler = personality_scaler )
 
-        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'language_'+col, scaler = personality_scaler)
-        cv(adaptedLang, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'age&gender_adapted_'+col, scaler = personality_scaler)
+        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'language_'+col, scaler = personality_scaler)
+        cv(adaptedLang, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adapted_'+col, scaler = personality_scaler)
 
 
 
