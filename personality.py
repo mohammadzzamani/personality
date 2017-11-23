@@ -260,8 +260,8 @@ def k_fold(data, folds=10):
     folds = pd.DataFrame(data = data.index , columns=['user_id'])
     folds['fold'] = 0
     folds.set_index('user_id', inplace=True)
-    print folds
-    print ('folds.index: ' , folds.index )
+    # print folds
+    # print ('folds.index: ' , folds.index )
     for train_index, test_index in kf.split(folds.index):
         # test_index = [idx for idx in folds.index if idx in test_index]
         # print ('test_index: ' , test_index.shape)
@@ -352,6 +352,17 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     language_df.to_csv('csv/language_pca.csv')
 
 
+    inferred_presonality = pd.DataFrame(data=personality_df.index, columns='user_id')
+
+    for col in personality_df.columns:
+        print (type(personality_df[[col]]))
+        inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
+
+    inferred_presonality.set_index('user_id', inplace=True)
+
+    print ('<<<<< personality inferred >>>>>')
+
+
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
     foldsdf = k_fold(adaptedLang, folds=folds)
@@ -359,7 +370,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
-        all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
+        all_factors_adapted = multiply(controls=inferred_presonality.loc[:, inferred_presonality.columns != col], language=language_df,
                                        output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
         # data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
         # data_all_factors.set_index('user_id', inplace=True)
@@ -428,18 +439,11 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
     foldsdf = k_fold(data, folds=folds)
     print (data.shape , '  ,  ' , language_df.shape)
 
-    inferred_presonality = pd.DataFrame(data=personality_df.index, columns='user_id')
-
-    for col in personality_df.columns:
-        print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, pre='...infered_'+col+'...')
-
-    inferred_presonality.set_index('user_id', inplace=True)
 
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
-        data_all_factors = multiply(inferred_presonality.loc[:, inferred_presonality.columns != col], language_df, all_df=data)
+        data_all_factors = multiply(personality_df.loc[:, personality_df.columns != col], language_df, all_df=data)
         data_all_factors.fillna(data_all_factors.mean(), inplace=True)
         # pca = PCA(n_components=500)
         # data_all_factors = pd.DataFrame(data = pca.fit_transform(data_all_factors) , index= data_all_factors.index)
@@ -452,7 +456,7 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
 
 
 def infer_personality(data, labels, foldsdf, folds, pre):
-
+    print ('infer_personality...')
     [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
     # data.fillna(data.mean(), inplace=True)
     print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
@@ -613,7 +617,7 @@ def multiply(controls, language, output_filename=None,  all_df = None):
     if  output_filename is not None:
         all_df.to_csv(output_filename)
     print ('multiplied_df.shape: ' , all_df.shape)
-    print (all_df.iloc[[0,1]])
+    # print (all_df.iloc[[0,1]])
     return all_df
 
 
