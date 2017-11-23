@@ -89,11 +89,11 @@ class mean_est:
 #             print ('accuracy: ' , (2-mae)/2)
 #     return [mae , mse]
 
-def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', trnsfrm = None, store=True):
+def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', store=True, scaler=None):
     print ('evaluate...')
-    if not trnsfrm is None:
-        Ytrue = trnsfrm.transform_back(Ytrue)
-        Ypred = trnsfrm.transform_back(Ypred)
+    if not scaler is None:
+        Ytrue = scaler.inverse_transform(Ytrue)
+        Ypred = scaler.inverse_transform(Ypred)
 
     # print ('before mae')
     mae = mean_absolute_error(Ytrue,Ypred)

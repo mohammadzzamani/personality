@@ -336,14 +336,14 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
     [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
 
-    # pca = PCA(n_components=200)
-    # # print ('languagedf PCA: ')
-    # # print ( language_df.iloc[1:2,:])
-    # # print (language_df.shape)
-    # adaptedLangPCA = pca.fit_transform(adaptedLang)
+    pca = PCA(n_components=120)
+    # print ('languagedf PCA: ')
+    # print ( language_df.iloc[1:2,:])
+    # print (language_df.shape)
+    adaptedLangPCA = pca.fit_transform(adaptedLang)
     # # print (dataPCA[0:1,:])
     # # print (language_df.index[0:1])
-    # adaptedLangPCA = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
+    adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
 
 
 
@@ -355,7 +355,7 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
 
     # data = pd.read_csv('multiplied_transformed_data.csv')
     foldsdf = k_fold(adaptedLang, folds=folds)
-    print (adaptedLang.shape , '  ,  ' , adaptedLang.shape, ' , ', language_df.shape)
+    print (adaptedLang.shape , ' , ', language_df.shape)
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
@@ -367,10 +367,11 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
         pca = PCA(n_components=150)
         all_factors_adapted = pd.DataFrame(data = pca.fit_transform(all_factors_adapted) , index= all_factors_adapted.index)
         all_factors_adapted.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
-        cv(all_factors_adapted, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender&personality_adapted_'+col)
+        cv(all_factors_adapted, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5,
+           pre = 'age&gender&personality_adapted_'+col, scaler = personality_scaler )
 
-        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'language_'+col)
-        cv(adaptedLang, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'age&gender_adapted_'+col)
+        cv(language_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'language_'+col, scaler = personality_scaler)
+        cv(adaptedLang, labels=personality_df[[col]], foldsdf= foldsdf, folds = 5, pre = 'age&gender_adapted_'+col, scaler = personality_scaler)
 
 
 
@@ -493,7 +494,7 @@ def language_infer(data, labels, foldsdf, folds, pre):
     return YpredsAll[:,2]
 
 
-def cv(data, labels, foldsdf, folds, pre):
+def cv(data, labels, foldsdf, folds, pre, scaler=None):
 
     # print 'data: ' , data
     #
@@ -569,7 +570,11 @@ def myMain():
     print ('language_df.shape: ', language_df.shape)
     print ( 'personality_df.shape: ', personality_df.shape)
 
+
     control_df.set_index('user_id', inplace=True)
+    control_df.to_csv('csv/controls.csv')
+    print control_df.corr()
+    return
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
     if 'user_id' in language_df.columns:
