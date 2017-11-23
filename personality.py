@@ -359,7 +359,8 @@ def cross_validation(language_df=None, demog_df=None, personality_df=None, folds
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
 
-        all_factors_adapted = multiply(personality_df.loc[:, personality_df.columns != col], adaptedLang, output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=data)
+        all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
+                                       output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
         # data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
         # data_all_factors.set_index('user_id', inplace=True)
         all_factors_adapted.fillna(all_factors_adapted.mean(), inplace=True)
