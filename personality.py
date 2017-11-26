@@ -337,13 +337,15 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
 
     # standardize data and language
     [language_df, language_scaler] = transform(language_df, type='standard')
+    [topic_df, topic_scaler] = transform(topic_df, type='standard')
+
+
+    pca = PCA(n_components=100)
+    topicPCA = pca.fit_transform(topic_df)
+    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
     pca = PCA(n_components=100)
     languagePCA = pca.fit_transform(language_df)
-    # print ('data PCA: ')
-    # print (data.shape)
-    # print (dataPCA[0:1,:])
-    # print (data.index[0:1])
     language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
 
 
@@ -351,12 +353,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
 
     pca = PCA(n_components=120)
-    # print ('languagedf PCA: ')
-    # print ( language_df.iloc[1:2,:])
-    # print (language_df.shape)
     adaptedLangPCA = pca.fit_transform(adaptedLang)
-    # # print (dataPCA[0:1,:])
-    # # print (language_df.index[0:1])
     adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
 
 
@@ -375,7 +372,6 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     print('personality index : ' , personality_df.index)
 
     inferred_presonality = pd.DataFrame(index=personality_df.index)
-
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
         inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
