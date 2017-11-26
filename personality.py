@@ -87,7 +87,7 @@ def load_tweets(cursor, topic_df):
 
     language_df = None
     user_ids = '\' , \''.join(topic_df.index.values.tolist())
-    print (user_ids)
+    # print (user_ids)
     user_ids =  '( \'' +  user_ids  + '\' )'
 
     sql = "select user_id , message from {0} where user_id in {1}".format(msg_table, user_ids)
@@ -483,8 +483,8 @@ def infer_personality(data, labels, foldsdf, folds, pre):
 
     ESTIMATORS = [
             mean_est(),
-            # RidgeCV(alphas=alphas),
-            GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.025),
+            RidgeCV(alphas=alphas),
+            # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.025),
             # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=7, max_features=0.75, min_impurity_decrease=0.075),
     ]
     ESTIMATORS_NAME = [ 'mean' , 'gbr_ls6', 'gbr_ls7' ]
@@ -548,7 +548,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None):
             mean_est(),
             RidgeCV(alphas=alphas),
             # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.05),
+            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.01),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             KNeighborsRegressor(n_neighbors=5)
     ]
