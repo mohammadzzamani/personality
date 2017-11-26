@@ -99,7 +99,7 @@ def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', store=True, scaler=
     mae = mean_absolute_error(Ytrue,Ypred)
     mse = mean_squared_error(Ytrue,Ypred)
     # print ('mae: '  , mae)
-    with open("res_with_corr_1kusers_inferred.txt", "a") as myfile:
+    with open("res_with_corr_1kusers_inferred_topicsAndtfidf.txt", "a") as myfile:
         if type is 'regression':
             # print ('type: ' , type)
             yt = np.reshape(Ytrue, (len(Ytrue) , 1))

@@ -190,7 +190,7 @@ def load_data():
     if(cursor is not None):
         topic_df = load_topics(cursor)
         # topic_df = pd.read_csv('csv/language.csv')
-        topic_df = topic_df.iloc[:100]
+        topic_df = topic_df.iloc[:5000]
         language_df = load_tweets(cursor, topic_df)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
@@ -378,7 +378,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
 
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(language_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
 
     # inferred_presonality.set_index('user_id', inplace=True)
 
