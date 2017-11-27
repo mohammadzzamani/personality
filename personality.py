@@ -188,8 +188,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        # topic_df = load_topics(cursor)
-        topic_df = None
+        topic_df = load_topics(cursor)
+        # topic_df = None
         # topic_df = pd.read_csv('csv/language.csv')
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
@@ -320,19 +320,19 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
-    pca = PCA(n_components=50)
-    topicPCA = pca.fit_transform(topic_df)
-    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
+    # pca = PCA(n_components=100)
+    # topicPCA = pca.fit_transform(topic_df)
+    # topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
     # pca = PCA(n_components=50)
     # languagePCA = pca.fit_transform(language_df)
     # language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
 
 
-    adaptedTopic = multiply(demog_df, topic_df, output_filename = 'csv/multiplied_topic.csv')
+    adaptedTopic = multiply(demog_df, topic_df, output_filename = None )#'csv/multiplied_topic.csv')
     [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
 
-    pca = PCA(n_components=70)
+    pca = PCA(n_components=2000)
     adaptedTopicPCA = pca.fit_transform(adaptedTopic)
     adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
 
@@ -380,36 +380,33 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     improved_presonality = pd.DataFrame(index=personality_df.index)
     res_personality = personality_df.subtract(inferred_presonality)
 
-    # print ( 'personality_df: ' )
-    # print ( personality_df.iloc[:30, :])
-    # print ( personality_df.iloc[:30].mean())
-    # m = personality_df.mean().values
-    # print ('m: ' , m)
-    # m = [m for i in range(personality_df.size())]
-    # l = personality_df.values.tolist()
-    #
-    # print ( type(m) , '  ,  ', type(l))
-    # print (len(m), ' , ' ,len(l))
-    # evaluate( l, m, 'mean_err')
-    #
-    # print ( 'inferred_presonality: ' )
-    # print ( inferred_presonality.iloc[:30, :])
-    # print ( inferred_presonality.iloc[:30].mean())
-    #
-    #
-    #
-    # print ( 'res_personality: ' )
-    # print ( res_personality.iloc[:30, :])
-    # print ( res_personality.iloc[:30].mean())
-    # m = res_personality.mean().values
-    # m = [ m for i in range(res_personality.size())]
-    # l = res_personality.values.tolist()
-    #
-    # print ( type(m) , '  ,  ', type(l))
-    # print (len(m), ' , ' ,len(l))
-    # evaluate(l , m , 'mean_err_res')
+    print ( 'presonality: ' )
+
+    m = personality_df.mean().values
+    print ('m: ' , m)
+    m = [m for i in range(personality_df.size())]
+    l = personality_df.values.tolist()
+
+    print ( type(m) , '  ,  ', type(l))
+    print (len(m), ' , ' ,len(l))
+    evaluate( l, m, 'mean_err')
 
 
+
+
+
+    print ( 'res_personality: ' )
+
+    m = res_personality.mean().values
+    print ('m: ' , m)
+    m = [ m for i in range(res_personality.size())]
+    l = res_personality.values.tolist()
+
+    print ( type(m) , '  ,  ', type(l))
+    print (len(m), ' , ' ,len(l))
+    evaluate(l , m , 'mean_err_res')
+
+    return 
 
     for col in personality_df.columns:
         improved_presonality[col] = cv(inferred_presonality_and_demog, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
@@ -756,9 +753,9 @@ def main():
     print ('personality_df.shape: ', personality_df.shape)
 
     # control_df.to_csv('csv/controls.csv')
-    print control_df.corr()
-
-    return
+    # print control_df.corr()
+    #
+    # return
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
     # topic_df.set_index('user_id', inplace=True)
