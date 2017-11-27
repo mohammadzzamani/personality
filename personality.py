@@ -754,7 +754,7 @@ def main():
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
-    cross_validation(topic_df, language_df, demog_df, personality_df)
+    res_control(topic_df, language_df, demog_df, personality_df)
 
     # cross_validation_with_saved_data(language_df=language_df, folds=10)
 
