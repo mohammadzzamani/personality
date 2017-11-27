@@ -302,6 +302,85 @@ def transform(data, type='minmax'):
 
     return [data, scaler]
 
+def res_control(topic_df = None, language_df=None, demog_df=None, personality_df=None, folds = 5):
+    print ('res_control...')
+
+    # min_max transform controls
+    [demog_df , demog_scaler] = transform(demog_df, type='minmax')
+    [personality_df , personality_scaler] = transform(personality_df, type='minmax')
+
+
+    print ('language_df.shape is: ' , language_df.shape)
+    [language_df, demog_df, personality_df] = match_ids([language_df, demog_df, personality_df])
+
+    # standardize data and language
+    [language_df, language_scaler] = transform(language_df, type='standard')
+    [topic_df, topic_scaler] = transform(topic_df, type='standard')
+
+
+    pca = PCA(n_components=50)
+    topicPCA = pca.fit_transform(topic_df)
+    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
+
+    pca = PCA(n_components=50)
+    languagePCA = pca.fit_transform(language_df)
+    language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
+
+
+    adaptedTopic = multiply(demog_df, topic_df, output_filename = 'csv/multiplied_topic.csv')
+    [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
+    #
+    pca = PCA(n_components=70)
+    adaptedTopicPCA = pca.fit_transform(adaptedTopic)
+    adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
+
+
+    # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+    # [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
+    #
+    # pca = PCA(n_components=70)
+    # adaptedLangPCA = pca.fit_transform(adaptedLang)
+    # adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
+
+
+
+
+    # adaptedLang.to_csv('csv/adaptedLang.csv')
+    # language_df.to_csv('csv/language_pca.csv')
+
+
+
+    foldsdf = k_fold(topic_df, folds=folds)
+
+    # inferred_presonality = personality_df
+    # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
+
+    print('personality index : ' , personality_df.index)
+
+    inferred_presonality = pd.DataFrame(index=personality_df.index)
+    for col in personality_df.columns:
+        print (type(personality_df[[col]]))
+        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+
+
+    # inferred_presonality.set_index('user_id', inplace=True)
+
+    adaptedTopic = pd.merge(adaptedTopic, demog_df, left_index=True, right_index=True, how='inner')
+    adaptedTopic = pd.merge(adaptedTopic, inferred_presonality, left_index=True, right_index=True, how='inner')
+    # improved_presonality = pd.DataFrame(index=personality_df.index)
+    res_personality = personality_df.subtract(inferred_presonality)
+    for col in personality_df.columns:
+        cv(adaptedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
+
+    # inferred_presonality = improved_presonality
+
+
+    print ('<<<<< personality inferred >>>>>')
+
+
+
+
+
 def cross_validation(topic_df = None, language_df=None, demog_df=None, personality_df=None, folds = 5):
     print ('cross_validation...')
 
@@ -637,7 +716,7 @@ def main():
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
-    cross_validation(topic_df, language_df, demog_df, personality_df)
+    res_control(topic_df, language_df, demog_df, personality_df)
 
     # cross_validation_with_saved_data(language_df=language_df, folds=10)
 
