@@ -191,7 +191,8 @@ def load_data():
         topic_df = load_topics(cursor)
         # topic_df = pd.read_csv('csv/language.csv')
         # topic_df = topic_df.iloc[:5000]
-        language_df = load_tweets(cursor, topic_df)
+        # language_df = load_tweets(cursor, topic_df)
+        language_df = None
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
         personality_df = load_controls(cursor, personality_feats)
@@ -310,11 +311,11 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     [personality_df , personality_scaler] = transform(personality_df, type='minmax')
 
 
-    print ('language_df.shape is: ' , language_df.shape)
-    [language_df, demog_df, personality_df] = match_ids([language_df, demog_df, personality_df])
+    print ('language_df.shape is: ' , topic_df.shape)
+    [topic_df, demog_df, personality_df] = match_ids([topic_df, demog_df, personality_df])
 
     # standardize data and language
-    [language_df, language_scaler] = transform(language_df, type='standard')
+    [topic_df, language_scaler] = transform(topic_df, type='standard')
     [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
@@ -323,8 +324,8 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
     pca = PCA(n_components=50)
-    languagePCA = pca.fit_transform(language_df)
-    language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
+    topicPCA = pca.fit_transform(topic_df)
+    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
 
     adaptedTopic = multiply(demog_df, topic_df, output_filename = 'csv/multiplied_topic.csv')
@@ -694,7 +695,8 @@ def main():
     print ('topic_df.shape: ', topic_df.shape)
     print ('demog_df.shape: ', demog_df.shape)
     print ('control_df.shape: ', control_df.shape)
-    print ('language_df.shape: ', language_df.shape)
+    if language_df is not None:
+        print ('language_df.shape: ', language_df.shape)
     print ('personality_df.shape: ', personality_df.shape)
 
     # control_df.to_csv('csv/controls.csv')
@@ -709,8 +711,9 @@ def main():
     # print ('demog_df.shape after set_index: ', demog_df.shape)
 
     # language_df = msg_to_user_langauge(language_df)
-    language_df = run_tfidf_dataframe(language_df, col_name='message')
-    print ('language_df(tfidf).shape: ', language_df.shape)
+    if language_df is not None:
+        language_df = run_tfidf_dataframe(language_df, col_name='message')
+        print ('language_df(tfidf).shape: ', language_df.shape)
     # language_df.to_csv('language_data.csv')
     # language_df = min_max_transformation(language_df)
     # language_df.to_csv('transformed_data.csv')
