@@ -377,9 +377,11 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
         inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
 
     # inferred_presonality.set_index('user_id', inplace=True)
+
+    inferred_presonality_and_demog = pd.merge(inferred_presonality, demog_df, left_index=True, right_index=True, how='inner')
     improved_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
-        improved_presonality[col] = cv(inferred_presonality, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'improved_personality_'+col, scaler = personality_scaler)
+        improved_presonality[col] = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'improved_personality_'+col, scaler = personality_scaler, max_depth = 5, max_features=1)
 
     inferred_presonality = improved_presonality
 
@@ -529,7 +531,7 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     return YpredsAll[:,1]
 
 
-def cv(data, labels, foldsdf, folds, pre, scaler=None):
+def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=6, max_features = 0.75):
 
     # print 'data: ' , data
     #
@@ -554,7 +556,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None):
             mean_est(),
             RidgeCV(alphas=alphas),
             # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.01),
+            GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features), #, min_impurity_decrease=0.01),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             KNeighborsRegressor(n_neighbors=5)
     ]
