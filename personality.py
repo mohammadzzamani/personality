@@ -382,8 +382,14 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     print ( 'personality_df: ' )
     print ( personality_df.iloc[:30, :])
     print ( personality_df.iloc[:30].mean())
+    m = personality_df.mean().values
+    print ('m: ' , m)
+    m = [m for i in personality_df]
+    l = personality_df.values.tolist()
 
-    evaluate(personality_df.values.tolist() , [personality_df.mean() for i in personality_df], 'mean_err')
+    print ( type(m) , '  ,  ', type(l))
+    print (len(m), ' , ' ,len(l))
+    evaluate( l, m, 'mean_err')
 
     print ( 'inferred_presonality: ' )
     print ( inferred_presonality.iloc[:30, :])
@@ -398,8 +404,11 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     m = [ m for i in res_personality]
     l = res_personality.values.tolist()
 
-    print (len(m), ' , ' , l.shape)
+    print ( type(m) , '  ,  ', type(l))
+    print (len(m), ' , ' ,len(l))
     evaluate(l , m , 'mean_err_res')
+
+
 
     for col in personality_df.columns:
         improved_presonality[col] = cv(inferred_presonality_and_demog, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
