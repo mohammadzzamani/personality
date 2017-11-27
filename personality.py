@@ -340,19 +340,27 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
-    pca = PCA(n_components=100)
+    pca = PCA(n_components=50)
     topicPCA = pca.fit_transform(topic_df)
     topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
-    pca = PCA(n_components=100)
+    pca = PCA(n_components=50)
     languagePCA = pca.fit_transform(language_df)
     language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
+
+
+    adaptedTopic = multiply(demog_df, topic_df, output_filename = 'csv/multiplied_topic.csv')
+    [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
+
+    pca = PCA(n_components=70)
+    adaptedTopicPCA = pca.fit_transform(adaptedTopic)
+    adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
 
 
     adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
     [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
 
-    pca = PCA(n_components=120)
+    pca = PCA(n_components=70)
     adaptedLangPCA = pca.fit_transform(adaptedLang)
     adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
 
@@ -374,7 +382,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     inferred_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+        inferred_presonality[col] = infer_personality(adaptedTopic, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
 
     # inferred_presonality.set_index('user_id', inplace=True)
 
@@ -403,7 +411,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
         # data_all_factors = pd.read_csv('csv/multiplied_'+col+'_data.csv')
         # data_all_factors.set_index('user_id', inplace=True)
         all_factors_adapted.fillna(all_factors_adapted.mean(), inplace=True)
-        pca = PCA(n_components=150)
+        pca = PCA(n_components=90)
         all_factors_adapted = pd.DataFrame(data = pca.fit_transform(all_factors_adapted) , index= all_factors_adapted.index)
         all_factors_adapted.to_csv(('csv/multiplied_'+col+'_data_pca.csv'))
         cv(all_factors_adapted, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds,
@@ -492,10 +500,10 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     ESTIMATORS = [
             mean_est(),
             RidgeCV(alphas=alphas),
-            # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75, min_impurity_decrease=0.025),
+            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75)#, min_impurity_decrease=0.025),
             # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=7, max_features=0.75, min_impurity_decrease=0.075),
     ]
-    ESTIMATORS_NAME = [ 'mean' , 'gbr_ls6', 'gbr_ls7' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls6', 'gbr_ls7' ]
     YpredsAll = None
     for i in range(folds):
 
