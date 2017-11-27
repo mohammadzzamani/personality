@@ -320,9 +320,9 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
-    # pca = PCA(n_components=100)
-    # topicPCA = pca.fit_transform(topic_df)
-    # topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
+    pca = PCA(n_components=100)
+    topicPCA = pca.fit_transform(topic_df)
+    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
     # pca = PCA(n_components=50)
     # languagePCA = pca.fit_transform(language_df)
@@ -332,9 +332,9 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     adaptedTopic = multiply(demog_df, topic_df, output_filename = None )#'csv/multiplied_topic.csv')
     [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
 
-    pca = PCA(n_components=2000)
-    adaptedTopicPCA = pca.fit_transform(adaptedTopic)
-    adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
+    # pca = PCA(n_components=500)
+    # adaptedTopicPCA = pca.fit_transform(adaptedTopic)
+    # adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
 
 
     # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
@@ -382,9 +382,9 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     print ( 'presonality: ' )
 
-    m = personality_df.mean().values
+    m = personality_df.mean().values[0]
     print ('m: ' , m)
-    m = [m for i in range(personality_df.size())]
+    m = [m for i in range(personality_df.shape[0])]
     l = personality_df.values.tolist()
 
     print ( type(m) , '  ,  ', type(l))
@@ -397,16 +397,16 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     print ( 'res_personality: ' )
 
-    m = res_personality.mean().values
+    m = res_personality.mean().values[0]
     print ('m: ' , m)
-    m = [ m for i in range(res_personality.size())]
+    m = [ m for i in range(res_personality.shape[0])]
     l = res_personality.values.tolist()
 
     print ( type(m) , '  ,  ', type(l))
     print (len(m), ' , ' ,len(l))
     evaluate(l , m , 'mean_err_res')
 
-    return 
+    return
 
     for col in personality_df.columns:
         improved_presonality[col] = cv(inferred_presonality_and_demog, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
