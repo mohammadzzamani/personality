@@ -304,7 +304,7 @@ def transform(data, type='minmax'):
     return [data, scaler]
 
 def res_control(topic_df = None, language_df=None, demog_df=None, personality_df=None, folds = 5):
-    print ('res_control...')
+    print ('cross_validation...')
 
     # min_max transform controls
     [demog_df , demog_scaler] = transform(demog_df, type='minmax')
@@ -315,7 +315,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     [topic_df, demog_df, personality_df] = match_ids([topic_df, demog_df, personality_df])
 
     # standardize data and language
-    [topic_df, language_scaler] = transform(topic_df, type='standard')
+    # [language_df, language_scaler] = transform(language_df, type='standard')
     [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
@@ -323,14 +323,14 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     topicPCA = pca.fit_transform(topic_df)
     topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
-    pca = PCA(n_components=50)
-    topicPCA = pca.fit_transform(topic_df)
-    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
+    # pca = PCA(n_components=50)
+    # languagePCA = pca.fit_transform(language_df)
+    # language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
 
 
     adaptedTopic = multiply(demog_df, topic_df, output_filename = 'csv/multiplied_topic.csv')
     [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
-    #
+
     pca = PCA(n_components=70)
     adaptedTopicPCA = pca.fit_transform(adaptedTopic)
     adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
@@ -357,26 +357,61 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
     print('personality index : ' , personality_df.index)
+    personality_df = personality_df[['ext', 'neu']]
 
     inferred_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
-
+        inferred_presonality[col] = infer_personality(adaptedTopic, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
 
     # inferred_presonality.set_index('user_id', inplace=True)
 
-    adaptedTopic = pd.merge(adaptedTopic, demog_df, left_index=True, right_index=True, how='inner')
-    adaptedTopic = pd.merge(adaptedTopic, inferred_presonality, left_index=True, right_index=True, how='inner')
-    # improved_presonality = pd.DataFrame(index=personality_df.index)
+
+
+
+    inferred_presonality_and_demog = pd.merge(inferred_presonality, demog_df, left_index=True, right_index=True, how='inner')
+
+    adaptedTopic = pd.merge(adaptedTopic, inferred_presonality_and_demog, left_index=True, right_index=True, how='inner')
+    # adaptedTopic = pd.merge(adaptedTopic, inferred_presonality, left_index=True, right_index=True, how='inner')
+
+    foldsdf = k_fold(inferred_presonality_and_demog, folds=folds)
+
+    improved_presonality = pd.DataFrame(index=personality_df.index)
     res_personality = personality_df.subtract(inferred_presonality)
+
+    print ( 'personality_df: ' )
+    print ( personality_df.iloc[:30, :])
+    print ( personality_df.iloc[:30].mean())
+
+    print ( 'inferred_presonality: ' )
+    print ( inferred_presonality.iloc[:30, :])
+    print ( inferred_presonality.iloc[:30].mean())
+
+    print ( 'res_personality: ' )
+    print ( res_personality.iloc[:30, :])
+    print ( res_personality.iloc[:30].mean())
+
     for col in personality_df.columns:
-        cv(adaptedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
+        improved_presonality = cv(inferred_presonality_and_demog, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
 
     # inferred_presonality = improved_presonality
 
 
+    foldsdf = k_fold(adaptedTopic, folds=folds)
+    print (adaptedTopic.shape , ' , ', topic_df.shape)
+    for col in improved_presonality.columns:
+        print (type(improved_presonality[[col]]))
+
+        # all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
+        #                                output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
+
+        cv(topic_df, labels=improved_presonality[[col]], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
+        cv(adaptedTopic, labels=improved_presonality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedTopic_'+col, scaler = personality_scaler)
+
+
+
     print ('<<<<< personality inferred >>>>>')
+
 
 
 
@@ -580,7 +615,7 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     ESTIMATORS = [
             mean_est(),
             RidgeCV(alphas=alphas),
-            GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75)#, min_impurity_decrease=0.025),
+            # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=6, max_features=0.75)#, min_impurity_decrease=0.025),
             # GradientBoostingRegressor(n_estimators= 300, loss='ls', random_state=2, subsample=0.75, max_depth=7, max_features=0.75, min_impurity_decrease=0.075),
     ]
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls6', 'gbr_ls7' ]
@@ -719,7 +754,7 @@ def main():
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
-    res_control(topic_df, language_df, demog_df, personality_df)
+    cross_validation(topic_df, language_df, demog_df, personality_df)
 
     # cross_validation_with_saved_data(language_df=language_df, folds=10)
 
