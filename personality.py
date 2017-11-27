@@ -394,8 +394,12 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     print ( 'res_personality: ' )
     print ( res_personality.iloc[:30, :])
     print ( res_personality.iloc[:30].mean())
+    m = res_personality.mean().values
+    m = [ m for i in res_personality]
+    l = res_personality.values.tolist()
 
-    evaluate(res_personality.values.tolist() , [res_personality.mean() for i in res_personality], 'mean_err_res')
+    print (len(m), ' , ' , l.shape)
+    evaluate(l , m , 'mean_err_res')
 
     for col in personality_df.columns:
         improved_presonality[col] = cv(inferred_presonality_and_demog, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
