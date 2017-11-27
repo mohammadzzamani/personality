@@ -357,7 +357,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
     print('personality index : ' , personality_df.index)
-    personality_df = personality_df[['ext', 'neu']]
+    personality_df = personality_df[['big5_ext', 'big5_neu']]
 
     inferred_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
