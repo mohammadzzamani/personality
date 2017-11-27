@@ -188,7 +188,8 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        topic_df = load_topics(cursor)
+        # topic_df = load_topics(cursor)
+        topic_df = None
         # topic_df = pd.read_csv('csv/language.csv')
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
@@ -379,34 +380,34 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     improved_presonality = pd.DataFrame(index=personality_df.index)
     res_personality = personality_df.subtract(inferred_presonality)
 
-    print ( 'personality_df: ' )
-    print ( personality_df.iloc[:30, :])
-    print ( personality_df.iloc[:30].mean())
-    m = personality_df.mean().values
-    print ('m: ' , m)
-    m = [m for i in personality_df]
-    l = personality_df.values.tolist()
-
-    print ( type(m) , '  ,  ', type(l))
-    print (len(m), ' , ' ,len(l))
-    evaluate( l, m, 'mean_err')
-
-    print ( 'inferred_presonality: ' )
-    print ( inferred_presonality.iloc[:30, :])
-    print ( inferred_presonality.iloc[:30].mean())
-
-
-
-    print ( 'res_personality: ' )
-    print ( res_personality.iloc[:30, :])
-    print ( res_personality.iloc[:30].mean())
-    m = res_personality.mean().values
-    m = [ m for i in res_personality]
-    l = res_personality.values.tolist()
-
-    print ( type(m) , '  ,  ', type(l))
-    print (len(m), ' , ' ,len(l))
-    evaluate(l , m , 'mean_err_res')
+    # print ( 'personality_df: ' )
+    # print ( personality_df.iloc[:30, :])
+    # print ( personality_df.iloc[:30].mean())
+    # m = personality_df.mean().values
+    # print ('m: ' , m)
+    # m = [m for i in range(personality_df.size())]
+    # l = personality_df.values.tolist()
+    #
+    # print ( type(m) , '  ,  ', type(l))
+    # print (len(m), ' , ' ,len(l))
+    # evaluate( l, m, 'mean_err')
+    #
+    # print ( 'inferred_presonality: ' )
+    # print ( inferred_presonality.iloc[:30, :])
+    # print ( inferred_presonality.iloc[:30].mean())
+    #
+    #
+    #
+    # print ( 'res_personality: ' )
+    # print ( res_personality.iloc[:30, :])
+    # print ( res_personality.iloc[:30].mean())
+    # m = res_personality.mean().values
+    # m = [ m for i in range(res_personality.size())]
+    # l = res_personality.values.tolist()
+    #
+    # print ( type(m) , '  ,  ', type(l))
+    # print (len(m), ' , ' ,len(l))
+    # evaluate(l , m , 'mean_err_res')
 
 
 
@@ -754,7 +755,7 @@ def main():
     print ('personality_df.shape: ', personality_df.shape)
 
     # control_df.to_csv('csv/controls.csv')
-    # print control_df.corr()
+    print control_df.corr()
 
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
