@@ -190,7 +190,7 @@ def load_data():
     if(cursor is not None):
         topic_df = load_topics(cursor)
         # topic_df = pd.read_csv('csv/language.csv')
-        topic_df = topic_df.iloc[:5000]
+        # topic_df = topic_df.iloc[:5000]
         language_df = load_tweets(cursor, topic_df)
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
