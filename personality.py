@@ -358,7 +358,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
     print('personality index : ' , personality_df.index)
-    personality_df = personality_df[['big5_ext']] #, 'big5_neu']]
+    # personality_df = personality_df[['big5_ext']] #, 'big5_neu']]
 
     inferred_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
@@ -372,58 +372,57 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     inferred_presonality_and_demog = pd.merge(inferred_presonality, demog_df, left_index=True, right_index=True, how='inner')
 
-    adaptedTopic = pd.merge(adaptedTopic, inferred_presonality_and_demog, left_index=True, right_index=True, how='inner')
+    adaptedAddedTopic = pd.merge(adaptedTopic, inferred_presonality_and_demog, left_index=True, right_index=True, how='inner')
     # adaptedTopic = pd.merge(adaptedTopic, inferred_presonality, left_index=True, right_index=True, how='inner')
 
-    foldsdf = k_fold(inferred_presonality_and_demog, folds=folds)
+    # foldsdf = k_fold(inferred_presonality_and_demog, folds=folds)
 
     improved_presonality = pd.DataFrame(index=personality_df.index)
     res_personality = personality_df.subtract(inferred_presonality)
 
-    print ( 'presonality: ' )
+    # print ( 'presonality: ' )
+    # m = personality_df.mean().values[0]
+    # print ('m: ' , m)
+    # m = [m for i in range(personality_df.shape[0])]
+    # l = personality_df.values.tolist()
+    #
+    # print ( type(m) , '  ,  ', type(l))
+    # print (len(m), ' , ' ,len(l))
+    # evaluate( l, m, 'mean_err', store=False)
+    #
+    #
+    #
+    #
+    #
+    # print ( 'res_personality: ' )
+    # m = res_personality.mean().values[0]
+    # print ('m: ' , m)
+    # m = [ m for i in range(res_personality.shape[0])]
+    # l = res_personality.values.tolist()
+    #
+    # print ( type(m) , '  ,  ', type(l))
+    # print (len(m), ' , ' ,len(l))
+    # evaluate(l , m , 'mean_err_res', store=False)
 
-    m = personality_df.mean().values[0]
-    print ('m: ' , m)
-    m = [m for i in range(personality_df.shape[0])]
-    l = personality_df.values.tolist()
 
-    print ( type(m) , '  ,  ', type(l))
-    print (len(m), ' , ' ,len(l))
-    evaluate( l, m, 'mean_err')
-
-
-
-
-
-    print ( 'res_personality: ' )
-
-    m = res_personality.mean().values[0]
-    print ('m: ' , m)
-    m = [ m for i in range(res_personality.shape[0])]
-    l = res_personality.values.tolist()
-
-    print ( type(m) , '  ,  ', type(l))
-    print (len(m), ' , ' ,len(l))
-    evaluate(l , m , 'mean_err_res')
-
-    return
 
     for col in personality_df.columns:
-        improved_presonality[col] = cv(inferred_presonality_and_demog, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
+        improved_presonality[col] = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
 
     # inferred_presonality = improved_presonality
+    res_personality = personality_df.subtract(improved_presonality)
 
-
-    foldsdf = k_fold(adaptedTopic, folds=folds)
+    # foldsdf = k_fold(adaptedTopic, folds=folds)
     print (adaptedTopic.shape , ' , ', topic_df.shape)
-    for col in improved_presonality.columns:
-        print (type(improved_presonality[[col]]))
+    for col in res_personality.columns:
+        print (type(res_personality[[col]]))
 
         # all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
         #                                output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
 
-        cv(topic_df, labels=improved_presonality[[col]], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
-        cv(adaptedTopic, labels=improved_presonality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedTopic_'+col, scaler = personality_scaler)
+        cv(topic_df, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
+        cv(adaptedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedTopic_'+col, scaler = personality_scaler)
+        cv(adaptedAddedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedAddedTopic_'+col, scaler = personality_scaler)
 
 
 
@@ -698,7 +697,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
             GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features), #, min_impurity_decrease=0.01),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
-            KNeighborsRegressor(n_neighbors=5)
+            # KNeighborsRegressor(n_neighbors=5)
     ]
 
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
