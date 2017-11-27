@@ -377,6 +377,12 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
         inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
 
     # inferred_presonality.set_index('user_id', inplace=True)
+    improved_presonality = pd.DataFrame(index=personality_df.index)
+    for col in personality_df.columns:
+        improved_presonality[col] = cv(inferred_presonality, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'improved_personality_'+col, scaler = personality_scaler)
+
+    inferred_presonality = improved_presonality
+
 
     print ('<<<<< personality inferred >>>>>')
 
@@ -552,6 +558,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None):
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             KNeighborsRegressor(n_neighbors=5)
     ]
+
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
     YpredsAll = None
     for i in range(folds):
@@ -589,6 +596,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None):
     for j in range(YpredsAll.shape[1]-1):
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
+    return YpredsAll[:, 1]
 
 
 def main():
