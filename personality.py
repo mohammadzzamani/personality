@@ -747,7 +747,8 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
 def main():
     print('myMain...')
     topic_df, language_df, control_df, demog_df, personality_df = load_data()
-    print ('topic_df.shape: ', topic_df.shape)
+    if topic_df is not None:
+        print ('topic_df.shape: ', topic_df.shape)
     print ('demog_df.shape: ', demog_df.shape)
     print ('control_df.shape: ', control_df.shape)
     if language_df is not None:
@@ -757,6 +758,7 @@ def main():
     # control_df.to_csv('csv/controls.csv')
     print control_df.corr()
 
+    return
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
     # topic_df.set_index('user_id', inplace=True)
