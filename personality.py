@@ -162,6 +162,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
+    topic_df = topic_df.iloc[:500,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
