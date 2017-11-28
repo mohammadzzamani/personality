@@ -685,9 +685,9 @@ def infer_personality(data, labels, foldsdf, folds, pre):
 
 
     for j in range(YpredsAll.shape[1]-1):
-        print ('j: ' , j, ESTIMATORS_NAME[j])
+        print ('j: ' , j, ESTIMATORS_NAME[j], ' , ', YpredsAll[:,j].transpose().shape, '  , ' , Y.shape)
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
-        evaluate(Y.transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'____', store=False)
+        evaluate(Y, YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'____', store=False)
 
     return YpredsAll[:,1]
 
