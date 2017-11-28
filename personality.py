@@ -521,6 +521,8 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     # languagePCA = pca.fit_transform(language_df)
     # language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
 
+    lang_df.fillna(lang_df.mean(), inplace=True)
+
 
     adaptedLang = multiply(demog_df, lang_df) #, output_filename = 'csv/multiplied_topic.csv')
     # [adaptedTopic , adaptedTopic_scaler] = transform(adaptedLang, type='standard')

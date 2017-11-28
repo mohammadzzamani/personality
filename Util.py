@@ -230,6 +230,7 @@ def prepare_final_submission(submission_df, Ypred, type=0, output_filename='data
 
 
 def match_ids(dataList):
+    print ('match_ids...')
     users = None
     for data in dataList:
         # users = pd.DataFrame(index=data.index) if users is None else pd.merge(users, data, how='inner', left_index=True, right_index=True)
