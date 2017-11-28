@@ -102,8 +102,8 @@ def load_tweets(cursor, topic_df):
     return language_df
 
 
-def load_1to3grams(cursor):
-    print('load_1to3grams...')
+def load_ngrams(cursor, topic_df):
+    print('load_ngrams...')
     sql = "select distinct( feat) from {0}".format(ngrams_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
@@ -111,13 +111,19 @@ def load_1to3grams(cursor):
     for res in result:
         words.append(res[0])
 
-    sql = "select group_id , feat, group_norm from {0}".format(ngrams_table)
+
+    user_ids = '\' , \''.join(topic_df.index.values.tolist())
+    user_ids =  '( \'' +  user_ids  + '\' )'
+
+    sql = "select group_id , feat, group_norm from {0} where group_id in {1}".format(ngrams_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     language_df.feat = language_df.feat.map(lambda x: words.index(x))
-    language_df = csr_matrix()
-    print (language_df.iloc[0:2])
+
+    language_df = language_df.pivot(index='user_id', columns='feat', values='group_norm')
+    print ('language_df.shape after pivot: ' , language_df.shape)
+    # print (language_df.iloc[0:2])
 
     return language_df
 
@@ -189,16 +195,17 @@ def load_data():
         raise
     if(cursor is not None):
         topic_df = load_topics(cursor)
+        ngram_df = load_ngrams(cursor, topic_df)
         # topic_df = None
         # topic_df = pd.read_csv('csv/language.csv')
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
-        language_df = None
+        # language_df = None
         control_df = load_controls(cursor, control_feats)
         demog_df = load_controls(cursor, demog_feats)
         personality_df = load_controls(cursor, personality_feats)
 
-    return topic_df, language_df, control_df, demog_df, personality_df
+    return topic_df, ngram_df, control_df, demog_df, personality_df
 
 def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
@@ -474,10 +481,12 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     [personality_df , personality_scaler] = transform(personality_df, type='minmax')
 
 
-    topic_df.to_csv('csv/topic.csv')
-    language_df.to_csv('csv/language.csv')
-    demog_df.to_csv('csv/demog.csv')
-    personality_df.to_csv('csv/personlity.csv')
+    lang_df = pd.merge(language_df, topic_df, left_index=True, right_index=True)
+
+    # topic_df.to_csv('csv/topic.csv')
+    # language_df.to_csv('csv/language.csv')
+    # demog_df.to_csv('csv/demog.csv')
+    # personality_df.to_csv('csv/personlity.csv')
 
 
 
@@ -497,42 +506,42 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
 
     print ('language_df.shape is: ' , language_df.shape)
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
-    [language_df, demog_df, personality_df] = match_ids([language_df, demog_df, personality_df])
+    [lang_df, demog_df, personality_df] = match_ids([lang_df, demog_df, personality_df])
 
     # standardize data and language
-    [language_df, language_scaler] = transform(language_df, type='standard')
-    [topic_df, topic_scaler] = transform(topic_df, type='standard')
+    # [language_df, language_scaler] = transform(language_df, type='standard')
+    # [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
-    pca = PCA(n_components=50)
-    topicPCA = pca.fit_transform(topic_df)
-    topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
+    # pca = PCA(n_components=50)
+    # topicPCA = pca.fit_transform(topic_df)
+    # topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
-    pca = PCA(n_components=50)
-    languagePCA = pca.fit_transform(language_df)
-    language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
-
-
-    adaptedTopic = multiply(demog_df, topic_df, output_filename = 'csv/multiplied_topic.csv')
-    [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
-
-    pca = PCA(n_components=70)
-    adaptedTopicPCA = pca.fit_transform(adaptedTopic)
-    adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
+    # pca = PCA(n_components=50)
+    # languagePCA = pca.fit_transform(language_df)
+    # language_df = pd.DataFrame(data = languagePCA, index=language_df.index)
 
 
-    adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
-    [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
+    adaptedLang = multiply(demog_df, lang_df) #, output_filename = 'csv/multiplied_topic.csv')
+    # [adaptedTopic , adaptedTopic_scaler] = transform(adaptedLang, type='standard')
 
-    pca = PCA(n_components=70)
+    pca = PCA(n_components=2000)
     adaptedLangPCA = pca.fit_transform(adaptedLang)
     adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
 
 
+    # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
+    # [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
+    #
+    # pca = PCA(n_components=70)
+    # adaptedLangPCA = pca.fit_transform(adaptedLang)
+    # adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
 
 
-    adaptedLang.to_csv('csv/adaptedLang.csv')
-    language_df.to_csv('csv/language_pca.csv')
+
+
+    # adaptedLang.to_csv('csv/adaptedLang.csv')
+    # language_df.to_csv('csv/language_pca.csv')
 
 
 
@@ -543,12 +552,26 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
 
     print('personality index : ' , personality_df.index)
 
-    inferred_presonality = pd.DataFrame(index=personality_df.index)
+    inferred_presonality = None
+    adapted_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(adaptedTopic, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+        adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+        adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
+            pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
+        [inferred, reported] = match_ids([adapted_inferred_presonality, personality_df])
+        evaluate(reported[col], inferred[col], store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+
+        inferred_col = infer_personality(lang_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
+        inferred_presonality = inferred_col if inferred_presonality is None else \
+            pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
+        [inferred, reported] = match_ids([inferred_presonality, personality_df])
+        evaluate(reported[col], inferred[col], store=False, pre='>>>>>personalityVSinferred_'+col+'_')
+
+    return
 
     # inferred_presonality.set_index('user_id', inplace=True)
+
 
     inferred_presonality_and_demog = pd.merge(inferred_presonality, demog_df, left_index=True, right_index=True, how='inner')
     improved_presonality = pd.DataFrame(index=personality_df.index)
@@ -657,7 +680,7 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
 
 def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
     print ('infer_personality...')
-    [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
+    # [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
     # data.fillna(data.mean(), inplace=True)
     print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
@@ -704,7 +727,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
     for j in range(YpredsAll.shape[1]-1):
         print ('j: ' , j, ESTIMATORS_NAME[j], ' , ', YpredsAll[:,j].transpose().shape, '  , ' , Y.shape)
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
-        evaluate(Y, YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'____', store=False)
+        # evaluate(Y, YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'____', store=False)
 
     print ('length: ' , len(index) , ' , ' , YpredsAll[:,1].shape)
 
@@ -837,16 +860,16 @@ def main():
 
     # language_df = msg_to_user_langauge(language_df)
     if language_df is not None:
-        language_df = run_tfidf_dataframe(language_df, col_name='message')
+        # language_df = run_tfidf_dataframe(language_df, col_name='message')
         print ('language_df(tfidf).shape: ', language_df.shape)
     # language_df.to_csv('language_data.csv')
     # language_df = min_max_transformation(language_df)
     # language_df.to_csv('transformed_data.csv')
     # multiply(demog_df, language_df, output_filename = 'multiplied_transformed_data.csv')
 
-    res_control(topic_df, language_df, demog_df, personality_df)
+    # res_control(topic_df, language_df, demog_df, personality_df)
 
-    # cross_validation_with_saved_data(language_df=language_df, folds=10)
+    cross_validation(topic_df, language_df, demog_df, personality_df, folds=10)
 
 
 def multiply(controls, language, output_filename=None,  all_df = None):

@@ -108,7 +108,7 @@ def evaluate(Ytrue, Ypred, type='regression',  pre = 'pre ', store=True, scaler=
 
             if store == True:
                 myfile.write(pre + '\t mae: \t' + str(mae)+ '\t mse: \t' + str(mse) + '\t corr: \t' + str(data.corr()[0][1]) + ' \n' )
-            print (pre, ' mae: ' , mae, ' , mse: ', mse)
+            print (pre, ' mae: ' , mae, ' , mse: ', mse,   '\t corr: \t' ,  str(data.corr()[0][1]))
 
 
         elif type is 'classification2':
