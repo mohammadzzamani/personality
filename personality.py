@@ -174,7 +174,7 @@ def load_controls(cursor, topic_df, control_feats = control_feats):
 
     feats_str  = ' , '.join(control_feats)
     print ('feats_str: ' , feats_str)
-    sql = "select user_id , {0} from {1} where group_id in ( \'{2}\' )".format(feats_str, control_table, user_ids)
+    sql = "select user_id , {0} from {1} where user_id in ( \'{2}\' )".format(feats_str, control_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = ['user_id'] + control_feats)
