@@ -428,14 +428,16 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     # inferred_presonality = improved_presonality
     res_personality = {}
-    for key , value in improved_personality.iteritems():
-        res_personality[key]  = personality_df.subtract(improved_personality[key])
+    for col , value in improved_personality.iteritems():
+        res_personality[col] = pd.DataFrame(index=improved_personality[col].index)
+        for fold in improved_personality[col].columns:
+            res_personality[col][fold]  = personality_df[col].subtract(improved_personality[col][fold])
         print ' --------- '
-        print ( res_personality[key].shape, ' , ', personality_df.shape, ', ', improved_personality[key].shape, ' , ', inferred_presonality_and_demog.shape )
+        print ( res_personality[col].shape, ' , ', personality_df.shape, ', ', improved_personality[col].shape, ' , ', inferred_presonality_and_demog.shape )
         print ( inferred_presonality.shape)
-        print (res_personality[key].isnull().values.any(), ' , ', improved_personality[key].isnull().values.any(), ' , ', personality_df.isnull().values.any())
-        print ( res_personality[key].iloc[0:2,:])
-        print ( improved_personality[key].iloc[0:2,:])
+        print (res_personality[col].isnull().values.any(), ' , ', improved_personality[col].isnull().values.any(), ' , ', personality_df.isnull().values.any())
+        print ( res_personality[col].iloc[0:2,:])
+        print ( improved_personality[col].iloc[0:2,:])
         print '............'
 
     # foldsdf = k_fold(adaptedTopic, folds=folds)
