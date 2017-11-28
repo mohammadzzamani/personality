@@ -770,7 +770,14 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
-            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
+            try:
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
+            except:
+                print 'try...except'
+                print (ypred.shape)
+                print (ytest.shape)
+                print (np.isnull(ypred).any())
+                print (np.isnull(ytest).any())
 
             if j==1 & residuals:
                 ypredTrain = estimator.predict(X)
