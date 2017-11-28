@@ -352,7 +352,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
 
 
-    foldsdf = k_fold(topic_df, folds=20)
+    foldsdf = k_fold(topic_df, folds=10)
 
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
@@ -360,10 +360,12 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     print('personality index : ' , personality_df.index)
     # personality_df = personality_df[['big5_ext']] #, 'big5_neu']]
 
-    inferred_presonality = pd.DataFrame(index=personality_df.index)
+    inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]), ' col: ' , col)
-        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=20, pre='...infered_'+col+'...')
+        inferred_col = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=10, pre='...infered_'+col+'...', col_name = col)
+        inferred_presonality = inferred_col if inferred_presonality is None else \
+            pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         evaluate(personality_df[col], inferred_presonality[col], store=False, pre='personalityVSinferred_'+col+'_')
 
         # print ( personality_df[col].corrwith(inferred_presonality[col]))
@@ -406,18 +408,20 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # print (len(m), ' , ' ,len(l))
     # evaluate(l , m , 'mean_err_res', store=False)
 
+    [inferred_presonality, personality_df] = match_ids([inferred_presonality, personality_df])
 
     improved_presonality = {}
     for col in personality_df.columns:
         print( 'col: ' , col , '  ....  ')
-        evaluate(personality_df[col], inferred_presonality[col], store=False, pre='personalityVSinferred_'+col+'_')
-        data = cv(inferred_presonality[[col]], labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
-        print (range(folds))
+        # evaluate(personality_df[col], inferred_presonality[col], store=False, pre='personalityVSinferred_'+col+'_')
+        data = cv(inferred_presonality, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True, col_name=col)
+        # print (range(folds))
         columns = ['fold_'+str(i) for i in range(folds)]
         print (data.shape, ' , ', len(columns))
         print( personality_df.index.shape)
         improved_presonality[col] = pd.DataFrame( index=personality_df.index, data= data, columns= columns)
-        print ('improved_presonality[col]: ' , improved_presonality[col].shape, ' , ' , improved_presonality[col].columns)
+
+        print ('improved_presonality[col]: ' , improved_presonality[col].shape, ' , ' , improved_presonality[col].columns, ' , has Nan? ', improved_presonality[col].isnull().values.any())
         # print ( personality_df[col].corrwith(improved_presonality[col]))
 
     # inferred_presonality = improved_presonality
@@ -640,7 +644,7 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
 
 
 
-def infer_personality(data, labels, foldsdf, folds, pre):
+def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
     print ('infer_personality...')
     [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
     # data.fillna(data.mean(), inplace=True)
@@ -656,6 +660,7 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     YpredsAll = None
 
     Y = labels.values
+    index = []
     for i in range(folds):
 
         # prepare train and test data
@@ -667,6 +672,7 @@ def infer_personality(data, labels, foldsdf, folds, pre):
         Xtest = data.loc[test_ids].values
         ytest = labels.loc[test_ids].values
 
+        index.append(test_ids)
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
@@ -689,10 +695,12 @@ def infer_personality(data, labels, foldsdf, folds, pre):
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
         evaluate(Y, YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'____', store=False)
 
-    return YpredsAll[:,1]
+    result = pd.DataFrame(index=index, data= YpredsAll[:,1], columns=[col_name])
+
+    return result
 
 
-def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=6, max_features = 0.75, residuals = False):
+def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=6, max_features = 0.75, residuals = False, col_name='y'):
 
     # print 'data: ' , data
     #
@@ -728,6 +736,9 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
     if residuals:
         YpredsAllTrain = None
 
+    index = []
+
+
     for i in range(folds):
 
         # prepare train and test data
@@ -741,11 +752,11 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
         X = data.values
         Xtrain = data.loc[train_ids].values
 
-        ytrain = labels.loc[train_ids].values if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[train_ids].values
+        ytrain = labels.loc[train_ids].values  #if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[train_ids].values
         Xtest = data.loc[test_ids].values
-        ytest = labels.loc[test_ids].values if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[test_ids].values
+        ytest = labels.loc[test_ids].values #if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[test_ids].values
 
-
+        index.append(test_ids)
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
         Ypreds = None
@@ -767,10 +778,13 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
         print ('ypredsAll.shape: ' , YpredsAll.shape)
 
 
+
     for j in range(YpredsAll.shape[1]-1):
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
-    return YpredsAllTrain if residuals else YpredsAll[:, 1]
+    result = pd.DataFrame(index=index, data= YpredsAll[:,1], columns=[col_name])
+
+    return YpredsAllTrain if residuals else result
 
 
 def main():
