@@ -563,7 +563,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     adapted_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        adapted_inferred_col = cv(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
         adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
             pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
@@ -772,7 +772,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             mean_est(),
             RidgeCV(alphas=alphas),
             # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features), #, min_impurity_decrease=0.01),
+            GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.01),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             # KNeighborsRegressor(n_neighbors=5)
     ]
