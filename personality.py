@@ -320,7 +320,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     [topic_df, topic_scaler] = transform(topic_df, type='standard')
 
 
-    pca = PCA(n_components=100)
+    pca = PCA(n_components=50)
     topicPCA = pca.fit_transform(topic_df)
     topic_df = pd.DataFrame(data = topicPCA, index=topic_df.index)
 
@@ -332,9 +332,9 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     adaptedTopic = multiply(demog_df, topic_df, output_filename = None )#'csv/multiplied_topic.csv')
     [adaptedTopic , adaptedTopic_scaler] = transform(adaptedTopic, type='standard')
 
-    # pca = PCA(n_components=500)
-    # adaptedTopicPCA = pca.fit_transform(adaptedTopic)
-    # adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
+    pca = PCA(n_components=50)
+    adaptedTopicPCA = pca.fit_transform(adaptedTopic)
+    adaptedTopic = pd.DataFrame(data = adaptedTopicPCA, index=adaptedTopic.index)
 
 
     # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
