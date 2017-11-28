@@ -747,7 +747,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
     return result
 
 
-def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=10, max_features = 0.75, residuals = False, col_name='y'):
+def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y'):
 
     # print 'data: ' , data
     #
@@ -772,7 +772,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             mean_est(),
             RidgeCV(alphas=alphas),
             # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.01),
+            GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             # KNeighborsRegressor(n_neighbors=5)
     ]
