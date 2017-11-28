@@ -383,7 +383,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     # foldsdf = k_fold(inferred_presonality_and_demog, folds=folds)
 
-    improved_presonality = pd.DataFrame(index=personality_df.index)
+    # improved_personality = pd.DataFrame(index=personality_df.index)
     # res_personality = personality_df.subtract(inferred_presonality)
 
     # print ( 'presonality: ' )
@@ -431,6 +431,8 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     for key , value in improved_personality.iteritems():
         res_personality[key]  = personality_df.subtract(improved_personality[key])
         print ' --------- '
+        print ( res_personality[key].shape, ' , ', personality_df.shape, ', ', improved_personality[key].shape, ' , ', inferred_presonality_and_demog.shape )
+        print ( inferred_presonality.shape)
         print (res_personality[key].isnull().values.any(), ' , ', improved_personality[key].isnull().values.any(), ' , ', personality_df.isnull().values.any())
         print ( res_personality[key].iloc[0:2,:])
         print ( improved_personality[key].iloc[0:2,:])
