@@ -655,7 +655,7 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls6', 'gbr_ls7' ]
     YpredsAll = None
 
-    X = data.values
+    Y = labels.values
     for i in range(folds):
 
         # prepare train and test data
