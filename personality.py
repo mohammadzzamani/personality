@@ -88,9 +88,9 @@ def load_tweets(cursor, topic_df):
     language_df = None
     user_ids = '\' , \''.join(topic_df.index.values.tolist())
     # print (user_ids)
-    user_ids =  '( \'' +  user_ids  + '\' )'
+    # user_ids =  '( \'' +  user_ids  + '\' )'
 
-    sql = "select user_id , message from {0} where user_id in {1}".format(msg_table, user_ids)
+    sql = "select user_id , message from {0} where user_id in ( \'{1}\' )".format(msg_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
@@ -113,9 +113,9 @@ def load_ngrams(cursor, topic_df):
 
 
     user_ids = '\' , \''.join(topic_df.index.values.tolist())
-    user_ids =  '( \'' +  user_ids  + '\' )'
+    # user_ids =  '( \'' +  user_ids  + '\' )'
 
-    sql = "select group_id , feat, group_norm from {0} where group_id in {1}".format(ngrams_table, user_ids)
+    sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
@@ -208,7 +208,7 @@ def load_data():
         # language_df = None
         control_df = load_controls(cursor, topic_df, control_feats)
         demog_df = load_controls(cursor, topic_df, demog_feats)
-        personality_df = load_controls(cursor, personality_feats)
+        personality_df = load_controls(cursor, topic_df, personality_feats)
 
     return topic_df, ngram_df, control_df, demog_df, personality_df
 
