@@ -654,6 +654,8 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     ]
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls6', 'gbr_ls7' ]
     YpredsAll = None
+
+    X = data.values
     for i in range(folds):
 
         # prepare train and test data
@@ -683,7 +685,9 @@ def infer_personality(data, labels, foldsdf, folds, pre):
 
 
     for j in range(YpredsAll.shape[1]-1):
+        print ('j: ' , j, ESTIMATORS_NAME[j])
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
+        evaluate(X.transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'____', store=False)
 
     return YpredsAll[:,1]
 
