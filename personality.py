@@ -768,9 +768,10 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
         Xtrain = data.loc[train_ids].values
 
         ytrain = labels.loc[train_ids].values  if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[train_ids].values
+        ytrain = np.reshape(ytrain,(ytrain.shape[0], 1))
         Xtest = data.loc[test_ids].values
         ytest = labels.loc[test_ids].values if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[test_ids].values
-
+        ytest = np.reshape(ytest,(ytest.shape[0], 1))
         index = index + test_ids
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
