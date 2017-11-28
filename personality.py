@@ -364,6 +364,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
         inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+
         # print ( personality_df[col].corrwith(inferred_presonality[col]))
     # inferred_presonality.set_index('user_id', inplace=True)
 
@@ -409,6 +410,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     for col in personality_df.columns:
         improved_presonality[col] = pd.DataFrame( index=personality_df.index, data = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
                                                   , columns = ['fold_'+str(i) for i in range(folds)])
+        print ('improved_presonality[col]: ' , improved_presonality[col].shape, ' , ' , improved_presonality[col].columns)
         # print ( personality_df[col].corrwith(improved_presonality[col]))
 
     # inferred_presonality = improved_presonality
