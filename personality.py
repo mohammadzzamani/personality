@@ -754,7 +754,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             if j==1 & residuals:
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
-                YpredsAllTrain = stack_folds_preds(ypredTrain, YpredsAllTrain, 'vertical')
+                YpredsAllTrain = stack_folds_preds(ypredTrain, YpredsAllTrain, 'horizontal')
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
