@@ -425,8 +425,8 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     # foldsdf = k_fold(adaptedTopic, folds=folds)
     print (adaptedTopic.shape , ' , ', topic_df.shape)
-    for col in res_personality.columns:
-        print (type(res_personality[[col]]))
+    for col in personality_df.columns:
+        # print (type(res_personality[[col]]))
 
         # all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
         #                                output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
