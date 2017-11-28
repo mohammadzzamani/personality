@@ -165,11 +165,15 @@ def load_topics(cursor, gft = 500):
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
-def load_controls(cursor, control_feats = control_feats):
+def load_controls(cursor, topic_df, control_feats = control_feats, ):
     print('load_controls...')
+
+    user_ids = '\' , \''.join(topic_df.index.values.tolist())
+    # user_ids =  '( \'' +  user_ids  + '\' )'
+
     feats_str  = ' , '.join(control_feats)
     print ('feats_str: ' , feats_str)
-    sql = "select user_id , {0} from {1}".format(feats_str, control_table)
+    sql = "select user_id , {0} from {1} where group_id in ( \'{1}\' )".format(feats_str, control_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = ['user_id'] + control_feats)
@@ -201,8 +205,8 @@ def load_data():
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
         # language_df = None
-        control_df = load_controls(cursor, control_feats)
-        demog_df = load_controls(cursor, demog_feats)
+        control_df = load_controls(cursor, topic_df, control_feats)
+        demog_df = load_controls(cursor, topic_df, demog_feats)
         personality_df = load_controls(cursor, personality_feats)
 
     return topic_df, ngram_df, control_df, demog_df, personality_df
