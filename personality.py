@@ -568,14 +568,14 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
             pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
         print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-        evaluate(reported[col], inferred[col], store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
         inferred_col = infer_personality(lang_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
         print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
-        evaluate(reported[col], inferred[col], store=False, pre='>>>>>personalityVSinferred_'+col+'_')
+        evaluate(reported, inferred, store=False, pre='>>>>>personalityVSinferred_'+col+'_')
 
     return
 
