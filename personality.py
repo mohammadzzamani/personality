@@ -412,7 +412,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     [inferred_presonality, personality_df, inferred_presonality_and_demog] = match_ids([inferred_presonality, personality_df, inferred_presonality_and_demog])
 
-    improved_presonality = {}
+    improved_personality = {}
     for col in personality_df.columns:
         print( 'col: ' , col , '  ....  ')
         # evaluate(personality_df[col], inferred_presonality[col], store=False, pre='personalityVSinferred_'+col+'_')
@@ -421,15 +421,20 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
         columns = ['fold_'+str(i) for i in range(folds)]
         print (data.shape, ' , ', len(columns))
         print( personality_df.index.shape)
-        improved_presonality[col] = pd.DataFrame( index=personality_df.index, data= data, columns= columns)
+        improved_personality[col] = pd.DataFrame( index=personality_df.index, data= data, columns= columns)
 
-        print ('improved_presonality[col]: ' , improved_presonality[col].shape, ' , ' , improved_presonality[col].columns, ' , has Nan? ', improved_presonality[col].isnull().values.any())
+        print ('improved_presonality[col]: ' , improved_personality[col].shape, ' , ' , improved_personality[col].columns, ' , has Nan? ', improved_personality[col].isnull().values.any())
         # print ( personality_df[col].corrwith(improved_presonality[col]))
 
     # inferred_presonality = improved_presonality
     res_personality = {}
-    for key , value in improved_presonality.iteritems():
-        res_personality[key]  = personality_df.subtract(improved_presonality[key])
+    for key , value in improved_personality.iteritems():
+        res_personality[key]  = personality_df.subtract(improved_personality[key])
+        print ' --------- '
+        print (res_personality[key].isnull().values.any(), ' , ', improved_personality[key].isnull().values.any(), ' , ', personality_df.isnull().values.any())
+        print ( res_personality[key].iloc[0:2,:])
+        print ( improved_personality[key].iloc[0:2,:])
+        print '............'
 
     # foldsdf = k_fold(adaptedTopic, folds=folds)
     print (adaptedTopic.shape , ' , ', topic_df.shape)
@@ -737,8 +742,8 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
     YpredsAll = None
 
-    if residuals:
-        YpredsAllTrain = None
+
+    YpredsAllTrain = None
 
     index = []
 
