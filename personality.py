@@ -366,7 +366,9 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
         inferred_col = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=10, pre='...infered_'+col+'...', col_name = col)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
-        evaluate(personality_df[col], inferred_presonality[col], store=False, pre='personalityVSinferred_'+col+'_')
+
+        [inferred, reported] = match_ids([inferred_presonality, personality_df])
+        evaluate(reported[col], inferred[col], store=False, pre='personalityVSinferred_'+col+'_')
 
         # print ( personality_df[col].corrwith(inferred_presonality[col]))
     # inferred_presonality.set_index('user_id', inplace=True)
@@ -672,7 +674,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
         Xtest = data.loc[test_ids].values
         ytest = labels.loc[test_ids].values
 
-        index.append(test_ids)
+        index = index + test_ids
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
