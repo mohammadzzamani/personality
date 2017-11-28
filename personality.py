@@ -317,7 +317,7 @@ def transform(data, type='minmax'):
     return [data, scaler]
 
 def res_control(topic_df = None, language_df=None, demog_df=None, personality_df=None, folds = 5):
-    print ('cross_validation...')
+    print ('res_control...')
 
     # min_max transform controls
     [demog_df , demog_scaler] = transform(demog_df, type='minmax')
@@ -540,9 +540,9 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
     # [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
     #
-    # pca = PCA(n_components=70)
-    # adaptedLangPCA = pca.fit_transform(adaptedLang)
-    # adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
+    pca = PCA(n_components=500)
+    langPCA = pca.fit_transform(lang_df)
+    langPCA = pd.DataFrame(data = langPCA, index=lang_df.index)
 
 
 
@@ -570,7 +570,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
         print (col, ' : ' , inferred.shape, ' , ', reported.shape)
         evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
-        inferred_col = infer_personality(lang_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        inferred_col = infer_personality(langPCA, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
@@ -712,8 +712,10 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 
         Xtrain = data.loc[train_ids].values
         ytrain = labels.loc[train_ids].values
+        ytrain = np.reshape(ytrain,(ytrain.shape[0], 1))
         Xtest = data.loc[test_ids].values
         ytest = labels.loc[test_ids].values
+        ytest = np.reshape(ytest,(ytest.shape[0], 1))
 
         index = index + test_ids
 
