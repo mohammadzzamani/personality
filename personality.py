@@ -162,7 +162,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    topic_df = topic_df.iloc[:500,:]
+    # topic_df = topic_df.iloc[:5000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -747,7 +747,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
     return result
 
 
-def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=6, max_features = 0.75, residuals = False, col_name='y'):
+def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=10, max_features = 0.75, residuals = False, col_name='y'):
 
     # print 'data: ' , data
     #
