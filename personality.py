@@ -410,13 +410,13 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # print (len(m), ' , ' ,len(l))
     # evaluate(l , m , 'mean_err_res', store=False)
 
-    [inferred_presonality, personality_df] = match_ids([inferred_presonality, personality_df])
+    [inferred_presonality, personality_df, inferred_presonality_and_demog] = match_ids([inferred_presonality, personality_df, inferred_presonality_and_demog])
 
     improved_presonality = {}
     for col in personality_df.columns:
         print( 'col: ' , col , '  ....  ')
         # evaluate(personality_df[col], inferred_presonality[col], store=False, pre='personalityVSinferred_'+col+'_')
-        data = cv(inferred_presonality, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True, col_name=col)
+        data = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True, col_name=col)
         # print (range(folds))
         columns = ['fold_'+str(i) for i in range(folds)]
         print (data.shape, ' , ', len(columns))
@@ -760,7 +760,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
         Xtest = data.loc[test_ids].values
         ytest = labels.loc[test_ids].values #if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[test_ids].values
 
-        index.append(test_ids)
+        index = index + test_ids
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
 
         Ypreds = None
