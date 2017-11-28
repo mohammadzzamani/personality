@@ -352,7 +352,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
 
 
-    foldsdf = k_fold(topic_df, folds=folds)
+    foldsdf = k_fold(topic_df, folds=20)
 
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
@@ -369,7 +369,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # inferred_presonality.set_index('user_id', inplace=True)
 
 
-
+    foldsdf = k_fold(topic_df, folds=folds)
 
     inferred_presonality_and_demog = pd.merge(inferred_presonality, demog_df, left_index=True, right_index=True, how='inner')
 
@@ -409,7 +409,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     improved_presonality = {}
     for col in personality_df.columns:
 
-        data = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
+        data = cv(inferred_presonality[[col]], labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
         print (range(folds))
         columns = ['fold_'+str(i) for i in range(folds)]
         print (data.shape, ' , ', len(columns))
