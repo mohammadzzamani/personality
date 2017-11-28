@@ -776,8 +776,8 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
                 print 'try...except'
                 print (ypred.shape)
                 print (ytest.shape)
-                print (np.isnull(ypred).any())
-                print (np.isnull(ytest).any())
+                print (np.isnan(ypred).any())
+                print (np.isnan(ytest).any())
 
             if j==1 & residuals:
                 ypredTrain = estimator.predict(X)
