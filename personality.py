@@ -743,6 +743,8 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
     index = []
 
 
+
+
     for i in range(folds):
 
         # prepare train and test data
@@ -778,6 +780,8 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
                 print (ytest.shape)
                 print (np.isnan(ypred).any())
                 print (np.isnan(ytest).any())
+                print (labels.isnull().values.any())
+                print (labels['fold_'+str(i)].isnull().values.any())
 
             if j==1 & residuals:
                 ypredTrain = estimator.predict(X)
