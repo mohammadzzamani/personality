@@ -166,7 +166,7 @@ def load_topics(cursor, gft = 500):
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
-def load_controls(cursor, topic_df, control_feats = control_feats, ):
+def load_controls(cursor, topic_df, control_feats = control_feats):
     print('load_controls...')
 
     user_ids = '\' , \''.join(topic_df.index.values.tolist())
@@ -174,7 +174,7 @@ def load_controls(cursor, topic_df, control_feats = control_feats, ):
 
     feats_str  = ' , '.join(control_feats)
     print ('feats_str: ' , feats_str)
-    sql = "select user_id , {0} from {1} where group_id in ( \'{1}\' )".format(feats_str, control_table, user_ids)
+    sql = "select user_id , {0} from {1} where group_id in ( \'{2}\' )".format(feats_str, control_table, user_ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = ['user_id'] + control_feats)
