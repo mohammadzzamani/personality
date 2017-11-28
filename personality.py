@@ -363,7 +363,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     inferred_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=20, pre='...infered_'+col+'...')
 
         # print ( personality_df[col].corrwith(inferred_presonality[col]))
     # inferred_presonality.set_index('user_id', inplace=True)
