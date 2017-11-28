@@ -408,8 +408,13 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
     improved_presonality = {}
     for col in personality_df.columns:
-        improved_presonality[col] = pd.DataFrame( index=personality_df.index, data = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
-                                                  , columns = ['fold_'+str(i) for i in range(folds)])
+
+        data = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
+        print (range(folds))
+        columns = ['fold_'+str(i) for i in range(folds)]
+        print (data.shape, ' , ', len(columns))
+        print( personality_df.index.shape)
+        improved_presonality[col] = pd.DataFrame( index=personality_df.index, data= data, columns= columns)
         print ('improved_presonality[col]: ' , improved_presonality[col].shape, ' , ' , improved_presonality[col].columns)
         # print ( personality_df[col].corrwith(improved_presonality[col]))
 
