@@ -363,8 +363,8 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     inferred_presonality = pd.DataFrame(index=personality_df.index)
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        inferred_presonality[col] = infer_personality(adaptedTopic, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
-
+        inferred_presonality[col] = infer_personality(topic_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...infered_'+col+'...')
+        print ( personality_df[col].corrwith(inferred_presonality[col]))
     # inferred_presonality.set_index('user_id', inplace=True)
 
 
@@ -378,7 +378,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # foldsdf = k_fold(inferred_presonality_and_demog, folds=folds)
 
     improved_presonality = pd.DataFrame(index=personality_df.index)
-    res_personality = personality_df.subtract(inferred_presonality)
+    # res_personality = personality_df.subtract(inferred_presonality)
 
     # print ( 'presonality: ' )
     # m = personality_df.mean().values[0]
@@ -405,12 +405,16 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # evaluate(l , m , 'mean_err_res', store=False)
 
 
-
+    improved_presonality = {}
     for col in personality_df.columns:
-        improved_presonality[col] = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8)
+        improved_presonality[col] = pd.DataFrame( index=personality_df.index, data = cv(inferred_presonality_and_demog, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'res_personality_'+col, max_depth = 6, max_features=0.8, residuals=True)
+                                                  , columns = ['fold_'+str(i) for i in range(folds)])
+        # print ( personality_df[col].corrwith(improved_presonality[col]))
 
     # inferred_presonality = improved_presonality
-    res_personality = personality_df.subtract(improved_presonality)
+    res_personality = {}
+    for key , value in improved_presonality.iteritems():
+        res_personality[key]  = personality_df.subtract(improved_presonality[key])
 
     # foldsdf = k_fold(adaptedTopic, folds=folds)
     print (adaptedTopic.shape , ' , ', topic_df.shape)
@@ -420,9 +424,14 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
         # all_factors_adapted = multiply(controls=personality_df.loc[:, personality_df.columns != col], language=language_df,
         #                                output_filename = 'csv/multiplied_'+col+'_data.csv', all_df=adaptedLang)
 
-        cv(topic_df, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
-        cv(adaptedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedTopic_'+col, scaler = personality_scaler)
-        cv(adaptedAddedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedAddedTopic_'+col, scaler = personality_scaler)
+        cv(topic_df, labels=res_personality[col], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
+        cv(adaptedTopic, labels=res_personality[col], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedTopic_'+col, scaler = personality_scaler)
+        cv(adaptedAddedTopic, labels=res_personality[col], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedAddedTopic_'+col, scaler = personality_scaler)
+
+
+        # cv(topic_df, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'topic_'+col, scaler = personality_scaler)
+        # cv(adaptedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedTopic_'+col, scaler = personality_scaler)
+        # cv(adaptedAddedTopic, labels=res_personality[[col]], foldsdf= foldsdf, folds = folds, pre = 'age&gender_adaptedAddedTopic_'+col, scaler = personality_scaler)
 
 
 
@@ -670,7 +679,7 @@ def infer_personality(data, labels, foldsdf, folds, pre):
     return YpredsAll[:,1]
 
 
-def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=6, max_features = 0.75):
+def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=6, max_features = 0.75, residuals = False):
 
     # print 'data: ' , data
     #
@@ -679,7 +688,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
     # print 'foldsdf: ' , foldsdf
 
 
-    [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
+    # [data, labels, foldsdf] = match_ids([data, labels, foldsdf])
 
     # all_df = pd.merge(data, labels,  how='inner', left_index=True, right_index=True)
     # all_df = pd.merge(all_df, foldsdf, how='inner', left_index=True, right_index=True)
@@ -702,6 +711,10 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
 
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
     YpredsAll = None
+
+    if residuals:
+        YpredsAllTrain = None
+
     for i in range(folds):
 
         # prepare train and test data
@@ -712,10 +725,12 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
         # print ( 'ids: ' , len(test_ids), ' , ' , len(train_ids))
         # print (data)
         # print ( train_ids)
+        X = data.values
         Xtrain = data.loc[train_ids].values
-        ytrain = labels.loc[train_ids].values
+
+        ytrain = labels.loc[train_ids].values if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[train_ids].values
         Xtest = data.loc[test_ids].values
-        ytest = labels.loc[test_ids].values
+        ytest = labels.loc[test_ids].values if labels.shape[1] <= 1 else labels['fold_'+str(i)].loc[test_ids].values
 
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
@@ -729,6 +744,11 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
 
+            if j==1 & residuals:
+                ypredTrain = estimator.predict(X)
+                ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
+                YpredsAllTrain = stack_folds_preds(ypredTrain, YpredsAllTrain, 'vertical')
+
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
         print ('ypredsAll.shape: ' , YpredsAll.shape)
@@ -737,7 +757,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
     for j in range(YpredsAll.shape[1]-1):
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
-    return YpredsAll[:, 1]
+    return YpredsAllTrain if residuals else YpredsAll[:, 1]
 
 
 def main():
