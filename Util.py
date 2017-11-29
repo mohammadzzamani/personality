@@ -241,3 +241,81 @@ def match_ids(dataList):
         dataList[i] = dataList[i].loc[users]
 
     return dataList
+
+
+def multiply(controls, language, output_filename=None,  all_df = None):
+    print ('multiply...')
+
+    if all_df is None:
+        all_df = language
+    print ('shapes: ', controls.shape, language.shape , all_df.shape)
+    for col in controls.columns:
+        print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
+        languageMultiplyC = language.multiply(controls[col], axis="index")
+        languageMultiplyC.columns = [ str(s)+'_'+str(col) for s in language.columns]
+        all_df = pd.concat([all_df, languageMultiplyC] , axis=1, join='inner')
+
+
+    if  output_filename is not None:
+        all_df.to_csv(output_filename)
+    print ('multiplied_df.shape: ' , all_df.shape)
+    # print (all_df.iloc[[0,1]])
+    return all_df
+
+
+def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
+
+    test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
+    train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
+
+
+    ytrain = groupLabels.loc[train_ids].values  if groupLabels.shape[1] <= 1 else groupLabels['fold_'+str(fold)].loc[train_ids].values
+    ytrain = np.reshape(ytrain,(ytrain.shape[0], 1))
+    ytest = groupLabels.loc[test_ids].values if groupLabels.shape[1] <= 1 else groupLabels['fold_'+str(fold)].loc[test_ids].values
+    ytest = np.reshape(ytest,(ytest.shape[0], 1))
+    print ('train & test: ' , ytrain.shape , ' , ', ytest.shape)
+
+    groupX = None
+    groupXtrain = None
+    groupXtest = None
+
+    for i in range(len(groupData)):
+        data = groupData[i]
+        X = data.values
+        Xtrain = data.loc[train_ids].values
+        Xtest = data.loc[test_ids].values
+        # index = index + test_ids
+
+        if dim_reduction is not None:
+            [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
+            Xtest = fSelector.transform(Xtest)
+            X = fSelector.transform(X)
+
+        stack_folds_preds(Xtrain, groupXtrain, 'horizontal')
+        stack_folds_preds(Xtest, groupXtest, 'horizontal')
+        stack_folds_preds(X, groupX, 'horizontal')
+
+
+
+    print ('train & test: ' , groupX.shape, ' , ', groupXtrain.shape , ' , ', groupXtest.shape , ' , ', ytest.shape, ' , ', ytrain.shape)
+
+    return groupX, groupXtrain, groupXtest, ytrain , ytest
+
+
+def dimension_reduction(X, y, univariate = True, pca = True):
+    print ('dimension_reduction...')
+
+    alpha = 60.0
+    n_components = 1000
+    if univariate & pca:
+        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
+    elif univariate:
+        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+'))])'
+    elif pca:
+        featureSelectionString = 'Pipeline([ ("1_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
+    fSelector = eval(featureSelectionString)
+    newX = fSelector.fit_transform(X, y)
+
+    print ('newX.shape: ' , newX.shape)
+
+    return [newX , fSelector]
