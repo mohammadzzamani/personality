@@ -496,6 +496,10 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
 
     ngrams_df.fillna(0, inplace=True)
+
+    adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
+    adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
+
     # nbools_df.fillna(0, inplace=True)
 
     # lang_df = pd.merge(language_df, topic_df, left_index=True, right_index=True)
@@ -542,6 +546,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     # lang_df.fillna(lang_df.mean(), inplace=True)
 
 
+
     # adaptedLang = multiply(demog_df, lang_df) #, output_filename = 'csv/multiplied_topic.csv')
     # [adaptedTopic , adaptedTopic_scaler] = transform(adaptedLang, type='standard')
 
@@ -562,12 +567,14 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
 
 
+
     foldsdf = k_fold(topic_df, folds=folds)
 
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
     langData = [ ngrams, topic_df]
+    adapted_langData = [ adapted_ngrams, adapted_topics]
 
     print('personality index : ' , personality_df.index)
 
@@ -575,7 +582,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     adapted_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        adapted_inferred_col = cv(data=langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        adapted_inferred_col = cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
         adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
             pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
@@ -764,7 +771,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y'):
 
     # data.fillna(data.mean(), inplace=True)
-    print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
+    # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
     ESTIMATORS = [
             mean_est(),
@@ -787,7 +794,8 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
         [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, folds, dimension_reduction=True)
 
-        print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
+
+        print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)
 
         # [Xtrain, fSelector] = dimension_reduction(Xtrain, ytrain)
         # Xtest = fSelector.transform(Xtest)
