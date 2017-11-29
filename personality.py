@@ -204,16 +204,16 @@ def load_data():
         raise
     if(cursor is not None):
         topic_df = load_topics(cursor)
-        # ngram_df = load_ngrams(cursor, topic_df)
-        ngram_df = None
+        ngram_df = load_ngrams(cursor, topic_df)
+        # ngram_df = None
         # topic_df = None
         # topic_df = pd.read_csv('csv/language.csv')
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
         # language_df = None
-        control_df = load_controls(cursor, control_feats=control_feats)
-        demog_df = load_controls(cursor, control_feats=demog_feats)
-        personality_df = load_controls(cursor, control_feats=personality_feats)
+        control_df = load_controls(cursor, topic_df=topic_df , control_feats=control_feats)
+        demog_df = load_controls(cursor, topic_df=topic_df ,control_feats=demog_feats)
+        personality_df = load_controls(cursor, topic_df=topic_df ,control_feats=personality_feats)
 
     return topic_df, ngram_df, control_df, demog_df, personality_df
 
@@ -449,13 +449,13 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
         res_personality[col] = pd.DataFrame(index=improved_personality[col].index)
         for fold in improved_personality[col].columns:
             res_personality[col][fold]  = personality_df[col].subtract(improved_personality[col][fold])
-        print ' --------- '
+        print (' --------- ')
         print ( res_personality[col].shape, ' , ', personality_df.shape, ', ', improved_personality[col].shape, ' , ', inferred_presonality_and_demog.shape )
         print ( inferred_presonality.shape)
         print (res_personality[col].isnull().values.any(), ' , ', improved_personality[col].isnull().values.any(), ' , ', personality_df.isnull().values.any())
         print ( res_personality[col].iloc[0:2,:])
         print ( improved_personality[col].iloc[0:2,:])
-        print '............'
+        print ('............')
 
     # foldsdf = k_fold(adaptedTopic, folds=folds)
     print (adaptedTopic.shape , ' , ', topic_df.shape)
@@ -543,6 +543,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
 
 
+
     # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
     # [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
     #
@@ -550,6 +551,7 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     langPCA = pca.fit_transform(lang_df)
     langPCA = pd.DataFrame(data = langPCA, index=lang_df.index)
 
+    langPCA = pd.merge(langPCA, demog_df, how='inner', left_index=True, right_index=True)
 
 
 
@@ -569,19 +571,19 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     adapted_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
-        adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
-            pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
-        [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
-        print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-        evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        # adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        # adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
+        #     pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
+        # [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
+        # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+        # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
         inferred_col = infer_personality(langPCA, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
         print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
-        evaluate(reported, inferred, store=False, pre='>>>>>personalityVSinferred_'+col+'_')
+        evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
 
     return
 
@@ -863,10 +865,10 @@ def main():
         print ('language_df.shape: ', language_df.shape)
     print ('personality_df.shape: ', personality_df.shape)
 
-    control_df.to_csv('csv/controls.csv')
-    print control_df.corr()
-    #
-    return
+    # control_df.to_csv('csv/controls.csv')
+    # print control_df.corr()
+    # #
+    # return
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
     # topic_df.set_index('user_id', inplace=True)
