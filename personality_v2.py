@@ -24,6 +24,7 @@ from sklearn.decomposition import PCA
 from scipy.sparse import csr_matrix
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectFwe
+from sklearn.pipeline import Pipeline
 
 user= ''
 password = ''
