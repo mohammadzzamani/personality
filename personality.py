@@ -487,12 +487,13 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
 
 
     lang_df = pd.merge(language_df, topic_df, left_index=True, right_index=True)
+    lang_df.to_csv('csv/topic_ngrams_16k_7k.csv')
+    topic_df.to_csv('csv/topic_16k_2k.csv')
+    language_df.to_csv('csv/ngrams_16k_5k.csv')
+    demog_df.to_csv('csv/demog_16k.csv')
+    personality_df.to_csv('csv/personlity_16k.csv')
 
-    # topic_df.to_csv('csv/topic.csv')
-    # language_df.to_csv('csv/language.csv')
-    # demog_df.to_csv('csv/demog.csv')
-    # personality_df.to_csv('csv/personlity.csv')
-
+    lang_df = language_df
 
 
 
@@ -563,14 +564,14 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     adapted_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=5, pre='...adapted_infered_'+col+'...')
+        adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
         adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
             pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
         print (col, ' : ' , inferred.shape, ' , ', reported.shape)
         evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
-        inferred_col = infer_personality(langPCA, labels=personality_df[col], foldsdf= foldsdf, folds = 5, pre = 'infered_'+col)
+        inferred_col = infer_personality(langPCA, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
