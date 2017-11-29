@@ -858,10 +858,10 @@ def main():
         print ('language_df.shape: ', language_df.shape)
     print ('personality_df.shape: ', personality_df.shape)
 
-    # control_df.to_csv('csv/controls.csv')
-    # print control_df.corr()
+    control_df.to_csv('csv/controls.csv')
+    print control_df.corr()
     #
-    # return
+    return
     demog_df.set_index('user_id', inplace=True)
     personality_df.set_index('user_id', inplace=True)
     # topic_df.set_index('user_id', inplace=True)
