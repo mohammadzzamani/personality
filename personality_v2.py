@@ -770,7 +770,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 
 
 def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y'):
-
+    print ('cv...')
     # data.fillna(data.mean(), inplace=True)
     # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
@@ -793,7 +793,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         index = index + test_ids
 
-        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, folds, dim_reduction=True)
+        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
 
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)

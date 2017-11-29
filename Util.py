@@ -267,7 +267,7 @@ def multiply(controls, language, output_filename=None,  all_df = None):
 
 
 def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
-
+    print ('split_train_test...')
     test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
     train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
 
