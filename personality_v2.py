@@ -206,8 +206,8 @@ def load_data():
         raise
     if(cursor is not None):
         topic_df = load_topics(cursor)
-        ngram_df = load_ngrams(cursor, topic_df)
-        nbools_df = load_ngrams(cursor, topic_df, ngrams_table=nbools_table)
+        ngrams_df = load_ngrams(cursor, topic_df)
+        # nbools_df = load_ngrams(cursor, topic_df, ngrams_table=nbools_table)
         nbools_df = None
         # ngram_df = None
         # topic_df = None
@@ -219,7 +219,7 @@ def load_data():
         demog_df = load_controls(cursor, topic_df=topic_df ,control_feats=demog_feats)
         personality_df = load_controls(cursor, topic_df=topic_df ,control_feats=personality_feats)
 
-    return ngram_df, nbools_df, topic_df, control_df, demog_df, personality_df
+    return ngrams_df, nbools_df, topic_df, control_df, demog_df, personality_df
 
 def run_tfidf(train_tweets, test_tweets=[], pickle_name ='tfidf_vectorizer.pickle' ):
     print ('run_tfidf...')
@@ -831,7 +831,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
 def main():
     print('myMain...')
-    topic_df, ngrams_df, nbools_df, control_df, demog_df, personality_df = load_data()
+    ngrams_df, nbools_df, topic_df, control_df, demog_df, personality_df = load_data()
     if topic_df is not None:
         print ('topic_df.shape: ', topic_df.shape)
     print ('demog_df.shape: ', demog_df.shape)
