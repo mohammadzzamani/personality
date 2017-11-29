@@ -792,7 +792,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         index = index + test_ids
 
-        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, folds, dimension_reduction=True)
+        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, folds, dim_reduction=True)
 
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)
