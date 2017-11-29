@@ -201,6 +201,7 @@ def load_data():
     if(cursor is not None):
         topic_df = load_topics(cursor)
         # ngram_df = load_ngrams(cursor, topic_df)
+        ngram_df = None
         # topic_df = None
         # topic_df = pd.read_csv('csv/language.csv')
         # topic_df = topic_df.iloc[:5000]
