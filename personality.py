@@ -23,6 +23,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.decomposition import PCA
 from scipy.sparse import csr_matrix
 from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectFwe
 
 user= ''
 password = ''
@@ -480,7 +481,22 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
 
 
+def dimension_reduction(X, y, univariate = True, pca = True):
+    print ('dimension_reduction...')
 
+    alpha = 60.0
+    n_components = 1000
+    if univariate & pca:
+        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
+    elif univariate:
+        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+'))])'
+    elif pca:
+        featureSelectionString = 'Pipeline([ ("1_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
+    fSelector = eval(featureSelectionString)
+    newX = fSelector.fit_transform(X, y)
+
+
+    return [newX , fSelector]
 
 
 def cross_validation(topic_df = None, language_df=None, demog_df=None, personality_df=None, folds = 5):
@@ -538,20 +554,15 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     adaptedLang = multiply(demog_df, lang_df) #, output_filename = 'csv/multiplied_topic.csv')
     # [adaptedTopic , adaptedTopic_scaler] = transform(adaptedLang, type='standard')
 
-    pca = PCA(n_components=1000)
-    adaptedLangPCA = pca.fit_transform(adaptedLang)
-    adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
-
-
-
-    # adaptedLang = multiply(demog_df, language_df, output_filename = 'csv/multiplied_data.csv')
-    # [adaptedLang , adaptedLang_scaler] = transform(adaptedLang, type='standard')
+    # pca = PCA(n_components=1000)
+    # adaptedLangPCA = pca.fit_transform(adaptedLang)
+    # adaptedLang = pd.DataFrame(data = adaptedLangPCA, index=adaptedLang.index)
     #
-    pca = PCA(n_components=1000)
-    langPCA = pca.fit_transform(lang_df)
-    langPCA = pd.DataFrame(data = langPCA, index=lang_df.index)
-
-    langPCA = pd.merge(langPCA, demog_df, how='inner', left_index=True, right_index=True)
+    # pca = PCA(n_components=1000)
+    # langPCA = pca.fit_transform(lang_df)
+    # langPCA = pd.DataFrame(data = langPCA, index=lang_df.index)
+    #
+    # langPCA = pd.merge(langPCA, demog_df, how='inner', left_index=True, right_index=True)
 
 
 
@@ -571,14 +582,14 @@ def cross_validation(topic_df = None, language_df=None, demog_df=None, personali
     adapted_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
-        # adapted_inferred_col = infer_personality(adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
-        # adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
-        #     pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
-        # [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
-        # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-        # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        adapted_inferred_col = cv(data=adaptedLang, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
+            pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
+        [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
+        print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+        evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
-        inferred_col = infer_personality(langPCA, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        inferred_col = cv(data=lang_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
@@ -755,6 +766,8 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
     return result
 
 
+
+
 def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y'):
 
     # print 'data: ' , data
@@ -780,7 +793,7 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
             mean_est(),
             RidgeCV(alphas=alphas),
             # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
+            # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
             # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
             # KNeighborsRegressor(n_neighbors=5)
     ]
@@ -816,6 +829,9 @@ def cv(data, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsa
         ytest = np.reshape(ytest,(ytest.shape[0], 1))
         index = index + test_ids
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape)
+
+        # [Xtrain, fSelector] = dimension_reduction(Xtrain, ytrain)
+        # Xtest = fSelector.transform(Xtest)
 
         Ypreds = None
         for j in range(len(ESTIMATORS)):
