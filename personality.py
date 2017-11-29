@@ -211,9 +211,9 @@ def load_data():
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
         # language_df = None
-        control_df = load_controls(cursor, control_feats)
-        demog_df = load_controls(cursor, demog_feats)
-        personality_df = load_controls(cursor, personality_feats)
+        control_df = load_controls(cursor, control_feats=control_feats)
+        demog_df = load_controls(cursor, control_feats=demog_feats)
+        personality_df = load_controls(cursor, control_feats=personality_feats)
 
     return topic_df, ngram_df, control_df, demog_df, personality_df
 
