@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import datetime as dt
 from sklearn.pipeline import Pipeline
-from sklearn.feature_selection import SelectFwe
+from sklearn.feature_selection import SelectFwe, f_regression
 from sklearn.decomposition import PCA
 
 class transformation:
