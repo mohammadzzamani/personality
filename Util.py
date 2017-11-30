@@ -323,7 +323,7 @@ def dimension_reduction(X, y, univariate = True, pca = True):
     print ('dimension_reduction...')
 
     alpha = 60.0
-    n_components = 100
+    n_components = min(1000, X.shape[1])
     if univariate & pca:
         featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
     elif univariate:

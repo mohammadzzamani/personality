@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    topic_df = topic_df.iloc[:1000,:]
+    # topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -577,6 +577,10 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     langData = [ ngrams_df, topic_df]
     adapted_langData = [ adapted_ngrams, adapted_topics]
+
+    # ngrams_demog = pd.merge(ngrams_df, demog_df, how='inner', right_index=True, left_index=True)
+    added_langData = [ngrams_df, topic_df , demog_df]
+
     print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
     print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
     print ( adapted_topics.isnull().values.any(), ' , ', adapted_topics.shape)
@@ -601,6 +605,14 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+        print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
+        evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
+
+
+        added_inferred_col = cv(data=added_langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        added_inferred_presonality = added_inferred_col if added_inferred_presonality is None else \
+            pd.merge(added_inferred_presonality, added_inferred_col, left_index=True, right_index=True, how='inner')
+        [inferred, reported] = match_ids([added_inferred_col, personality_df[[col]]])
         print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
         evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
 
