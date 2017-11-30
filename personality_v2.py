@@ -595,9 +595,9 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
         print (col, ' : ' , inferred.shape, ' , ', reported.shape)
         evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
-        cv(data=adapted_langData, controls = demog_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
-
-        inferred_col = cv(data=langData, controls = demog_df, labels=personality_df[col], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        # cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        # cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        inferred_col = cv(data=langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
         inferred_presonality = inferred_col if inferred_presonality is None else \
             pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
         [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
