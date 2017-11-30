@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    topic_df = topic_df.iloc[:1000,:]
+    # topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -313,7 +313,7 @@ def k_fold(data, folds=10):
 
 
 def transform(data, type='minmax'):
-    scaler = MinMaxScaler() if type=='minmax' else StandardScaler()
+    scaler = MinMaxScaler(feature_range=(-1,1)) if type=='minmax' else StandardScaler()
 
     if type == 'standard':
         data.fillna(data.mean(), inplace=True)
@@ -622,7 +622,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
         inferred_col = [inferred_col]
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name)
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name)
 
 
 
@@ -926,7 +926,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=5)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
 
 
 
