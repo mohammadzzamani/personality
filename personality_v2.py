@@ -497,6 +497,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
 
     ngrams_df.fillna(0, inplace=True)
+    topic_df.fillna(0, inplace=True)
 
     adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
@@ -579,7 +580,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
     print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
     print ( adapted_topics.isnull().values.any(), ' , ', adapted_topics.shape)
-    print ( adapted_ngrams.isnull().values.any(),  ' , ', adapted_ngrams)
+    print ( adapted_ngrams.isnull().values.any(),  ' , ', adapted_ngrams.shape)
 
     print('personality index : ' , personality_df.index)
 
