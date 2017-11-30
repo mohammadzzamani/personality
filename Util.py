@@ -253,7 +253,7 @@ def multiply(controls, language, output_filename=None,  all_df = None):
     #     all_df = language
     print ('shapes: ', controls.shape, ' - ' , language.shape ,' - ') # , all_df.shape)
     for col in controls.columns:
-        print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape, '  , ' , all_df.shape)
+        # print ( col ,  '  , ' , controls[col].shape, '  ,  ', language.shape), '  , ' , all_df.shape)
         languageMultiplyC = language.multiply(controls[col], axis="index")
         languageMultiplyC.columns = [ str(s)+'_'+str(col) for s in language.columns]
         all_df = languageMultiplyC if all_df is None else pd.concat([all_df, languageMultiplyC] , axis=1, join='inner')
