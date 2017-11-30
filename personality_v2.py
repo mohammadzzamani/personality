@@ -605,17 +605,19 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added_adapted' ]
 
     inferred_presonality = None
-    inferred_col = None
+
     added_inferred_presonality = None
     for col in personality_df.columns:
+        inferred_col = None
         for data_index in range(len(groupData)):
             data = groupData[data_index]
             data_name = groupDataName[data_index]
             print (col , ' , ', type(personality_df[[col]]), ' , ', data_name)
             inferred = cv(data=data, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name)
-
+            print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred_col if inferred_col is None else \
                 pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
+            print ( 'inferred_col.shape....: ' , inferred_col.shape)
             # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
