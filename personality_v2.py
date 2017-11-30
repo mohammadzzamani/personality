@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    # topic_df = topic_df.iloc[:1000,:]
+    topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -499,8 +499,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     ngrams_df.fillna(0, inplace=True)
     topic_df.fillna(0, inplace=True)
 
-    adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
-    adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
+
 
     # nbools_df.fillna(0, inplace=True)
 
@@ -531,6 +530,16 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     print ('language_df.shape is: ' , ngrams_df.shape)
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
     [ngrams_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, topic_df, demog_df, personality_df])
+
+
+    adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
+    adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
+
+    age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df)
+    age_topics = multiply(demog_df[['demog_age_fixed']], topic_df)
+
+    gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df)
+    gender_topics = multiply(demog_df[['demog_gender']], topic_df)
 
     # standardize data and language
     # [language_df, language_scaler] = transform(language_df, type='standard')
@@ -581,6 +590,10 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     # ngrams_demog = pd.merge(ngrams_df, demog_df, how='inner', right_index=True, left_index=True)
     added_langData = [ngrams_df, topic_df , demog_df]
 
+    age_data = [ age_ngrams, age_topics]
+
+    gender_data = [ gender_ngrams, gender_topics]
+
     print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
     print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
     print ( adapted_topics.isnull().values.any(), ' , ', adapted_topics.shape)
@@ -588,34 +601,53 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
+    groupData = [ langData, age_data, gender_data, adapted_langData, added_langData ]
+    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added_adapted' ]
+
     inferred_presonality = None
-    adapted_inferred_presonality = None
+    inferred_col = None
     added_inferred_presonality = None
     for col in personality_df.columns:
-        print (type(personality_df[[col]]))
-        adapted_inferred_col = cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
-        adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
-            pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
-        [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
-        print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-        evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        for data_index in range(len(groupData)):
+            data = groupData[data_index]
+            data_name = groupDataName[data_index]
+            print (col , ' , ', type(personality_df[[col]]), ' , ', data_name)
+            inferred = cv(data=data, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name)
 
-        # cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
-        # cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
-        inferred_col = cv(data=langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
-        inferred_presonality = inferred_col if inferred_presonality is None else \
-            pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
-        [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
-        print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
-        evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
+            inferred_col = inferred_col if inferred_col is None else \
+                pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
+            # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+            # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+            # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        inferred_col = [inferred_col]
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name)
 
 
-        added_inferred_col = cv(data=added_langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
-        added_inferred_presonality = added_inferred_col if added_inferred_presonality is None else \
-            pd.merge(added_inferred_presonality, added_inferred_col, left_index=True, right_index=True, how='inner')
-        [inferred, reported] = match_ids([added_inferred_col, personality_df[[col]]])
-        print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
-        evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
+
+        # adapted_inferred_col = cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        # adapted_inferred_presonality = adapted_inferred_col if adapted_inferred_presonality is None else \
+        #     pd.merge(adapted_inferred_presonality, adapted_inferred_col, left_index=True, right_index=True, how='inner')
+        # [inferred, reported] = match_ids([adapted_inferred_col, personality_df[[col]]])
+        # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+        # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        #
+        #
+        # # cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        # # cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
+        # inferred_col = cv(data=langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        # inferred_presonality = inferred_col if inferred_presonality is None else \
+        #     pd.merge(inferred_presonality, inferred_col, left_index=True, right_index=True, how='inner')
+        # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+        # print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
+        # evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
+        #
+        #
+        # added_inferred_col = cv(data=added_langData, controls = demog_df, labels=personality_df[[col]], foldsdf= foldsdf, folds = folds, pre = 'infered_'+col)
+        # added_inferred_presonality = added_inferred_col if added_inferred_presonality is None else \
+        #     pd.merge(added_inferred_presonality, added_inferred_col, left_index=True, right_index=True, how='inner')
+        # [inferred, reported] = match_ids([added_inferred_col, personality_df[[col]]])
+        # print (col, ' : ' ,inferred.shape, ' , ', reported.shape)
+        # evaluate(reported, inferred, store=False, pre='>>>>>langPCA&demog_'+col+'_')
 
     return
 
@@ -892,7 +924,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=5)
 
 
 
