@@ -271,8 +271,12 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
     test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
     train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
 
-
-    ytrain = groupLabels.loc[train_ids].values  if groupLabels.shape[1] <= 1 else groupLabels['fold_'+str(fold)].loc[train_ids].values
+    try:
+        ytrain = groupLabels.loc[train_ids].values if groupLabels.shape[1] <= 1 else groupLabels['fold_'+str(fold)].loc[train_ids].values
+    except:
+        print ( groupLabels.shape)
+        print (train_ids.shape)
+        print ( groupLabels.columns)
     ytrain = np.reshape(ytrain,(ytrain.shape[0], 1))
     ytest = groupLabels.loc[test_ids].values if groupLabels.shape[1] <= 1 else groupLabels['fold_'+str(fold)].loc[test_ids].values
     ytest = np.reshape(ytest,(ytest.shape[0], 1))
