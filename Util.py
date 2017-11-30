@@ -303,9 +303,9 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
             print (np.isnan(ytrain).any())
             print (data.isnull().values.any())
 
-        stack_folds_preds(Xtrain, groupXtrain, 'horizontal')
-        stack_folds_preds(Xtest, groupXtest, 'horizontal')
-        stack_folds_preds(X, groupX, 'horizontal')
+        groupXtrain= stack_folds_preds(Xtrain, groupXtrain, 'horizontal')
+        groupXtest = stack_folds_preds(Xtest, groupXtest, 'horizontal')
+        groupX = stack_folds_preds(X, groupX, 'horizontal')
 
 
 
