@@ -590,6 +590,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     inferred_presonality = None
     adapted_inferred_presonality = None
+    added_inferred_presonality = None
     for col in personality_df.columns:
         print (type(personality_df[[col]]))
         adapted_inferred_col = cv(data=adapted_langData, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...adapted_infered_'+col+'...')
