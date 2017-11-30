@@ -615,7 +615,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             print (col , ' , ', type(personality_df[[col]]), ' , ', data_name)
             inferred = cv(data=data, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name)
             print ( 'inferred.shape....: ' , inferred.shape)
-            inferred_col = inferred_col if inferred_col is None else \
+            inferred_col = inferred if inferred_col is None else \
                 pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
             print ( 'inferred_col.shape....: ' , inferred_col.shape)
             # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
