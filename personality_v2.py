@@ -529,7 +529,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print ('language_df.shape is: ' , ngrams_df.shape)
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
-    [ngrams, topic_df, demog_df, personality_df] = match_ids([ngrams_df, topic_df, demog_df, personality_df])
+    [ngrams_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, topic_df, demog_df, personality_df])
 
     # standardize data and language
     # [language_df, language_scaler] = transform(language_df, type='standard')
@@ -574,8 +574,12 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
-    langData = [ ngrams, topic_df]
+    langData = [ ngrams_df, topic_df]
     adapted_langData = [ adapted_ngrams, adapted_topics]
+    print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
+    print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
+    print ( adapted_topics.isnull().values.any(), ' , ', adapted_topics.shape)
+    print ( adapted_ngrams.isnull().values.any(),  ' , ', adapted_ngrams)
 
     print('personality index : ' , personality_df.index)
 
@@ -872,7 +876,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df, ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
 
 
 
