@@ -628,7 +628,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
                 RidgeCV(alphas=alphas),
                 GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
             ]
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name)
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name, ESTIMATORS= ESTIMATORS)
 
 
 
