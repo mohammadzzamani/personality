@@ -621,6 +621,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
         inferred_col = [inferred_col]
         ESTIMATORS = [
                 mean_est(),
