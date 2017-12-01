@@ -313,7 +313,7 @@ def k_fold(data, folds=10):
 
 
 def transform(data, type='minmax'):
-    scaler = MinMaxScaler(feature_range=(-1,1)) if type=='minmax' else StandardScaler()
+    scaler = MinMaxScaler(feature_range=(1,2)) if type=='minmax' else StandardScaler()
 
     if type == 'standard':
         data.fillna(data.mean(), inplace=True)
@@ -577,8 +577,6 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     # language_df.to_csv('csv/language_pca.csv')
 
 
-
-
     foldsdf = k_fold(topic_df, folds=folds)
 
     # inferred_presonality = personality_df
@@ -594,15 +592,17 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     gender_data = [ gender_ngrams, gender_topics]
 
-    print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
-    print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
-    print ( adapted_topics.isnull().values.any(), ' , ', adapted_topics.shape)
-    print ( adapted_ngrams.isnull().values.any(),  ' , ', adapted_ngrams.shape)
+    # print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
+    # print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
+    # print ( adapted_topics.isnull().values.any(), ' , ', adapted_topics.shape)
+    # print ( adapted_ngrams.isnull().values.any(),  ' , ', adapted_ngrams.shape)
+
+    print ( ngrams_df.shape, ' - ' , topic_df.shape, ' - ', adapted_ngrams.shape , ' - ' , adapted_topics.shape)
 
     print('personality index : ' , personality_df.index)
 
     groupData = [ langData, age_data, gender_data, adapted_langData, added_langData ]
-    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added_adapted' ]
+    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added' ]
 
     inferred_presonality = None
 
@@ -622,6 +622,11 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
         inferred_col = [inferred_col]
+        ESTIMATORS = [
+                mean_est(),
+                RidgeCV(alphas=alphas),
+                GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
+            ]
         result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name)
 
 
@@ -823,19 +828,20 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 
 
 
-def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y'):
+def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y', ESTIMATORS = None):
     print ('cv...')
     # data.fillna(data.mean(), inplace=True)
     # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
-    ESTIMATORS = [
-            mean_est(),
-            RidgeCV(alphas=alphas),
-            # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
-            # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
-            # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
-            # KNeighborsRegressor(n_neighbors=5)
-    ]
+    if ESTIMATORS is None:
+        ESTIMATORS = [
+                mean_est(),
+                RidgeCV(alphas=alphas),
+                # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
+                # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
+                # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
+                # KNeighborsRegressor(n_neighbors=5)
+        ]
 
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
     YpredsAll = None

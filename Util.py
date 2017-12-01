@@ -21,9 +21,8 @@ class transformation:
         values = (values * self.tr_var ) + self.tr_mean
         return values
 
-
 def stack_folds_preds( pred_fold, pred_all=None, type='vertical'):
-    print ('stack_folds_preds...')
+    # print ('stack_folds_preds...')
     if pred_all is None:
         pred_all = pred_fold
     else:
