@@ -36,7 +36,7 @@ topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
 control_table = 'masterstats'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to16$0_1'
 nbools_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
-personality_feats = ['big5_ext', 'big5_neu', 'big5_ope', 'big5_agr', 'big5_con']
+personality_feats = [ 'big5_neu', 'big5_ope', 'big5_agr', 'big5_con', 'big5_ext',]
 demog_feats = ['demog_age_fixed', 'demog_gender']
 control_feats = personality_feats + demog_feats
 
