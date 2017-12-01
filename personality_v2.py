@@ -585,6 +585,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     langData = [ ngrams_df, topic_df]
     adapted_langData = [ adapted_ngrams, adapted_topics]
 
+    adapted_and_not = [ ngrams_df, topic_df, adapted_ngrams, adapted_topics]
+
     # ngrams_demog = pd.merge(ngrams_df, demog_df, how='inner', right_index=True, left_index=True)
     added_langData = [ngrams_df, topic_df , demog_df]
 
@@ -601,8 +603,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [ langData, age_data, gender_data, adapted_langData, added_langData ]
-    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added' ]
+    groupData = [ langData, age_data, gender_data, adapted_langData, added_langData, adapted_and_not ]
+    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added', 'adapted_and_not' ]
 
     inferred_presonality = None
 
