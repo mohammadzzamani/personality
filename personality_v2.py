@@ -312,8 +312,8 @@ def k_fold(data, folds=10):
     return folds
 
 
-def transform(data, type='minmax'):
-    scaler = MinMaxScaler(feature_range=(1,2)) if type=='minmax' else StandardScaler()
+def transform(data, type='minmax', range=(0,1)):
+    scaler = MinMaxScaler(feature_range=range) if type=='minmax' else StandardScaler()
 
     if type == 'standard':
         data.fillna(data.mean(), inplace=True)
@@ -492,7 +492,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     print ('cross_validation...')
 
     # min_max transform controls
-    [demog_df , demog_scaler] = transform(demog_df, type='minmax')
+    [demog_df , demog_scaler] = transform(demog_df, type='minmax', range=(1,2))
     [personality_df , personality_scaler] = transform(personality_df, type='minmax')
 
 
@@ -586,6 +586,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     adapted_langData = [ adapted_ngrams, adapted_topics]
 
     adapted_and_not = [ ngrams_df, topic_df, adapted_ngrams, adapted_topics]
+    adapted_and_not_added = [ ngrams_df, topic_df, adapted_ngrams, adapted_topics, demog_df]
 
     # ngrams_demog = pd.merge(ngrams_df, demog_df, how='inner', right_index=True, left_index=True)
     added_langData = [ngrams_df, topic_df , demog_df]
@@ -603,8 +604,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [ langData, age_data, gender_data, adapted_langData, added_langData, adapted_and_not ]
-    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added', 'adapted_and_not' ]
+    groupData = [ langData, age_data, gender_data, adapted_langData, added_langData, adapted_and_not , adapted_and_not_added]
+    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added', 'adapted_and_not' , 'adapted_and_not_added']
 
     inferred_presonality = None
 
@@ -625,12 +626,12 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
         inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
         inferred_col = [inferred_col]
-        ESTIMATORS = [
-                mean_est(),
-                RidgeCV(alphas=alphas),
-                GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
-            ]
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name, ESTIMATORS= ESTIMATORS)
+        # ESTIMATORS = [
+        #         mean_est(),
+        #         RidgeCV(alphas=alphas),
+        #         GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
+        #     ]
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name)
 
 
 
