@@ -300,10 +300,10 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
             Xtest = fSelector.transform(Xtest)
             X = fSelector.transform(X)
         # except:
-        print ( data.shape, ' , ', X.shape, ' , ', Xtrain.shape , ' , ', Xtest.shape)
-        print (np.isnan(Xtrain).any())
-        print (np.isnan(ytrain).any())
-        print (data.isnull().values.any())
+        # print ( data.shape, ' , ', X.shape, ' , ', Xtrain.shape , ' , ', Xtest.shape)
+        # print (np.isnan(Xtrain).any())
+        # print (np.isnan(ytrain).any())
+        # print (data.isnull().values.any())
 
         groupXtrain= stack_folds_preds(Xtrain, groupXtrain, 'horizontal')
         groupXtest = stack_folds_preds(Xtest, groupXtest, 'horizontal')

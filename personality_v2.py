@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    topic_df = topic_df.iloc[:1000,:]
+    # topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -219,6 +219,8 @@ def load_data():
         control_df = load_controls(cursor, topic_df=topic_df , control_feats=control_feats)
         demog_df = load_controls(cursor, topic_df=topic_df ,control_feats=demog_feats)
         personality_df = load_controls(cursor, topic_df=topic_df ,control_feats=personality_feats)
+
+    [ngrams_df, nbools_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, nbools_df, topic_df, demog_df, personality_df])
 
     return ngrams_df, nbools_df, topic_df, control_df, demog_df, personality_df
 
@@ -530,7 +532,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print ('language_df.shape is: ' , ngrams_df.shape)
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
-    [ngrams_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, topic_df, demog_df, personality_df])
+
 
 
     adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
