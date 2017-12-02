@@ -31,8 +31,8 @@ password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
-topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
-# topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
+# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
+topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to16$0_1'
 nbools_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
@@ -130,7 +130,7 @@ def load_ngrams(cursor, topic_df, ngrams_table = ngrams_table):
 
     return language_df
 
-def load_topics(cursor, gft = 500):
+def load_topics(cursor, users = None, gft = 500):
     print('load_topics...')
     # limit = 5000
     # sql = "select distinct(group_id) from {0} order by rand() limit {1}".format(topic_table, limit)
@@ -159,7 +159,11 @@ def load_topics(cursor, gft = 500):
     #         print (counter , '  ' , topic_df.shape)
 
 
-    sql = "select group_id , feat, group_norm from {0}".format(topic_table)
+    if users is not None:
+        user_ids = '\' , \''.join(users.index.values.tolist())
+        sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(topic_table, user_ids)
+    else:
+        sql = "select group_id , feat, group_norm from {0}".format(topic_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
@@ -172,13 +176,14 @@ def load_topics(cursor, gft = 500):
 def load_controls(cursor, topic_df = None, control_feats = control_feats):
     print('load_controls...')
 
-    if topic_df is not None:
-        user_ids = '\' , \''.join(topic_df.index.values.tolist())
+    # if topic_df is not None:
+
     # user_ids =  '( \'' +  user_ids  + '\' )'
 
     feats_str  = ' , '.join(control_feats)
     print ('feats_str: ' , feats_str)
     if topic_df is not None:
+        user_ids = '\' , \''.join(topic_df.index.values.tolist())
         sql = "select user_id , {0} from {1} where user_id in ( \'{2}\' )".format(feats_str, control_table, user_ids)
     else:
         sql = "select user_id , {0} from {1} ".format(feats_str, control_table)
@@ -206,9 +211,13 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
-        topic_df = load_topics(cursor)
-        ngrams_df = load_ngrams(cursor, topic_df)
-        nbools_df = load_ngrams(cursor, topic_df, ngrams_table=nbools_table)
+        control_df = load_controls(cursor, control_feats=control_feats)
+        demog_df = load_controls(cursor,control_feats=demog_feats)
+        personality_df = load_controls(cursor, control_feats=personality_feats)
+
+        topic_df = load_topics(cursor, users = personality_df)
+        ngrams_df = load_ngrams(cursor, users=personality_df)
+        nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
         # nbools_df = None
         # ngram_df = None
         # topic_df = None
@@ -216,9 +225,9 @@ def load_data():
         # topic_df = topic_df.iloc[:5000]
         # language_df = load_tweets(cursor, topic_df)
         # language_df = None
-        control_df = load_controls(cursor, topic_df=topic_df , control_feats=control_feats)
-        demog_df = load_controls(cursor, topic_df=topic_df ,control_feats=demog_feats)
-        personality_df = load_controls(cursor, topic_df=topic_df ,control_feats=personality_feats)
+        # control_df = load_controls(cursor, topic_df=topic_df , control_feats=control_feats)
+        # demog_df = load_controls(cursor, topic_df=topic_df ,control_feats=demog_feats)
+        # personality_df = load_controls(cursor, topic_df=topic_df ,control_feats=personality_feats)
 
     [ngrams_df, nbools_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, nbools_df, topic_df, demog_df, personality_df])
 
