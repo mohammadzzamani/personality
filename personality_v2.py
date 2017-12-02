@@ -105,7 +105,7 @@ def load_tweets(cursor, topic_df):
     return language_df
 
 
-def load_ngrams(cursor, topic_df, ngrams_table = ngrams_table):
+def load_ngrams(cursor, users=None, ngrams_table = ngrams_table):
     print('load_ngrams...')
     sql = "select distinct( feat) from {0}".format(ngrams_table)
     query = cursor.execute(sql)
@@ -115,10 +115,12 @@ def load_ngrams(cursor, topic_df, ngrams_table = ngrams_table):
         words.append(res[0])
 
 
-    user_ids = '\' , \''.join(topic_df.index.values.tolist())
-    # user_ids =  '( \'' +  user_ids  + '\' )'
-
-    sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
+    if user is not None:
+        user_ids = '\' , \''.join(users.index.values.tolist())
+        # user_ids =  '( \'' +  user_ids  + '\' )'
+        sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
+    else:
+        sql = "select group_id , feat, group_norm from {0} ".format(ngrams_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
@@ -215,14 +217,14 @@ def load_data():
         demog_df = load_controls(cursor,control_feats=demog_feats)
         personality_df = load_controls(cursor, control_feats=personality_feats)
 
-        demog_df.set_index('user_id', inplace=True)
-        personality_df.set_index('user_id', inplace=True)
-        control_df.set_index('user_id', inplace=True)
+        # demog_df.set_index('user_id', inplace=True)
+        # personality_df.set_index('user_id', inplace=True)
+        # control_df.set_index('user_id', inplace=True)
 
 
-        topic_df = load_topics(cursor, users = personality_df)
-        ngrams_df = load_ngrams(cursor, users=personality_df)
-        nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
+        topic_df = load_topics(cursor)#, users = personality_df)
+        ngrams_df = load_ngrams(cursor)#, users=personality_df)
+        nbools_df = load_ngrams(cursor, ngrams_table=nbools_table)
         # nbools_df = None
         # ngram_df = None
         # topic_df = None
