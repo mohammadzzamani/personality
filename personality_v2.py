@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    topic_df = topic_df.iloc[:1000,:]
+    # topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -890,7 +890,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 res_labels = np.subtract(labels, ypredTrain)
                 [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_reduction=True)
 
-                estimator = ESTIMATORS[j]
+                estimator = RidgeCV(alphas=alphas)
                 estimator.fit(Xtrain1, ytrain1)
                 ypred1 = estimator.predict(Xtest1)
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
@@ -1058,7 +1058,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=5)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
 
 
 
