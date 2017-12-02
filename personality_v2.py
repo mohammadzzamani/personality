@@ -845,7 +845,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
     if ESTIMATORS is None:
         ESTIMATORS = [
                 mean_est(),
-                #RidgeCV(alphas=alphas),
+                RidgeCV(alphas=alphas),
                 # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
@@ -886,8 +886,8 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 print ('<<<<<<<<<< residualized control >>>>>>')
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
-                labels = np.subtract(labels, ypredTrain)
-                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+                res_labels = np.subtract(labels, ypredTrain)
+                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_reduction=True)
 
                 estimator = ESTIMATORS[j]
                 estimator.fit(Xtrain1, ytrain1)
