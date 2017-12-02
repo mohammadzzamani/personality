@@ -208,8 +208,8 @@ def load_data():
     if(cursor is not None):
         topic_df = load_topics(cursor)
         ngrams_df = load_ngrams(cursor, topic_df)
-        # nbools_df = load_ngrams(cursor, topic_df, ngrams_table=nbools_table)
-        nbools_df = None
+        nbools_df = load_ngrams(cursor, topic_df, ngrams_table=nbools_table)
+        # nbools_df = None
         # ngram_df = None
         # topic_df = None
         # topic_df = pd.read_csv('csv/language.csv')
