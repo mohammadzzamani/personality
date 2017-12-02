@@ -845,7 +845,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
     if ESTIMATORS is None:
         ESTIMATORS = [
                 mean_est(),
-                # RidgeCV(alphas=alphas),
+                #RidgeCV(alphas=alphas),
                 # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
@@ -876,14 +876,15 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
         Ypreds = None
         for j in range(len(ESTIMATORS)):
+            print ('j: ' , j, '  , len(ESTIMATORS): ', len(ESTIMATORS))
             estimator = ESTIMATORS[j]
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
-
+            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=False)
 
             if j>=1 & residuals:
-                print ('<<<<<<<<<< residualized control >>>>>>')
+                print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
                 res_labels = np.subtract(labels, ypredTrain)
@@ -900,7 +901,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             try:
-                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_res_controls_', store=False)
             except:
                 print 'try...except'
                 print (ypred.shape)
