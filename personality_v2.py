@@ -215,6 +215,11 @@ def load_data():
         demog_df = load_controls(cursor,control_feats=demog_feats)
         personality_df = load_controls(cursor, control_feats=personality_feats)
 
+        demog_df.set_index('user_id', inplace=True)
+        personality_df.set_index('user_id', inplace=True)
+        control_df.set_index('user_id', inplace=True)
+
+
         topic_df = load_topics(cursor, users = personality_df)
         ngrams_df = load_ngrams(cursor, users=personality_df)
         nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
@@ -1057,11 +1062,11 @@ def main():
     # print control_df.corr()
     # #
     # return
-    demog_df.set_index('user_id', inplace=True)
-    personality_df.set_index('user_id', inplace=True)
-    # topic_df.set_index('user_id', inplace=True)
-    # language_df.set_index('user_id', inplace=True)
-    control_df.set_index('user_id', inplace=True)
+    # demog_df.set_index('user_id', inplace=True)
+    # personality_df.set_index('user_id', inplace=True)
+    # # topic_df.set_index('user_id', inplace=True)
+    # # language_df.set_index('user_id', inplace=True)
+    # control_df.set_index('user_id', inplace=True)
 
     # print ('demog_df.shape after set_index: ', demog_df.shape)
 
