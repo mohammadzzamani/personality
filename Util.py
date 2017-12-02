@@ -323,12 +323,12 @@ def dimension_reduction(X, y, univariate = True, pca = True):
     n_components = min(500, X.shape[1])
     # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')) ])'
     if univariate & pca:
-        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", RandomizedPCA(n_components=min('+str(n_components)+',n_features), random_state=42, whiten=False, iterated_power=3))])'
+        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
         # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha=60.0)), ("3_rpca", RandomizedPCA(n_components=max(min(500, X.shape[1])), random_state=42, whiten=False, iterated_power=3))])'
     elif univariate:
         featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+'))])'
     elif pca:
-        featureSelectionString = 'Pipeline([ ("1_rpca", RandomizedPCA(n_components=min('+str(n_components)+',n_features), random_state=42, whiten=False, iterated_power=3))])'
+        featureSelectionString = 'Pipeline([ ("1_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
     fSelector = eval(featureSelectionString)
     newX = fSelector.fit_transform(X, y)
 
