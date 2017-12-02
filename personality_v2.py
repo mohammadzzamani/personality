@@ -497,6 +497,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
 
     ngrams_df.fillna(0, inplace=True)
+    nbools_df.fillna(0, inplace=True)
     topic_df.fillna(0, inplace=True)
 
 
@@ -1063,7 +1064,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, nbools_df=nbools_df, demog_df=demog_df, personality_df=personality_df, folds=10)
 
 
 
