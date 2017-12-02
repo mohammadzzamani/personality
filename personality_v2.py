@@ -604,7 +604,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [  langData, age_data, gender_data, adapted_langData, adapted_and_not, langData, added_langData , adapted_and_not_added]
+    groupData = [  langData] #, age_data, gender_data, adapted_langData, adapted_and_not, langData, added_langData , adapted_and_not_added]
     groupDataName = [ 'langData', 'age', 'gender', 'adapted','adapted_and_not' , 'lang', 'added'  , 'adapted_and_not_added']
 
     inferred_presonality = None

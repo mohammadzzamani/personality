@@ -294,8 +294,6 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
         Xtest = data.loc[test_ids].values
         # index = index + test_ids
 
-
-
         try:
             if dim_reduction is not None:
                 [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
