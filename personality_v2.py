@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    # topic_df = topic_df.iloc[:1000,:]
+    topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -604,8 +604,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [ langData, age_data, gender_data, adapted_langData, added_langData, adapted_and_not , adapted_and_not_added]
-    groupDataName = [ 'lang', 'age', 'gender', 'adapted', 'added', 'adapted_and_not' , 'adapted_and_not_added']
+    groupData = [  langData, age_data, gender_data, adapted_langData, adapted_and_not, langData, added_langData , adapted_and_not_added]
+    groupDataName = [ 'langData', 'age', 'gender', 'adapted','adapted_and_not' , 'lang', 'added'  , 'adapted_and_not_added']
 
     inferred_presonality = None
 
@@ -616,7 +616,16 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             data = groupData[data_index]
             data_name = groupDataName[data_index]
             print (col , ' , ', type(personality_df[[col]]), ' , ', data_name)
-            inferred = cv(data=data, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name)
+
+            # ESTIMATORS = [
+            #         mean_est(),
+            #         RidgeCV(alphas=alphas),
+            #         GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
+            #     ]
+
+            if data_index == 0:
+                residual = True
+            inferred = cv(data=data, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residual)
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
                 pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
@@ -626,11 +635,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
         inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
         inferred_col = [inferred_col]
-        # ESTIMATORS = [
-        #         mean_est(),
-        #         RidgeCV(alphas=alphas),
-        #         GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
-        #     ]
+
         result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name)
 
 
@@ -849,7 +854,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
     YpredsAll = None
-    YpredsAllTrain = None
+    # YpredsAllTrain = None
     index = []
     for i in range(folds):
 
@@ -857,7 +862,11 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         index = index + test_ids
 
-        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+        if residuals:
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True)
+        else:
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+
 
 
         print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)
@@ -871,6 +880,24 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
+
+
+            if j>=1 & residuals:
+                print ('<<<<<<<<<< residualized control >>>>>>')
+                ypredTrain = estimator.predict(X)
+                ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
+                labels = np.subtract(labels, ypredTrain)
+                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+
+                estimator = ESTIMATORS[j]
+                estimator.fit(Xtrain1, ytrain1)
+                ypred1 = estimator.predict(Xtest1)
+                ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
+
+                ypred = np.add(ypred, ypred1)
+
+
+
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             try:
                 evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
@@ -883,10 +910,10 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 print (labels.isnull().values.any())
                 print (labels['fold_'+str(i)].isnull().values.any())
 
-            if j==1 & residuals:
-                ypredTrain = estimator.predict(X)
-                ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
-                YpredsAllTrain = stack_folds_preds(ypredTrain, YpredsAllTrain, 'horizontal')
+            # if j==1 & residuals:
+            #     ypredTrain = estimator.predict(X)
+            #     ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
+            #     YpredsAllTrain = stack_folds_preds(ypredTrain, YpredsAllTrain, 'horizontal')
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
@@ -899,7 +926,99 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
     result = pd.DataFrame(index=index, data= YpredsAll[:,1], columns=[col_name])
 
-    return YpredsAllTrain if residuals else result
+    # return YpredsAllTrain if residuals else result
+    return result
+
+def residualized_control(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y', ESTIMATORS = None):
+    print ('cv...')
+    # data.fillna(data.mean(), inplace=True)
+    # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
+
+    if ESTIMATORS is None:
+        ESTIMATORS = [
+                mean_est(),
+                RidgeCV(alphas=alphas),
+                # GradientBoostingRegressor(n_estimators= 200, loss='lad', random_state=1, subsample=0.75, max_depth=5, max_features=0.75), #, min_impurity_decrease=0.05),
+                # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
+                # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
+                # KNeighborsRegressor(n_neighbors=5)
+        ]
+
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
+    YpredsAll = None
+    YpredsAllTrain = None
+    index = []
+    for i in range(folds):
+
+        # prepare train and test data
+        test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
+        index = index + test_ids
+
+
+        if residuals:
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True)
+        else:
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+
+        print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)
+
+        # [Xtrain, fSelector] = dimension_reduction(Xtrain, ytrain)
+        # Xtest = fSelector.transform(Xtest)
+
+        Ypreds = None
+        for j in range(len(ESTIMATORS)):
+            estimator = ESTIMATORS[j]
+            estimator.fit(Xtrain, ytrain)
+            ypred = estimator.predict(Xtest)
+            ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
+
+
+            if j>=1 & residuals:
+                ypredTrain = estimator.predict(X)
+                ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
+                labels = np.subtract(labels, ypredTrain)
+                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+
+                estimator = ESTIMATORS[j]
+                estimator.fit(Xtrain1, ytrain1)
+                ypred1 = estimator.predict(Xtest1)
+                ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
+
+                ypred = np.add(ypred, ypred1)
+
+
+
+            Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
+            try:
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
+            except:
+                print 'try...except'
+                print (ypred.shape)
+                print (ytest.shape)
+                print (np.isnan(ypred).any())
+                print (np.isnan(ytest).any())
+                print (labels.isnull().values.any())
+                print (labels['fold_'+str(i)].isnull().values.any())
+
+
+            # if j==1 & residuals:
+            #     ypredTrain = estimator.predict(X)
+            #     ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
+            #     YpredsAllTrain = stack_folds_preds(ypredTrain, YpredsAllTrain, 'horizontal')
+
+        Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
+        # YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
+        print ('ypredsAll.shape: ' , YpredsAll.shape)
+
+
+
+    for j in range(YpredsAll.shape[1]-1):
+        evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
+
+    result = pd.DataFrame(index=index, data= YpredsAll[:,1], columns=[col_name])
+
+    # return YpredsAllTrain if residuals else result
+    return result
 
 
 def main():
@@ -936,7 +1055,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=10)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, demog_df=demog_df, personality_df=personality_df, folds=5)
 
 
 
