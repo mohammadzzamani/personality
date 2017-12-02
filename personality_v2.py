@@ -32,7 +32,8 @@ database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
 # topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
-topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
+# topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to16$0_1'
 nbools_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
@@ -222,9 +223,9 @@ def load_data():
         # control_df.set_index('user_id', inplace=True)
 
 
-        topic_df = load_topics(cursor)#, users = personality_df)
-        ngrams_df = load_ngrams(cursor)#, users=personality_df)
-        nbools_df = load_ngrams(cursor, ngrams_table=nbools_table)
+        topic_df = load_topics(cursor, users = personality_df)
+        ngrams_df = load_ngrams(cursor, users=personality_df)
+        nbools_df = load_ngrams(cursor,users=personality_df, ngrams_table=nbools_table)
         # nbools_df = None
         # ngram_df = None
         # topic_df = None
