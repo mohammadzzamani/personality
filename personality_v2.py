@@ -229,7 +229,7 @@ def load_data():
         # demog_df = load_controls(cursor, topic_df=topic_df ,control_feats=demog_feats)
         # personality_df = load_controls(cursor, topic_df=topic_df ,control_feats=personality_feats)
 
-    [ngrams_df, nbools_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, nbools_df, topic_df, demog_df, personality_df])
+
 
     return ngrams_df, nbools_df, topic_df, control_df, demog_df, personality_df
 
@@ -511,6 +511,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     nbools_df.fillna(0, inplace=True)
     topic_df.fillna(0, inplace=True)
 
+    [ngrams_df, nbools_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, nbools_df, topic_df, demog_df, personality_df])
 
 
     # nbools_df.fillna(0, inplace=True)
