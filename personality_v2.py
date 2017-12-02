@@ -165,7 +165,7 @@ def load_topics(cursor, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    # topic_df = topic_df.iloc[:1000,:]
+    topic_df = topic_df.iloc[:1000,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -534,11 +534,14 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
+    adapted_nbools = multiply(demog_df, nbools_df)
 
     age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df)
+    age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df)
     age_topics = multiply(demog_df[['demog_age_fixed']], topic_df)
 
     gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df)
+    gender_nbools= multiply(demog_df[['demog_gender']], nbools_df)
     gender_topics = multiply(demog_df[['demog_gender']], topic_df)
 
     # standardize data and language
@@ -582,18 +585,18 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
-    langData = [ ngrams_df, topic_df]
-    adapted_langData = [ adapted_ngrams, adapted_topics]
+    langData = [ ngrams_df, nbools_df, topic_df]
+    # adapted_langData = [ adapted_ngrams, adapted_nbools, adapted_topics]
 
-    adapted_and_not = [ ngrams_df, topic_df, adapted_ngrams, adapted_topics]
-    adapted_and_not_added = [ ngrams_df, topic_df, adapted_ngrams, adapted_topics, demog_df]
+    adapted_and_not = [ ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics]
+    adapted_and_not_added = [ ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, demog_df]
 
     # ngrams_demog = pd.merge(ngrams_df, demog_df, how='inner', right_index=True, left_index=True)
-    added_langData = [ngrams_df, topic_df , demog_df]
+    added_langData = [ngrams_df, nbools_df, topic_df , demog_df]
 
-    age_data = [ age_ngrams, age_topics]
+    age_data = [ ngrams_df, nbools_df, topic_df, age_ngrams, age_nbools, age_topics]
 
-    gender_data = [ gender_ngrams, gender_topics]
+    gender_data = [ ngrams_df, nbools_df, topic_df,gender_ngrams, gender_nbools, gender_topics]
 
     # print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
     # print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
@@ -604,8 +607,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [  langData] #, age_data, gender_data, adapted_langData, adapted_and_not, langData, added_langData , adapted_and_not_added]
-    groupDataName = [ 'langData', 'age', 'gender', 'adapted','adapted_and_not' , 'lang', 'added'  , 'adapted_and_not_added']
+    groupData = [  langData, age_data, gender_data, adapted_and_not, langData, added_langData , adapted_and_not_added]
+    groupDataName = [ 'lang_residualized', 'age', 'gender','adapted' , 'lang', 'added'  , 'adapted_and_added']
 
     inferred_presonality = None
 
@@ -625,6 +628,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
             if data_index == 0:
                 residual = True
+            else:
+                residual = False
             inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residual)
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
@@ -846,7 +851,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         ESTIMATORS = [
                 mean_est(),
                 RidgeCV(alphas=alphas),
-                GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=1, subsample=0.75, max_depth=6, max_features=1), #, min_impurity_decrease=0.05),
+                # GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=1, subsample=0.75, max_depth=6, max_features=1), #, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
                 # KNeighborsRegressor(n_neighbors=5)
