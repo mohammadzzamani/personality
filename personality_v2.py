@@ -218,9 +218,9 @@ def load_data():
         demog_df = load_controls(cursor,control_feats=demog_feats)
         personality_df = load_controls(cursor, control_feats=personality_feats)
 
-        # demog_df.set_index('user_id', inplace=True)
-        # personality_df.set_index('user_id', inplace=True)
-        # control_df.set_index('user_id', inplace=True)
+        demog_df.set_index('user_id', inplace=True)
+        personality_df.set_index('user_id', inplace=True)
+        control_df.set_index('user_id', inplace=True)
 
 
         topic_df = load_topics(cursor, users = personality_df)
