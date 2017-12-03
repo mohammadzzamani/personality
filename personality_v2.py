@@ -31,9 +31,9 @@ password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
-# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
 # topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
-topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
+# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to16$0_1'
 nbools_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
@@ -106,7 +106,7 @@ def load_tweets(cursor, topic_df):
     return language_df
 
 
-def load_ngrams(cursor, users=None, ngrams_table = ngrams_table):
+def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 1000):
     print('load_ngrams...')
     sql = "select distinct( feat) from {0}".format(ngrams_table)
     query = cursor.execute(sql)
@@ -119,13 +119,15 @@ def load_ngrams(cursor, users=None, ngrams_table = ngrams_table):
     if user is not None:
         user_ids = '\' , \''.join(users.index.values.tolist())
         # user_ids =  '( \'' +  user_ids  + '\' )'
-        sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
+        sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
     else:
-        sql = "select group_id , feat, group_norm from {0} ".format(ngrams_table)
+        sql = "select group_id , feat, value, group_norm from {0} ".format(ngrams_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
-    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'value', 'group_norm'])
     language_df.feat = language_df.feat.map(lambda x: words.index(x))
+
+    language_df = language_df.loc[language_df.groupby('user_id')['value'].sum() > threshold]
 
     language_df = language_df.pivot(index='user_id', columns='feat', values='group_norm')
     print ('language_df.shape after pivot: ' , language_df.shape)
@@ -557,13 +559,13 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_nbools = multiply(demog_df, nbools_df)
 
-    age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df)
-    age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df)
-    age_topics = multiply(demog_df[['demog_age_fixed']], topic_df)
-
-    gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df)
-    gender_nbools= multiply(demog_df[['demog_gender']], nbools_df)
-    gender_topics = multiply(demog_df[['demog_gender']], topic_df)
+    # age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df)
+    # age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df)
+    # age_topics = multiply(demog_df[['demog_age_fixed']], topic_df)
+    #
+    # gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df)
+    # gender_nbools= multiply(demog_df[['demog_gender']], nbools_df)
+    # gender_topics = multiply(demog_df[['demog_gender']], topic_df)
 
     # standardize data and language
     # [language_df, language_scaler] = transform(language_df, type='standard')
@@ -609,15 +611,15 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     langData = [ ngrams_df, nbools_df, topic_df]
     # adapted_langData = [ adapted_ngrams, adapted_nbools, adapted_topics]
 
-    adapted_and_not = [ ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics]
-    adapted_and_not_added = [ ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, demog_df]
+    adapted = [ adapted_ngrams, adapted_nbools, adapted_topics]
+    adapted_and_added = [ adapted_ngrams, adapted_nbools, adapted_topics, demog_df]
 
     # ngrams_demog = pd.merge(ngrams_df, demog_df, how='inner', right_index=True, left_index=True)
     added_langData = [ngrams_df, nbools_df, topic_df , demog_df]
 
-    age_data = [ ngrams_df, nbools_df, topic_df, age_ngrams, age_nbools, age_topics]
-
-    gender_data = [ ngrams_df, nbools_df, topic_df,gender_ngrams, gender_nbools, gender_topics]
+    # age_data = [ ngrams_df, nbools_df, topic_df, age_ngrams, age_nbools, age_topics]
+    #
+    # gender_data = [ ngrams_df, nbools_df, topic_df,gender_ngrams, gender_nbools, gender_topics]
 
     # print ( ngrams_df.isnull().values.any(), ' , ', ngrams_df.shape)
     # print ( topic_df.isnull().values.any() ,  ' , ', topic_df.shape)
@@ -628,8 +630,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [  langData, age_data, gender_data, adapted_and_not, langData, added_langData , adapted_and_not_added]
-    groupDataName = [ 'lang_residualized', 'age', 'gender','adapted' , 'lang', 'added'  , 'adapted_and_added']
+    groupData = [   adapted, langData, added_langData , adapted_and_added, langData,]
+    groupDataName = [ 'adapted' , 'lang', 'added'  , 'adapted_and_added', 'lang_residualized',]
 
     inferred_presonality = None
 
