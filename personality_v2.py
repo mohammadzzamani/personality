@@ -31,9 +31,9 @@ password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
-topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
+# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
 # topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
-# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to16$0_1'
 nbools_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
@@ -223,15 +223,17 @@ def load_data():
         demog_df = load_controls(cursor,control_feats=demog_feats)
         personality_df = load_controls(cursor, control_feats=personality_feats)
 
-        personality_df = personality_df.iloc[:200,:]
+        # personality_df = personality_df.iloc[:200,:]
 
         demog_df.set_index('user_id', inplace=True)
         personality_df.set_index('user_id', inplace=True)
         control_df.set_index('user_id', inplace=True)
 
+        ngrams_df = load_ngrams(cursor, users=personality_df)
+        [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
+
 
         topic_df = load_topics(cursor, users = personality_df)
-        ngrams_df = load_ngrams(cursor, users=personality_df)
         nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
         # nbools_df = None
         # ngram_df = None
