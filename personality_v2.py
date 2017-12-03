@@ -177,7 +177,7 @@ def load_topics(cursor, users = None, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    topic_df = topic_df.iloc[:200,:]
+    # topic_df = topic_df.iloc[:200,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -223,14 +223,16 @@ def load_data():
         demog_df = load_controls(cursor,control_feats=demog_feats)
         personality_df = load_controls(cursor, control_feats=personality_feats)
 
+        personality_df = personality_df.iloc[:200,:]
+
         demog_df.set_index('user_id', inplace=True)
         personality_df.set_index('user_id', inplace=True)
         control_df.set_index('user_id', inplace=True)
 
 
-        topic_df = load_topics(cursor)#, users = personality_df)
-        ngrams_df = load_ngrams(cursor)#, users=personality_df)
-        nbools_df = load_ngrams(cursor, ngrams_table=nbools_table)
+        topic_df = load_topics(cursor, users = personality_df)
+        ngrams_df = load_ngrams(cursor, users=personality_df)
+        nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
         # nbools_df = None
         # ngram_df = None
         # topic_df = None
