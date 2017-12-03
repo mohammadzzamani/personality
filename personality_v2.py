@@ -130,7 +130,7 @@ def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 100
     language_df.set_index('user_id', inplace=True)
 
     language_df = language_df.loc[language_df.groupby('user_id')['value'].sum() > threshold]
-    
+
     language_df.reset_index(inplace=True)
     language_df = language_df.pivot(index='user_id', columns='feat', values='group_norm')
     print ('language_df.shape after pivot: ' , language_df.shape)
@@ -228,9 +228,9 @@ def load_data():
         control_df.set_index('user_id', inplace=True)
 
 
-        topic_df = load_topics(cursor, users = personality_df)
-        ngrams_df = load_ngrams(cursor, users=personality_df)
-        nbools_df = load_ngrams(cursor,users=personality_df, ngrams_table=nbools_table)
+        topic_df = load_topics(cursor)#, users = personality_df)
+        ngrams_df = load_ngrams(cursor)#, users=personality_df)
+        nbools_df = load_ngrams(cursor, ngrams_table=nbools_table)
         # nbools_df = None
         # ngram_df = None
         # topic_df = None
