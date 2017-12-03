@@ -287,13 +287,13 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
     groupXtest = None
 
     for i in range(len(groupData)):
-        print ' >>>> i: ' , i
+        # print ' >>>> i: ' , i
         data = groupData[i]
         X = data.values
         Xtrain = data.loc[train_ids].values
         Xtest = data.loc[test_ids].values
         # index = index + test_ids
-        print ( Xtrain.shape, ' , ', ytrain.shape)
+        print ( '>>>> ' , i , '  >>> ' ,Xtrain.shape, ' , ', ytrain.shape)
         # try:
         if dim_reduction is not None:
             [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)

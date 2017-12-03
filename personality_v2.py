@@ -895,21 +895,22 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
 
 
-        print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)
+        # print ('train & test: ' , Xtrain.shape, ' , ', ytrain.shape , ' , ', Xtest.shape , ' , ', ytest.shape, ' , ', X.shape)
 
         # [Xtrain, fSelector] = dimension_reduction(Xtrain, ytrain)
         # Xtest = fSelector.transform(Xtest)
 
         Ypreds = None
         for j in range(len(ESTIMATORS)):
-            print ('j: ' , j, '  , len(ESTIMATORS): ', len(ESTIMATORS))
+            # print ('j: ' , j, '  , len(ESTIMATORS): ', len(ESTIMATORS))
             estimator = ESTIMATORS[j]
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
-            evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=False)
+
 
             if j>=1 and residuals:
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=False)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
@@ -929,7 +930,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             try:
-                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_res_controls_', store=False)
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
             except:
                 print 'try...except'
                 print (ypred.shape)
