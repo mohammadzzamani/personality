@@ -116,7 +116,7 @@ def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 100
         words.append(res[0])
 
 
-    if user is not None:
+    if users is not None:
         user_ids = '\' , \''.join(users.index.values.tolist())
         # user_ids =  '( \'' +  user_ids  + '\' )'
         sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
