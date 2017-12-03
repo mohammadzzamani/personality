@@ -229,7 +229,7 @@ def load_data():
         personality_df.set_index('user_id', inplace=True)
         control_df.set_index('user_id', inplace=True)
 
-        ngrams_df = load_ngrams(cursor, users=personality_df)
+        ngrams_df = load_ngrams(cursor) #, users=personality_df)
         [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
 
 
