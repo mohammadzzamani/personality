@@ -127,8 +127,11 @@ def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 100
     language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'value', 'group_norm'])
     language_df.feat = language_df.feat.map(lambda x: words.index(x))
 
-    language_df = language_df.loc[language_df.groupby('user_id')['value'].sum() > threshold]
+    language_df.set_index('user_id', inplace=True)
 
+    language_df = language_df.loc[language_df.groupby('user_id')['value'].sum() > threshold]
+    
+    language_df.reset_index(inplace=True)
     language_df = language_df.pivot(index='user_id', columns='feat', values='group_norm')
     print ('language_df.shape after pivot: ' , language_df.shape)
     # print (language_df.iloc[0:2])
@@ -174,7 +177,7 @@ def load_topics(cursor, users = None, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    # topic_df = topic_df.iloc[:1000,:]
+    topic_df = topic_df.iloc[:200,:]
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -290,7 +293,6 @@ def run_tfidf_dataframe(data, col_name, index_name=''):
         data = pd.DataFrame(data = tfidf.todense(), index = data.index)
     print ( 'data.shape: ' , data.shape)
     return data
-
 
 
 
