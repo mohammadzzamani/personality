@@ -109,7 +109,7 @@ def load_tweets(cursor, topic_df):
     return language_df
 
 
-def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 1000):
+def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 2000):
     print('load_ngrams...')
     sql = "select distinct( feat) from {0}".format(ngrams_table)
     query = cursor.execute(sql)
