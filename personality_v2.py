@@ -636,8 +636,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [   adapted, langData, added_langData , adapted_and_added, langData,]
-    groupDataName = [ 'adapted' , 'lang', 'added'  , 'adapted_and_added', 'lang_residualized',]
+    groupData = [   adapted, langData, added_langData , adapted_and_added, langData]
+    groupDataName = [ 'adapted' , 'lang', 'added'  , 'adapted_and_added', 'lang_residualized']
 
     inferred_presonality = None
 
@@ -655,7 +655,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
             #         GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
             #     ]
 
-            if data_index == 0:
+            if data_index == len(groupData) - 1:
                 residual = True
             else:
                 residual = False
