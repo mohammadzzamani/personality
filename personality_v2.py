@@ -414,7 +414,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
 
-    print('personality index : ' , personality_df.index)
+    # print('personality index : ' , personality_df.index)
     # personality_df = personality_df[['big5_ext']] #, 'big5_neu']]
 
     inferred_presonality = None
@@ -652,7 +652,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     groupDataName = [ 'adapted' , 'lang', 'added'  , 'adapted_and_added', 'lang_residualized']
 
     groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
-    groupDataName [ 'all' ]
+    groupDataName= [ 'all' ]
     inferred_presonality = None
 
     added_inferred_presonality = None
