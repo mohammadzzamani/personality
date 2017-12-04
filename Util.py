@@ -298,7 +298,7 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None, 
         if dim_reduction is not None:
             print ('i , dim_size ....... ' ,i, ' , ',  dim_sizes[i])
             if dim_sizes is not None:
-                [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain, dim_sizes[i])
+                [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain, dim_size=dim_sizes[i])
             else:
                 [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
             Xtest = fSelector.transform(Xtest)
