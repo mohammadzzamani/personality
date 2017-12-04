@@ -212,7 +212,7 @@ def load_data( index = 'cnty'):
         # control_df.set_index('user_id', inplace=True)
 
 
-        topic_df = load_topics(cursor)
+        topic_df = load_topics(cursor, index=index)
         # topic_df = topic_df.iloc[:1000,:]
         ngrams_df = load_ngrams(cursor, index=index, users=topic_df, threshold= 10000)
         nbools_df = load_ngrams(cursor, index=index, users=topic_df, ngrams_table=nbools_table)
