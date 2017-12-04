@@ -202,8 +202,8 @@ def load_data( index = 'cnty'):
         raise
     if(cursor is not None):
 
-        demog_df = load_controls(cursor,control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
-        labels_df = load_controls(cursor, control_feats= disease_feats)
+        demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
+        labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
         # personality_df = personality_df.iloc[:200,:]
 
         demog_df.set_index(index, inplace=True)
@@ -213,8 +213,8 @@ def load_data( index = 'cnty'):
 
         topic_df = load_topics(cursor)
         # topic_df = topic_df.iloc[:1000,:]
-        ngrams_df = load_ngrams(cursor, users=topic_df, threshold= 10000)
-        nbools_df = load_ngrams(cursor, users=topic_df, ngrams_table=nbools_table)
+        ngrams_df = load_ngrams(cursor, index=index, users=topic_df, threshold= 10000)
+        nbools_df = load_ngrams(cursor, index=index, users=topic_df, ngrams_table=nbools_table)
 
         # ngrams_df = load_ngrams(cursor) #, users=personality_df)
         # [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
