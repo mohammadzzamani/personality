@@ -236,7 +236,7 @@ def load_data():
         topic_df = load_topics(cursor)
         topic_df = topic_df.iloc[:100,:]
         ngrams_df = load_ngrams(cursor, users=topic_df)
-        nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
+        nbools_df = load_ngrams(cursor, users=topic_df, ngrams_table=nbools_table)
 
         # ngrams_df = load_ngrams(cursor) #, users=personality_df)
         # [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
