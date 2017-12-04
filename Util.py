@@ -323,10 +323,10 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None, 
 def dimension_reduction(X, y, univariate = True, pca = True, dim_size = 400):
     print ('dimension_reduction...')
 
-    if dim_size > 100:
-        alpha = 100.0
-    else:
-        alpha = 50.0
+    # if dim_size > 100:
+    alpha = 100.0
+    # else:
+    #     alpha = 50.0
     n_components = min(dim_size, X.shape[1])
     print (dim_size, ' , ', X.shape[1], ' , ',  n_components)
     # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')) ])'
