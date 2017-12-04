@@ -171,6 +171,7 @@ def load_controls(cursor, index, control_feats , control_feats_name = None, topi
         control_feats_name = control_feats
 
     feats_str  = ' , '.join(control_feats)
+
     print ('feats_str: ' , feats_str)
     if topic_df is not None:
         ids = '\' , \''.join(topic_df.index.values.tolist())
@@ -179,12 +180,12 @@ def load_controls(cursor, index, control_feats , control_feats_name = None, topi
         sql = "select {0} , {1} from {2} ".format(index, feats_str, control_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
-    control_df = pd.DataFrame(data = result, columns = ['cnty_id'] + control_feats_name)
+    control_df = pd.DataFrame(data = result, columns = [index] + control_feats_name)
     control_df.dropna(axis=0, how='any', inplace=True)
     return control_df
 
 
-def msg_to_user_langauge(language_df):
+def msg_to_user_langauge(language_df, index):
     print ('msg_to_user_langauge...')
     print ('language_df.shape: ' , language_df.shape)
     language_df = language_df.groupby(index).agg({'message':lambda x:' '.join(x)})
