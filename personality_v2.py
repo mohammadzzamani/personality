@@ -26,14 +26,17 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectFwe
 from sklearn.pipeline import Pipeline
 
+from sklearn.svm import SVR
+
+
 user= ''
 password = ''
 database = 'fb22'
 host = ''
 msg_table = 'messagesEn'
-# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
+topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
 # topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
-topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
+# topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'masterstats'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$user_id$16to16$0_1'
 nbools_table = 'feat$1to3gram$'+msg_table+'$user_id$16to1$0_1'
@@ -219,22 +222,26 @@ def load_data():
         print("error while connecting to database:", sys.exc_info()[0])
         raise
     if(cursor is not None):
+
         control_df = load_controls(cursor, control_feats=control_feats)
         demog_df = load_controls(cursor,control_feats=demog_feats)
         personality_df = load_controls(cursor, control_feats=personality_feats)
-
         # personality_df = personality_df.iloc[:200,:]
 
         demog_df.set_index('user_id', inplace=True)
         personality_df.set_index('user_id', inplace=True)
         control_df.set_index('user_id', inplace=True)
 
-        ngrams_df = load_ngrams(cursor) #, users=personality_df)
-        [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
 
-
-        topic_df = load_topics(cursor, users = personality_df)
+        topic_df = load_topics(cursor)
+        ngrams_df = load_ngrams(cursor, users=topic_df)
         nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
+
+        # ngrams_df = load_ngrams(cursor) #, users=personality_df)
+        # [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
+        # topic_df = load_topics(cursor, users = personality_df)
+        # nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
+
         # nbools_df = None
         # ngram_df = None
         # topic_df = None
@@ -880,6 +887,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         ESTIMATORS = [
                 mean_est(),
                 RidgeCV(alphas=alphas),
+                SVR()
                 # GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=1, subsample=0.75, max_depth=6, max_features=1), #, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
@@ -917,7 +925,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
 
 
-            if j>=1 and residuals:
+            if j==1 and residuals:
                 evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=False)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
