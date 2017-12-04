@@ -898,11 +898,12 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features),# min_impurity_decrease=0.02),
                 GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.6, min_impurity_decrease=0.05),
                 GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
+                RidgeCV(alphas=alphas)
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
                 # KNeighborsRegressor(n_neighbors=5)
         ]
 
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_200' , 'gbr250', 'gbr_200_mid', 'gbr_250_mid' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_200' , 'gbr250', 'gbr_200_mid', 'gbr_250_mid' ,'ridgecv_res']
     YpredsAll = None
     # YpredsAllTrain = None
     index = []
@@ -912,10 +913,10 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         index = index + test_ids
 
-        if residuals:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
-        else:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
+        # if residuals:
+        #     [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
+        # else:
+        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
 
 
 
@@ -927,13 +928,17 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         Ypreds = None
         for j in range(len(ESTIMATORS)):
             # print ('j: ' , j, '  , len(ESTIMATORS): ', len(ESTIMATORS))
+
+            if j==len(ESTIMATORS)-1 and residuals:
+                [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
+
             estimator = ESTIMATORS[j]
             estimator.fit(Xtrain, ytrain)
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
 
 
-            if j==1 and residuals:
+            if j==len(ESTIMATORS)-1 and residuals:
                 evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=False)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
@@ -946,7 +951,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypred1 = estimator.predict(Xtest1)
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
 
-                evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_res_', store=False)
+                evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=False)
 
                 ypred = np.add(ypred, ypred1)
 
