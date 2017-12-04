@@ -128,7 +128,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
 
 
     if users is not None:
-        ids = '\' , \''.join(users.index.values.tolist())
+        ids = '\' , \''.join(users.index.astype(str).values.tolist())
         sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, ids)
     else:
         sql = "select group_id , feat, value, group_norm from {0} ".format(ngrams_table)
@@ -151,7 +151,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
 def load_topics(cursor, index, users = None, gft = 500):
     print('load_topics...')
     if users is not None:
-        ids = '\' , \''.join(users.index.values.tolist())
+        ids = '\' , \''.join(users.index.astype(str).values.tolist())
         sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(topic_table, ids)
     else:
         sql = "select group_id , feat, group_norm from {0}".format(topic_table)
@@ -213,7 +213,7 @@ def load_data( index = 'cnty'):
 
 
         topic_df = load_topics(cursor, index=index)
-        # topic_df = topic_df.iloc[:1000,:]
+        topic_df = topic_df.iloc[:200,:]
         ngrams_df = load_ngrams(cursor, index=index, users=topic_df, threshold= 10000)
         nbools_df = load_ngrams(cursor, index=index, users=topic_df, ngrams_table=nbools_table)
 
