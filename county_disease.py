@@ -31,7 +31,7 @@ from sklearn.svm import SVR
 
 user= ''
 password = ''
-database = 'fb22'
+database = 'county_disease'
 host = ''
 msg_table = 'messages_en'
 # topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
