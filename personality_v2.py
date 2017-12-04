@@ -902,7 +902,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 # KNeighborsRegressor(n_neighbors=5)
         ]
 
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_ls' , 'knn' ]
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_200' , 'gbr250', 'gbr_200_mid', 'gbr_250_mid' ]
     YpredsAll = None
     # YpredsAllTrain = None
     index = []
