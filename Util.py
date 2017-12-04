@@ -245,10 +245,10 @@ def match_ids(dataList):
     return dataList
 
 
-def multiply(controls, language, output_filename=None,  all_df = None):
+def multiply(controls, language, output_filename=None,  all_df = None, inclusive = True):
     print ('multiply...')
 
-    if all_df is None:
+    if inclusive and  all_df is None:
         all_df = language
     print ('shapes: ', controls.shape, ' - ' , language.shape ,' - ') # , all_df.shape)
     for col in controls.columns:
@@ -265,7 +265,7 @@ def multiply(controls, language, output_filename=None,  all_df = None):
     return all_df
 
 
-def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
+def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None, dim_sizes = None):
     print ('split_train_test...')
     test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
     train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
@@ -296,7 +296,10 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
         print ( '>>>> ' , i , '  >>> ' ,Xtrain.shape, ' , ', ytrain.shape)
         # try:
         if dim_reduction is not None:
-            [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
+            if dim_sizes is not None:
+                [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain, dim_sizes[i])
+            else:
+                [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
             Xtest = fSelector.transform(Xtest)
             X = fSelector.transform(X)
         # except:
@@ -316,11 +319,14 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None):
     return groupX, groupXtrain, groupXtest, ytrain , ytest
 
 
-def dimension_reduction(X, y, univariate = True, pca = True):
+def dimension_reduction(X, y, univariate = True, pca = True, dim_size = 400):
     print ('dimension_reduction...')
 
-    alpha = 100.0
-    n_components = min(400, X.shape[1])
+    if dim_size > 100:
+        alpha = 100.0
+    else:
+        alpha = 50.0
+    n_components = min(dim_size, X.shape[1])
     # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')) ])'
     if univariate & pca:
         featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'

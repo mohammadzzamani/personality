@@ -180,7 +180,7 @@ def load_topics(cursor, users = None, gft = 500):
     topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
     topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
-    # topic_df = topic_df.iloc[:200,:]
+
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
@@ -234,6 +234,7 @@ def load_data():
 
 
         topic_df = load_topics(cursor)
+        topic_df = topic_df.iloc[:100,:]
         ngrams_df = load_ngrams(cursor, users=topic_df)
         nbools_df = load_ngrams(cursor, users=personality_df, ngrams_table=nbools_table)
 
@@ -526,7 +527,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     print ('cross_validation...')
 
     # min_max transform controls
-    [demog_df , demog_scaler] = transform(demog_df, type='minmax', range=(1,2))
+    [demog_df , demog_scaler] = transform(demog_df, type='minmax')#, range=(1,2))
     [personality_df , personality_scaler] = transform(personality_df, type='minmax')
 
 
@@ -572,13 +573,17 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_nbools = multiply(demog_df, nbools_df)
 
-    # age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df)
-    # age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df)
-    # age_topics = multiply(demog_df[['demog_age_fixed']], topic_df)
-    #
-    # gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df)
-    # gender_nbools= multiply(demog_df[['demog_gender']], nbools_df)
-    # gender_topics = multiply(demog_df[['demog_gender']], topic_df)
+    age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df, inclusive = False)
+    age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df, inclusive = False)
+    age_topics = multiply(demog_df[['demog_age_fixed']], topic_df, inclusive = False)
+
+    gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df, inclusive = False)
+    gender_nbools= multiply(demog_df[['demog_gender']], nbools_df, inclusive = False)
+    gender_topics = multiply(demog_df[['demog_gender']], topic_df, inclusive = False)
+
+    dim_sizes  = [ 300, 150, 150, 300, 150, 150, 75, 50, 50, 75, 50, 50]
+
+
 
     # standardize data and language
     # [language_df, language_scaler] = transform(language_df, type='standard')
@@ -646,6 +651,8 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     groupData = [   adapted, langData, added_langData , adapted_and_added, langData]
     groupDataName = [ 'adapted' , 'lang', 'added'  , 'adapted_and_added', 'lang_residualized']
 
+    groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
+    groupDataName [ 'all' ]
     inferred_presonality = None
 
     added_inferred_presonality = None
@@ -666,7 +673,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
                 residual = True
             else:
                 residual = False
-            inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residual)
+            inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residual, dim_sizes = dim_sizes)
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
                 pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
@@ -878,7 +885,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 
 
 
-def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.75, residuals = False, col_name='y', ESTIMATORS = None):
+def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.7, residuals = False, col_name='y', ESTIMATORS = None, dim_sizes = None):
     print ('cv...')
     # data.fillna(data.mean(), inplace=True)
     # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
@@ -886,10 +893,11 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
     if ESTIMATORS is None:
         ESTIMATORS = [
                 mean_est(),
-                RidgeCV(alphas=alphas)
-                # SVR()
-                # GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=1, subsample=0.75, max_depth=6, max_features=1), #, min_impurity_decrease=0.05),
-                # GradientBoostingRegressor(n_estimators= n_estimators, loss='ls', random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
+                RidgeCV(alphas=alphas),
+                GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.6), #, min_impurity_decrease=0.05),
+                GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features),# min_impurity_decrease=0.02),
+                GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.6, min_impurity_decrease=0.05),
+                GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
                 # KNeighborsRegressor(n_neighbors=5)
         ]
@@ -905,9 +913,9 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         index = index + test_ids
 
         if residuals:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True)
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
         else:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True)
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
 
 
 
@@ -946,7 +954,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             try:
-                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=False)
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=True)
             except:
                 print 'try...except'
                 print (ypred.shape)
