@@ -234,7 +234,7 @@ def load_data():
 
 
         topic_df = load_topics(cursor)
-        # topic_df = topic_df.iloc[:100,:]
+        topic_df = topic_df.iloc[:1000,:]
         ngrams_df = load_ngrams(cursor, users=topic_df)
         nbools_df = load_ngrams(cursor, users=topic_df, ngrams_table=nbools_table)
 
@@ -944,7 +944,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
                 res_labels = np.subtract(labels, ypredTrain)
-                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_reduction=True)
+                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
 
                 estimator = RidgeCV(alphas=alphas)
                 estimator.fit(Xtrain1, ytrain1)
