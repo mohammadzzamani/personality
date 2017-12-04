@@ -99,27 +99,25 @@ def load_data_train_test(fname):
     return train_tweets, train_uids, test_tweets, test_uids
 
 
-def load_tweets(cursor, topic_df):
+def load_tweets(cursor, index, topic_df):
     print('load_tweets...')
 
     language_df = None
-    user_ids = '\' , \''.join(topic_df.index.values.tolist())
-    # print (user_ids)
-    # user_ids =  '( \'' +  user_ids  + '\' )'
+    ids = '\' , \''.join(topic_df.index.values.tolist())
 
-    sql = "select user_id , message from {0} where user_id in ( \'{1}\' )".format(msg_table, user_ids)
+    sql = "select {0} , message from {1} where {0} in ( \'{2}\' )".format(index, msg_table, ids)
     query = cursor.execute(sql)
     result =  query.fetchall()
-    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'message'])
+    language_df = pd.DataFrame(data = result, columns = [index , 'message'])
     print ('language_df.shape: ', language_df.shape)
-    language_df = language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
+    language_df = language_df.groupby(index).agg({'message':lambda x:' '.join(x)})
     # language_df = result_df if language_df is None else pd.concat([language_df, result_df])
 
     print ('language_df.shape: ', language_df.shape)
     return language_df
 
 
-def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 0 ):
+def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshold = 0 ):
     print('load_ngrams...')
     sql = "select distinct( feat) from {0}".format(ngrams_table)
     query = cursor.execute(sql)
@@ -130,44 +128,43 @@ def load_ngrams(cursor, users=None, ngrams_table = ngrams_table, threshold = 0 )
 
 
     if users is not None:
-        user_ids = '\' , \''.join(users.index.values.tolist())
-        # user_ids =  '( \'' +  user_ids  + '\' )'
-        sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, user_ids)
+        ids = '\' , \''.join(users.index.values.tolist())
+        sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, ids)
     else:
         sql = "select group_id , feat, value, group_norm from {0} ".format(ngrams_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
-    language_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'value', 'group_norm'])
+    language_df = pd.DataFrame(data = result, columns = [index , 'feat', 'value', 'group_norm'])
     language_df.feat = language_df.feat.map(lambda x: words.index(x))
 
     if threshold > 0:
-        language_df.set_index('user_id', inplace=True)
-        language_df = language_df.loc[language_df.groupby('user_id')['value'].sum() > threshold]
+        language_df.set_index(index, inplace=True)
+        language_df = language_df.loc[language_df.groupby(index)['value'].sum() > threshold]
         language_df.reset_index(inplace=True)
 
-    language_df = language_df.pivot(index='user_id', columns='feat', values='group_norm')
+    language_df = language_df.pivot(index=index, columns='feat', values='group_norm')
     print ('language_df.shape after pivot: ' , language_df.shape)
     # print (language_df.iloc[0:2])
 
     return language_df
 
-def load_topics(cursor, users = None, gft = 500):
+def load_topics(cursor, index, users = None, gft = 500):
     print('load_topics...')
     if users is not None:
-        user_ids = '\' , \''.join(users.index.values.tolist())
-        sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(topic_table, user_ids)
+        ids = '\' , \''.join(users.index.values.tolist())
+        sql = "select group_id , feat, group_norm from {0} where group_id in ( \'{1}\' )".format(topic_table, ids)
     else:
         sql = "select group_id , feat, group_norm from {0}".format(topic_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
-    topic_df = pd.DataFrame(data = result, columns = ['user_id' , 'feat', 'group_norm'])
+    topic_df = pd.DataFrame(data = result, columns = [index , 'feat', 'group_norm'])
     print ('topic_df.shape: ' , topic_df.shape)
-    topic_df = topic_df.pivot(index='user_id', columns='feat', values='group_norm')
+    topic_df = topic_df.pivot(index=index, columns='feat', values='group_norm')
 
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
-def load_controls(cursor, control_feats , control_feats_name = None, topic_df = None ):
+def load_controls(cursor, index, control_feats , control_feats_name = None, topic_df = None ):
     print('load_controls...')
 
     if control_feats_name == None:
@@ -176,10 +173,10 @@ def load_controls(cursor, control_feats , control_feats_name = None, topic_df = 
     feats_str  = ' , '.join(control_feats)
     print ('feats_str: ' , feats_str)
     if topic_df is not None:
-        user_ids = '\' , \''.join(topic_df.index.values.tolist())
-        sql = "select user_id , {0} from {1} where user_id in ( \'{2}\' )".format(feats_str, control_table, user_ids)
+        ids = '\' , \''.join(topic_df.index.values.tolist())
+        sql = "select {0} , {1} from {2} where {0} in ( \'{2}\' )".format(index, feats_str, control_table, ids)
     else:
-        sql = "select user_id , {0} from {1} ".format(feats_str, control_table)
+        sql = "select {0} , {1} from {2} ".format(index, feats_str, control_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = ['cnty_id'] + control_feats_name)
@@ -190,7 +187,7 @@ def load_controls(cursor, control_feats , control_feats_name = None, topic_df = 
 def msg_to_user_langauge(language_df):
     print ('msg_to_user_langauge...')
     print ('language_df.shape: ' , language_df.shape)
-    language_df = language_df.groupby('user_id').agg({'message':lambda x:' '.join(x)})
+    language_df = language_df.groupby(index).agg({'message':lambda x:' '.join(x)})
     print ('language_df.shape after group by: ' , language_df.shape)
     print ('language_df.columns: ' , language_df.columns)
     return language_df
@@ -295,13 +292,13 @@ def parse_cmd_input():
 
 
 
-def k_fold(data, folds=10):
+def k_fold(data, index, folds=10):
     print ('k_fold...')
     kf = KFold(n_splits=folds,shuffle=True, random_state=1)
     fold_number = 0
-    folds = pd.DataFrame(data = data.index , columns=['user_id'])
+    folds = pd.DataFrame(data = data.index , columns=[index])
     folds['fold'] = 0
-    folds.set_index('user_id', inplace=True)
+    folds.set_index(index, inplace=True)
     # print folds
     # print ('folds.index: ' , folds.index )
     for train_index, test_index in kf.split(folds.index):
@@ -724,7 +721,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
 
 
-def cross_validation_with_saved_data(language_df=None, demog_df=None, personality_df=None, folds = 10):
+def cross_validation_with_saved_data(index, language_df=None, demog_df=None, personality_df=None, folds = 10):
     print ('cross_validation...')
 
 
@@ -739,13 +736,13 @@ def cross_validation_with_saved_data(language_df=None, demog_df=None, personalit
     ## language_df.set_index('user_id', inplace=True)
 
     demog_df = pd.read_csv('csv/demog.csv')
-    demog_df.set_index('user_id', inplace=True)
+    demog_df.set_index(index, inplace=True)
     print (demog_df.shape, ' , ', demog_df.columns)
     personality_df = pd.read_csv('csv/personlity.csv')
-    personality_df.set_index('user_id', inplace=True)
+    personality_df.set_index(index, inplace=True)
 
     language_df = pd.read_csv('csv/language_pca.csv')
-    language_df.set_index('user_id', inplace=True)
+    language_df.set_index(index, inplace=True)
     print ('language_df.shape is: ' , language_df.shape)
 
 
