@@ -234,7 +234,7 @@ def load_data():
 
 
         topic_df = load_topics(cursor)
-        topic_df = topic_df.iloc[:1000,:]
+        # topic_df = topic_df.iloc[:1000,:]
         ngrams_df = load_ngrams(cursor, users=topic_df)
         nbools_df = load_ngrams(cursor, users=topic_df, ngrams_table=nbools_table)
 
@@ -581,7 +581,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     gender_nbools= multiply(demog_df[['demog_gender']], nbools_df, inclusive = False)
     gender_topics = multiply(demog_df[['demog_gender']], topic_df, inclusive = False)
 
-    dim_sizes  = [ 300, 150, 150, 300, 150, 150, 75, 50, 50, 75, 50, 50]
+    dim_sizes  = [ 300, 150, 150, 300, 150, 100, 75, 50, 50, 75, 50, 50]
 
 
 
@@ -939,7 +939,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
 
             if j==len(ESTIMATORS)-1 and residuals:
-                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=False)
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=True)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
@@ -951,7 +951,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypred1 = estimator.predict(Xtest1)
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
 
-                evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=False)
+                evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=True)
 
                 ypred = np.add(ypred, ypred1)
 
