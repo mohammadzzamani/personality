@@ -129,7 +129,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
 
     if users is not None:
         ids = '\' , \''.join(users.index.astype(str).values.tolist())
-        print (users.iloc[:10].index)
+        # print (users.iloc[:10].index)
         # , \'?\', \'???\', \'?????\', \'???????\', \'????\', \'??????\', \'????????\')
 
         sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' ) ".format(ngrams_table, ids)
@@ -228,7 +228,7 @@ def load_data( index = 'cnty'):
         demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
         labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
         print ('shapes:::::::::: ', demog_df.shape , ' , ' , labels_df.shape)
-        labels_df = labels_df.iloc[:200,:]
+        # labels_df = labels_df.iloc[:200,:]
 
         demog_df.set_index(index, inplace=True)
         labels_df.set_index(index, inplace=True)

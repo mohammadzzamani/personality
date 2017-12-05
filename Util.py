@@ -438,7 +438,7 @@ def dimension_reduction(X, y, univariate = True, pca = True, dim_size = (300, 60
         featureSelectionString = 'Pipeline([ ("1_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
         fSelector = eval(featureSelectionString)
         newX = fSelector.fit_transform(X, y.ravel())
-        
+
     print ('newX.shape: ' , newX.shape)
 
     # featureSelectionString = 'Pipeline([ ("2_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
