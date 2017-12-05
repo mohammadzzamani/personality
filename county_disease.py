@@ -223,7 +223,7 @@ def load_data( index = 'cnty'):
     if(cursor is not None):
 
         demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
-        labels_df = load_controls(cursor, index= index, control_feats= disease_feats, drop_nan=True)
+        labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
         print ('shapes:::::::::: ', demog_df.shape , ' , ' , labels_df.shape)
         # personality_df = personality_df.iloc[:200,:]
 
@@ -651,7 +651,7 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
     groupData = [   langData, adapted ,added_langData, langData]
     groupDataName = [  'lang', 'adapted' , 'added', 'lang_residualized']
-    dim_sizes = [[100, 75, 75], [150, 100, 100], [100,75,75,100], [100, 75, 75]]
+    dim_sizes = [[150, 100, 100], [200, 150, 150], [150, 100, 100,100], [150, 100, 100]]
 
 
     # groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
