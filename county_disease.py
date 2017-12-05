@@ -957,7 +957,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
                 res_labels = np.subtract(labels, ypredTrain)
-                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
+                [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_sizes= dim_sizes)
 
                 estimator = RidgeCV(alphas=alphas)
                 estimator.fit(Xtrain1, ytrain1)
