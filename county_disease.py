@@ -42,7 +42,7 @@ control_table = 'topDeaths_comp_10to15'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$cnty$16to16$0_5'
 nbools_table = 'feat$1to3gram$'+msg_table+'$cnty$16to1$0_5'
 # personality_feats = [ 'big5_neu', 'big5_ope', 'big5_agr', 'big5_con', 'big5_ext',]
-disease_feats = ['01hea_aar', '02mal_aar', '03res_aar', '04acc_aar', '05cer_aar',
+disease_feats = ['03res_aar', '01hea_aar', '02mal_aar',  '04acc_aar', '05cer_aar',
                  '06alz_aar', '07dia_aar', '08flu_aar', '09nep_aar', '10sui_aar',
                  '11sep_aar', '12liv_aar', '13hyp_aar', '14par_aar', '15pne_aar']
 # demog_feats = ['demog_age_fixed', 'demog_gender']
