@@ -645,6 +645,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     groupData = [   langData, adapted,  added_langData , adapted_and_added, langData]
     groupDataName = [  'lang', 'adapted' , 'added'  , 'adapted_and_added', 'lang_residualized']
     dim_sizes = [[200, 150, 150], [250, 200, 200], [200,150, 150, 150],  [250, 200, 200, 200], [200, 150, 150]]
+
+    groupDataName = [  'lang', 'adapted'  'lang_residualized']
+    dim_sizes = [[20, 15, 15], [25, 20, 20], [20, 15, 15]]
+
+
     # groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
     # groupDataName= [ 'all' ]
     inferred_presonality = None
@@ -1108,7 +1113,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, nbools_df=nbools_df, demog_df=demog_df, personality_df=labels_df, folds=10)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, nbools_df=nbools_df, demog_df=demog_df, personality_df=labels_df, folds=5)
 
 
 
