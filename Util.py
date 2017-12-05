@@ -340,7 +340,7 @@ def dimension_reduction(X, y, univariate = True, pca = True, dim_size = 400):
     print ('dimension_reduction...')
 
     # if dim_size > 100:
-    alpha = 100.0
+    alpha = 60.0
     # else:
     #     alpha = 50.0
     n_components = min(dim_size, X.shape[1])

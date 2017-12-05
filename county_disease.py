@@ -651,7 +651,7 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
     groupData = [   langData, adapted ,langData]
     groupDataName = [  'lang', 'adapted' , 'lang_residualized']
-    dim_sizes = [[20, 15, 15], [25, 20, 20], [20, 15, 15]]
+    dim_sizes = [[100, 75, 75], [150, 100, 100], [100, 75, 75]]
 
 
     # groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
