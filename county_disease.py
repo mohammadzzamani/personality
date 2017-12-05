@@ -184,7 +184,7 @@ def load_topics(cursor, index, users = None, gft = 500):
 def load_controls(cursor, index, control_feats , control_feats_name = None, topic_df = None ):
     print('load_controls...')
 
-    if control_feats_name == None:
+    if control_feats_name is None:
         control_feats_name = control_feats
 
     feats_str  = ' , '.join(control_feats)
@@ -199,6 +199,7 @@ def load_controls(cursor, index, control_feats , control_feats_name = None, topi
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = [index] + control_feats_name)
     control_df.dropna(axis=0, how='any', inplace=True)
+    print ( control_df.shape)
     return control_df
 
 
@@ -1075,7 +1076,10 @@ def main():
     print ('labels_df.shape: ', labels_df.shape)
 
     # control_df.to_csv('csv/controls.csv')
-    print (labels_df.corrwith(demog_df))
+    for col in demog_df.columns:
+
+        print ('col:' )
+        print (labels_df.corrwith(demog_df[col]))
     #
     return
 
