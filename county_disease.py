@@ -675,10 +675,16 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             else:
                 residuals = False
 
+            # all_data = [data + [personality_df[[col]]] + [demog_df]]
+            # print len(all_data)
             matched_data = match_ids(data + [personality_df[[col]]] + [demog_df])
+            # print len(matched_data)
+
             demog = [matched_data[len(matched_data)-1]]
             personality = matched_data[len(matched_data)-2]
-            data = [ d for d in range(len(matched_data)-2)]
+            data = [ matched_data[i] for i in range(len(matched_data)-2)]
+            # print ( len(demog))
+            # exit()
             # inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
             inferred = cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
 
