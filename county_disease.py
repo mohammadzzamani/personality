@@ -141,6 +141,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
 
     language_df.set_index(['cnty','feat'], inplace=True)
     print ( 'duplicates: ' , language_df.index.duplicated())
+    language_df.reset_index(inplace=True)
 
     if threshold > 0:
         language_df.set_index(index, inplace=True)
