@@ -508,7 +508,7 @@ def res_control(topic_df = None, language_df=None, demog_df=None, personality_df
 
 
 
-def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=None, personality_df=None, folds = 5):
+def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=None, demog_df=None, personality_df=None, folds = 5):
     print ('cross_validation...')
 
     # min_max transform controls
@@ -606,7 +606,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     # language_df.to_csv('csv/language_pca.csv')
 
 
-    foldsdf = k_fold(topic_df, folds=folds)
+    foldsdf = k_fold(topic_df, index=index, folds=folds)
 
     # inferred_presonality = personality_df
     # pd.DataFrame(data=personality_df.index.values.tolist(), columns='user_id')
