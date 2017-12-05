@@ -228,7 +228,7 @@ def load_data( index = 'cnty'):
         demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
         labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
         print ('shapes:::::::::: ', demog_df.shape , ' , ' , labels_df.shape)
-        # labels_df = labels_df.iloc[:200,:]
+        labels_df = labels_df.iloc[:200,:]
 
         demog_df.set_index(index, inplace=True)
         labels_df.set_index(index, inplace=True)
@@ -567,11 +567,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
 
 
-    # separately_adapted= []
-    # separately_adapted_cols = []
-    # for col in demog_df:
-    #     separately_adapted.append([multiply(demog_df[[col]], ngrams_df), multiply(demog_df[[col]], nbools_df), multiply(demog_df[[col]], topic_df)])
-    #     separately_adapted_cols = separately_adapted_cols  + [col]
+    separately_adapted= []
+    separately_adapted_cols = []
+    for col in demog_df:
+        separately_adapted.append([multiply(demog_df[[col]], ngrams_df), multiply(demog_df[[col]], nbools_df), multiply(demog_df[[col]], topic_df)])
+        separately_adapted_cols = separately_adapted_cols  + [col]
 
     adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
@@ -662,9 +662,9 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
     dim_sizes = [[(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)], [(150, 30.0), (100, 2.0), (100,10.0), (100, 60.0)], [(150, 30.0), (100, 2.0), (100,10.0)]]
 
-    # groupData = [  langData ] +  separately_adapted  + [added_langData , langData]
-    # groupDataName = [ 'lang' ] + separately_adapted_cols +  ['added', 'lang_residualized']
-    # dim_sizes = [(150, 50.0), (100, 5.0), (150,5.0), (100, 100.0) ]
+    groupData = [  langData ] +  separately_adapted  + [added_langData , langData]
+    groupDataName = [ 'lang' ] + separately_adapted_cols +  ['added', 'lang_residualized']
+    dim_sizes = [(150, 50.0), (100, 5.0), (150,5.0), (100, 100.0) ]
 
 
 
@@ -729,8 +729,8 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # print ( len(demog))
             # exit()
             # inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
-            # inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes)
-            inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
+            inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes)
+            # inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
 
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
