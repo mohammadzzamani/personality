@@ -683,6 +683,10 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
                 print (personality)
 
             personality.dropna(axis=1, how='any', inplace=True)
+
+            if col == '03res_aar':
+                print (personality)
+
             matched_data = match_ids(data + [personality] + [demog_df])
             # print len(matched_data)
 
