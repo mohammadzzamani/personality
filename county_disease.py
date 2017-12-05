@@ -662,8 +662,8 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
     dim_sizes = [[(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)], [(150, 30.0), (100, 2.0), (100,10.0), (100, 60.0)], [(150, 30.0), (100, 2.0), (100,10.0)]]
 
-    groupData = [  langData ] +  separately_adapted  + [added_langData , langData]
-    groupDataName = [ 'lang' ] + separately_adapted_cols +  ['added', 'lang_residualized']
+    groupData = separately_adapted + [  langData ,added_langData , langData]
+    groupDataName = separately_adapted_cols +  [ 'lang' , 'added', 'lang_residualized']
     dim_sizes = [(150, 50.0), (100, 5.0), (150,5.0), (100, 100.0) ]
 
 
@@ -739,10 +739,24 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+
+            if data_index < len(groupData)-3:
+                ensemble_adapted = inferred if ensemble_adapted is None else \
+                    pd.merge(ensemble_adapted, inferred, left_index=True, right_index=True, how='inner')
+
+
         inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
         inferred_col = [inferred_col]
-
         result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
+
+
+        result_col = cv(data=[ensemble_adapted], controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted.....', col_name=data_name,residuals=False)
+
+
+        ensemble_adapted = pd.merge(ensemble_adapted, demog_df,left_index=True, right_index=True, how='inner')
+        ensemble_adapted = [ensemble_adapted]
+        result_col = cv(data=ensemble_adapted, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted_added.....', col_name=data_name,residuals=False)
+
 
 
 
