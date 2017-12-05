@@ -671,9 +671,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             #     ]
 
             if data_index == len(groupData) - 1:
-                inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= True, dim_sizes = dim_sizes[data_index])
+                residuals = True
             else:
-                inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= False, dim_sizes = dim_sizes[data_index])
+                residuals = False
+
+            inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
 
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
@@ -917,12 +919,12 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
         print ('residuals : ' , residuals)
         if residuals:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=False)
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i)
         else:
-            if dim_sizes is not None:
-                [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
-            else:
-                [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=False)
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_sizes= dim_sizes)
+
+
+
 
 
 
@@ -943,9 +945,14 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
 
+            if j==len(ESTIMATORS)-1 and residuals:
+                store = True
+            else:
+                store = False
+
 
             if j==len(ESTIMATORS)-1 and residuals:
-                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=True)
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=store)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
@@ -957,7 +964,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypred1 = estimator.predict(Xtest1)
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
 
-                evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=True)
+                evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=store)
 
                 ypred = np.add(ypred, ypred1)
 
@@ -965,7 +972,8 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             try:
-                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=True)
+
+                evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_', store=store)
             except:
                 print 'try...except'
                 print (ypred.shape)

@@ -265,7 +265,7 @@ def multiply(controls, language, output_filename=None,  all_df = None, inclusive
     return all_df
 
 
-def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=False, dim_sizes = None):
+def split_train_test(groupData, groupLabels, foldsdf, fold, dim_sizes = None):
     print ('split_train_test...')
     test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
     train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
@@ -295,12 +295,17 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=False,
         # index = index + test_ids
         print ( '>>>> ' , i , '  >>> ' ,Xtrain.shape, ' , ', ytrain.shape)
         # try:
-        if dim_reduction is not False:
+        if dim_sizes is not None:
             print ('i , dim_size ....... ' ,i, ' , ',  dim_sizes[i])
-            if dim_sizes is not None:
+            try:
                 [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain, dim_size=dim_sizes[i])
-                Xtest = fSelector.transform(Xtest)
-                X = fSelector.transform(X)
+            except:
+                print (Xtrain.shape , ' , ' , ytrain.shape , ' , ' ,i)
+                print (np.isnan(Xtrain).any())
+                print (np.isnan(ytrain).any())
+                exit()
+            Xtest = fSelector.transform(Xtest)
+            X = fSelector.transform(X)
             # else:
             #     [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
 
