@@ -129,6 +129,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
 
     if users is not None:
         ids = '\' , \''.join(users.index.astype(str).values.tolist())
+        print (users.iloc[:10].index)
         sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' )".format(ngrams_table, ids)
     else:
         sql = "select group_id , feat, value, group_norm from {0} ".format(ngrams_table)
@@ -137,10 +138,17 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
     language_df = pd.DataFrame(data = result, columns = [index , 'feat', 'value', 'group_norm'])
     language_df.feat = language_df.feat.map(lambda x: words.index(x))
 
+
+    language_df.set_index(['cnty','feat'], inplace=True)
+    print ( 'duplicates: ' , language_df.index.duplicated())
+
     if threshold > 0:
         language_df.set_index(index, inplace=True)
         language_df = language_df.loc[language_df.groupby(index)['value'].sum() > threshold]
         language_df.reset_index(inplace=True)
+
+
+
 
     language_df = language_df.pivot(index=index, columns='feat', values='group_norm')
     print ('language_df.shape after pivot: ' , language_df.shape)
