@@ -675,6 +675,7 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     added_inferred_presonality = None
     for col in personality_df.columns:
         inferred_col = None
+        ensemble_adapted = None
         for data_index in range(len(groupData)):
             data = groupData[data_index]
             data_name = groupDataName[data_index]
