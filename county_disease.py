@@ -237,7 +237,7 @@ def load_data( index = 'cnty'):
 
         topic_df = load_topics(cursor, index=index , users= labels_df)
         # topic_df = topic_df.iloc[:200,:]
-        ngrams_df = load_ngrams(cursor, index=index, users=labels_df, threshold= 20000)
+        ngrams_df = load_ngrams(cursor, index=index, users=labels_df, threshold= 10000)
         nbools_df = load_ngrams(cursor, index=index, users=labels_df, ngrams_table=nbools_table)
 
         # ngrams_df = load_ngrams(cursor) #, users=personality_df)
@@ -654,7 +654,8 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
     groupData = [   langData, adapted ,added_langData, langData]
     groupDataName = [  'lang', 'adapted' , 'added', 'lang_residualized']
-    dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
+    # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
+    dim_sizes = [[(150, 30), (100, 2), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 30), (100, 2), (100,10), (100, 60)], [(150, 30), (100, 2), (100,10)]]
 
 
     # groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
@@ -720,17 +721,17 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
             inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
 
-        #     print ( 'inferred.shape....: ' , inferred.shape)
-        #     inferred_col = inferred if inferred_col is None else \
-        #         pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
-        #     print ( 'inferred_col.shape....: ' , inferred_col.shape)
-        #     # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
-        #     # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-        #     # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
-        # inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
-        # inferred_col = [inferred_col]
-        #
-        # result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
+            print ( 'inferred.shape....: ' , inferred.shape)
+            inferred_col = inferred if inferred_col is None else \
+                pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
+            print ( 'inferred_col.shape....: ' , inferred_col.shape)
+            # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+            # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+            # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
+        inferred_col = [inferred_col]
+
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
 
 
 
@@ -969,7 +970,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         else:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_sizes= dim_sizes)
 
-        return None
+        # return None
 
 
 
