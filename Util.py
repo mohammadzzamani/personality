@@ -313,7 +313,7 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_sizes = None):
             print (np.isnan(Xtrain).any())
             print (np.isnan(ytrain).any())
 
-            continue
+            
 
             Xtest = fSelector.transform(Xtest)
             X = fSelector.transform(X)
