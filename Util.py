@@ -265,7 +265,7 @@ def multiply(controls, language, output_filename=None,  all_df = None, inclusive
     return all_df
 
 
-def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None, dim_sizes = None):
+def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=False, dim_sizes = None):
     print ('split_train_test...')
     test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
     train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
@@ -295,7 +295,7 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None, 
         # index = index + test_ids
         print ( '>>>> ' , i , '  >>> ' ,Xtrain.shape, ' , ', ytrain.shape)
         # try:
-        if dim_reduction is not None:
+        if dim_reduction is not False:
             print ('i , dim_size ....... ' ,i, ' , ',  dim_sizes[i])
             if dim_sizes is not None:
                 [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain, dim_size=dim_sizes[i])
