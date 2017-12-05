@@ -526,10 +526,10 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     nbools_df.fillna(0, inplace=True)
     topic_df.fillna(0, inplace=True)
 
-    print (ngrams_df.iloc[:10].index)
-    print (topic_df.iloc[:10].index)
-    print (demog_df.iloc[:10].index)
-    print (personality_df.iloc[:10].index)
+    # print (ngrams_df.iloc[:10].index)
+    # print (topic_df.iloc[:10].index)
+    # print (demog_df.iloc[:10].index)
+    # print (personality_df.iloc[:10].index)
 
     [ngrams_df, nbools_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, nbools_df, topic_df, demog_df, personality_df])
 
@@ -567,11 +567,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
 
 
-    separately_adapted= []
-    separately_adapted_cols = []
-    for col in demog_df:
-        separately_adapted.append([multiply(demog_df[[col]], ngrams_df), multiply(demog_df[[col]], nbools_df), multiply(demog_df[[col]], topic_df)])
-        separately_adapted_cols = separately_adapted_cols  + [col]
+    # separately_adapted= []
+    # separately_adapted_cols = []
+    # for col in demog_df:
+    #     separately_adapted.append([multiply(demog_df[[col]], ngrams_df), multiply(demog_df[[col]], nbools_df), multiply(demog_df[[col]], topic_df)])
+    #     separately_adapted_cols = separately_adapted_cols  + [col]
 
     adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
@@ -652,9 +652,9 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [   langData, adapted,  added_langData , adapted_and_added, langData]
-    groupDataName = [  'lang', 'adapted' , 'added'  , 'adapted_and_added', 'lang_residualized']
-    dim_sizes = [[200, 150, 150], [250, 200, 200], [200,150, 150, 150],  [250, 200, 200, 200], [200, 150, 150]]
+    # groupData = [   langData, adapted,  added_langData , adapted_and_added, langData]
+    # groupDataName = [  'lang', 'adapted' , 'added'  , 'adapted_and_added', 'lang_residualized']
+    # dim_sizes = [[200, 150, 150], [250, 200, 200], [200,150, 150, 150],  [250, 200, 200, 200], [200, 150, 150]]
 
 
     groupData = [   langData, adapted ,added_langData, langData]
@@ -662,9 +662,9 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
     dim_sizes = [[(150, 30), (100, 2), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 30), (100, 2), (100,10), (100, 60)], [(150, 30), (100, 2), (100,10)]]
 
-    groupData = [  langData ] +  separately_adapted  + [added_langData , langData]
-    groupDataName = [ 'lang' ] + separately_adapted_cols +  ['added', 'lang_residualized']
-    dim_sizes = [(150, 30), (100, 2), (100,10), (100, 100) ]
+    # groupData = [  langData ] +  separately_adapted  + [added_langData , langData]
+    # groupDataName = [ 'lang' ] + separately_adapted_cols +  ['added', 'lang_residualized']
+    # dim_sizes = [(150, 30), (100, 2), (100,10), (100, 100) ]
 
 
 
@@ -729,20 +729,20 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # print ( len(demog))
             # exit()
             # inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
-            inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes)
-            # inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
-        #
-        #     print ( 'inferred.shape....: ' , inferred.shape)
-        #     inferred_col = inferred if inferred_col is None else \
-        #         pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
-        #     print ( 'inferred_col.shape....: ' , inferred_col.shape)
-        #     # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
-        #     # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-        #     # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
-        # inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
-        # inferred_col = [inferred_col]
-        #
-        # result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
+            # inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes)
+            inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
+
+            print ( 'inferred.shape....: ' , inferred.shape)
+            inferred_col = inferred if inferred_col is None else \
+                pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
+            print ( 'inferred_col.shape....: ' , inferred_col.shape)
+            # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+            # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+            # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
+        inferred_col = [inferred_col]
+
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
 
 
 
@@ -981,7 +981,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         else:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_sizes= dim_sizes)
 
-        return None
+        # return None
 
 
 
