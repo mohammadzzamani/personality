@@ -558,15 +558,15 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_nbools = multiply(demog_df, nbools_df)
 
-    age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df, inclusive = False)
-    age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df, inclusive = False)
-    age_topics = multiply(demog_df[['demog_age_fixed']], topic_df, inclusive = False)
+    # age_ngrams = multiply(demog_df[['demog_age_fixed']], ngrams_df, inclusive = False)
+    # age_nbools = multiply(demog_df[['demog_age_fixed']], nbools_df, inclusive = False)
+    # age_topics = multiply(demog_df[['demog_age_fixed']], topic_df, inclusive = False)
+    #
+    # gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df, inclusive = False)
+    # gender_nbools= multiply(demog_df[['demog_gender']], nbools_df, inclusive = False)
+    # gender_topics = multiply(demog_df[['demog_gender']], topic_df, inclusive = False)
 
-    gender_ngrams = multiply(demog_df[['demog_gender']], ngrams_df, inclusive = False)
-    gender_nbools= multiply(demog_df[['demog_gender']], nbools_df, inclusive = False)
-    gender_topics = multiply(demog_df[['demog_gender']], topic_df, inclusive = False)
-
-    dim_sizes  = [ 150, 75, 75, 150, 75, 50, 25, 25, 25, 25, 25, 25]
+    dim_sizes  = [ 150, 75, 75, 150, 75, 50] #, 25, 25, 25, 25, 25, 25]
 
 
 
@@ -633,11 +633,11 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
 
     print('personality index : ' , personality_df.index)
 
-    groupData = [   adapted, langData, added_langData , adapted_and_added, langData]
-    groupDataName = [ 'adapted' , 'lang', 'added'  , 'adapted_and_added', 'lang_residualized']
-
-    groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
-    groupDataName= [ 'all' ]
+    groupData = [   langData, adapted,  added_langData , adapted_and_added, langData]
+    groupDataName = [  'lang', 'adapted' , 'added'  , 'adapted_and_added', 'lang_residualized']
+    dim_sizes = [[200, 150, 150], [250, 200, 200], [200,150, 150, 150],  [250, 200, 200, 200], [200, 150, 150]]
+    # groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
+    # groupDataName= [ 'all' ]
     inferred_presonality = None
 
     added_inferred_presonality = None
@@ -658,7 +658,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
                 residual = True
             else:
                 residual = False
-            inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residual, dim_sizes = dim_sizes)
+            inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residual, dim_sizes = dim_sizes[data_index])
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
                 pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
@@ -879,11 +879,11 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         ESTIMATORS = [
                 mean_est(),
                 RidgeCV(alphas=alphas),
-                GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65), #, min_impurity_decrease=0.05),
-                GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features),# min_impurity_decrease=0.02),
-                GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65, min_impurity_decrease=0.05),
-                GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
-                RidgeCV(alphas=alphas)
+                # GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65), #, min_impurity_decrease=0.05),
+                # GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features),# min_impurity_decrease=0.02),
+                # GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65, min_impurity_decrease=0.05),
+                # GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
+                # RidgeCV(alphas=alphas)
                 # BaggingRegressor(n_estimators=20, max_samples=0.9, max_features=0.9, random_state=7),
                 # KNeighborsRegressor(n_neighbors=5)
         ]
@@ -898,10 +898,10 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         index = index + test_ids
 
-        # if residuals:
-        #     [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
-        # else:
-        [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
+        if residuals:
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
+        else:
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
 
 
 
