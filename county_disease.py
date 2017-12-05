@@ -566,7 +566,7 @@ def cross_validation(topic_df = None, ngrams_df=None, nbools_df=None, demog_df=N
     gender_nbools= multiply(demog_df[['demog_gender']], nbools_df, inclusive = False)
     gender_topics = multiply(demog_df[['demog_gender']], topic_df, inclusive = False)
 
-    dim_sizes  = [ 300, 150, 150, 300, 150, 100, 75, 50, 50, 75, 50, 50]
+    dim_sizes  = [ 150, 75, 75, 150, 75, 50, 25, 25, 25, 25, 25, 25]
 
 
 
@@ -1099,7 +1099,7 @@ def main():
 
     # res_control(topic_df, language_df, demog_df, personality_df)
 
-    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, nbools_df=nbools_df, demog_df=demog_df, personality_df=personality_df, folds=10)
+    cross_validation(topic_df=topic_df, ngrams_df=ngrams_df, nbools_df=nbools_df, demog_df=demog_df, personality_df=labels_df, folds=10)
 
 
 
