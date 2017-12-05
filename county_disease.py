@@ -1076,12 +1076,15 @@ def main():
     print ('labels_df.shape: ', labels_df.shape)
 
     # control_df.to_csv('csv/controls.csv')
-    for col in demog_df.columns:
+    with open("corr_ses_demog_with_disease.txt", "a") as myfile:
+        for col in demog_df.columns:
 
-        print ('col:' )
-        print (labels_df.corrwith(demog_df[col]))
+            print ('col:' )
+            myfile.write('\ncol: ' + col+ '\n')
+            myfile.write( labels_df.corrwith(demog_df[col]))
+            print (labels_df.corrwith(demog_df[col]))
     #
-    return
+    # return
 
     # print ('demog_df.shape after set_index: ', demog_df.shape)
 
