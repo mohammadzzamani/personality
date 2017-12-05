@@ -131,10 +131,10 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
         ids = '\' , \''.join(users.index.astype(str).values.tolist())
         print (users.iloc[:10].index)
         sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' ) " \
-              "and not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\') ".format(ngrams_table, ids)
+              "and not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\', \'?\', \'???\', \'?????\', \'???????\', \'????\') ".format(ngrams_table, ids)
     else:
         sql = "select group_id , feat, value, group_norm from {0} " \
-              "where not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\')  ".format(ngrams_table)
+              "where not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\' , \'?\', \'???\', \'?????\', \'???????\', \'????\')  ".format(ngrams_table)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = [index , 'feat', 'value', 'group_norm'])
