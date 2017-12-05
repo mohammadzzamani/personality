@@ -743,15 +743,15 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
-            # if data_index < len(groupData)-3:
-            #     ensemble_adapted = inferred if ensemble_adapted is None else \
-            #         pd.merge(ensemble_adapted, inferred, left_index=True, right_index=True, how='inner')
+            if data_index < len(groupData)-3:
+                ensemble_adapted = inferred if ensemble_adapted is None else \
+                    pd.merge(ensemble_adapted, inferred, left_index=True, right_index=True, how='inner')
 
 
         ESTIMATORS = [
                     mean_est(),
                     RidgeCV(alphas=alphas),
-                    GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=1, subsample=0.75, max_depth=7), #, min_impurity_decrease=0.05),
+                    GradientBoostingRegressor(n_estimators= 250, loss='ls', random_state=1, subsample=0.75, max_depth=8), #, min_impurity_decrease=0.05),
                 ]
 
 
@@ -767,12 +767,12 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
         result_col = cv(data=inferred_col, controls = demog_df, labels=personality, foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
 
 
-        # result_col = cv(data=[ensemble_adapted], controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted.....', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
-        #
-        #
-        # ensemble_adapted = pd.merge(ensemble_adapted, demog_df,left_index=True, right_index=True, how='inner')
-        # ensemble_adapted = [ensemble_adapted]
-        # result_col = cv(data=ensemble_adapted, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted_added.....', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
+        result_col_ea = cv(data=[ensemble_adapted], controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted.....', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
+
+
+        ensemble_adapted = pd.merge(ensemble_adapted, demog_df,left_index=True, right_index=True, how='inner')
+        ensemble_adapted = [ensemble_adapted]
+        result_col_eaa = cv(data=ensemble_adapted, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted_added.....', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
 
 
 
