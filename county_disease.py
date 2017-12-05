@@ -662,6 +662,9 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
     dim_sizes = [[(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)], [(150, 30.0), (100, 2.0), (100,10.0), (100, 60.0)], [(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)]]
 
+    groupData = [ langData, adapted]
+    groupDataName = [ 'lang_residualized', 'adapted_residualized']
+    dim_sizes = [[(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)]]
 
 
     # groupData = separately_adapted + [  langData ,added_langData , langData]
@@ -691,11 +694,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             #         GradientBoostingRegressor(n_estimators= 100, loss='ls', random_state=1, subsample=0.75, max_depth=5), #, min_impurity_decrease=0.05),
             #     ]
 
-            if data_index == len(groupData) - 1:
-                residuals = True
-            else:
-                residuals = False
-
+            # if data_index == len(groupData) - 1:
+            #     residuals = True
+            # else:
+            #     residuals = False
+            residuals = True
             # all_data = [data + [personality_df[[col]]] + [demog_df]]
             # print len(all_data)
 
