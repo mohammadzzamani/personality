@@ -198,7 +198,7 @@ def load_controls(cursor, index, control_feats , control_feats_name = None, topi
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = [index] + control_feats_name)
-    control_df.dropna(axis=0, how='any', inplace=True)
+    # control_df.dropna(axis=0, how='any', inplace=True)
     print ( control_df.shape)
     return control_df
 
@@ -231,7 +231,7 @@ def load_data( index = 'cnty'):
 
 
         topic_df = load_topics(cursor, index=index)
-        topic_df = topic_df.iloc[:100,:]
+        topic_df = topic_df.iloc[:200,:]
         ngrams_df = load_ngrams(cursor, index=index, users=topic_df, threshold= 20000)
         nbools_df = load_ngrams(cursor, index=index, users=topic_df, ngrams_table=nbools_table)
 
