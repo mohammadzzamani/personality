@@ -47,11 +47,11 @@ disease_feats = ['03res_aar', '01hea_aar', '02mal_aar',  '04acc_aar', '05cer_aar
                  '11sep_aar', '12liv_aar', '13hyp_aar', '14par_aar', '15pne_aar']
 # demog_feats = ['demog_age_fixed', 'demog_gender']
 ses_demog_feats = ['hsgradHC03_VC93ACS3yr$10', 'bachdegHC03_VC94ACS3yr$10' , 'edu_index'  ,
-                   'logincomeHC01_VC85ACS3yr$10' , 'unemployAve_BLSLAUS$0910'	, 'femalePOP165210D$10',
-                   'hispanicPOP405210D$10',  'blackPOP255210D$10', 'forgnbornHC03_VC134ACS3yr$10',
-                   'county_density', 'marriedaveHC03_AC3yr$10', 'median_age']
-ses_demog_feats_name = ['hsgrad', 'bachdeg', 'edu', 'income' , 'unemployment', 'female',
-                        'hispanic' , 'black', 'foreign' , 'density' , 'married' , 'age' ]
+                   'logincomeHC01_VC85ACS3yr$10' , 'unemployAve_BLSLAUS$0910'	, 'femalePOP165210D$10']
+                   #'hispanicPOP405210D$10',  'blackPOP255210D$10', 'forgnbornHC03_VC134ACS3yr$10',
+                   #'county_density', 'marriedaveHC03_AC3yr$10', 'median_age']
+ses_demog_feats_name = ['hsgrad', 'bachdeg', 'edu', 'income' , 'unemployment', 'female']
+                        #'hispanic' , 'black', 'foreign' , 'density' , 'married' , 'age' ]
 # control_feats = personality_feats + demog_feats
 
 
@@ -676,6 +676,8 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     for col in personality_df.columns:
         inferred_col = None
         ensemble_adapted = None
+        personality = personality_df[[col]]
+        personality.dropna(axis=0, how='any', inplace=True)
         for data_index in range(len(groupData)):
             data = groupData[data_index]
             data_name = groupDataName[data_index]
@@ -694,13 +696,13 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
             # all_data = [data + [personality_df[[col]]] + [demog_df]]
             # print len(all_data)
-            personality = personality_df[[col]]
+
 
             # if col == '03res_aar':
             #     print (personality)
             #     print (personality.shape)
 
-            personality.dropna(axis=0, how='any', inplace=True)
+
 
             # if col == '03res_aar':
             #     print (personality)
@@ -721,10 +723,10 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
             # print (foldsdf)
 
-            if col == '03res_aar':
-                # print (personality)
-                for d in data:
-                    print (d.shape ,' , ', d.isnull().values.any())
+            # if col == '03res_aar':
+            #     # print (personality)
+            #     for d in data:
+            #         print (d.shape ,' , ', d.isnull().values.any())
 
 
             # print ( len(demog))
@@ -741,22 +743,36 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
             # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
 
-            if data_index < len(groupData)-3:
-                ensemble_adapted = inferred if ensemble_adapted is None else \
-                    pd.merge(ensemble_adapted, inferred, left_index=True, right_index=True, how='inner')
+            # if data_index < len(groupData)-3:
+            #     ensemble_adapted = inferred if ensemble_adapted is None else \
+            #         pd.merge(ensemble_adapted, inferred, left_index=True, right_index=True, how='inner')
+
+
+        ESTIMATORS = [
+                    mean_est(),
+                    RidgeCV(alphas=alphas),
+                    GradientBoostingRegressor(n_estimators= 200, loss='ls', random_state=1, subsample=0.75, max_depth=7), #, min_impurity_decrease=0.05),
+                ]
+
 
 
         inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
         inferred_col = [inferred_col]
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
+
+        # matched_data = match_ids(data + [personality] + [demog_df] + [foldsdf])
+        # foldsdf = matched_data[len(matched_data)-1]
+        # demog = [matched_data[len(matched_data)-2]]
+        # personality = matched_data[len(matched_data)-3]
+
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality, foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
 
 
-        result_col = cv(data=[ensemble_adapted], controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted.....', col_name=data_name,residuals=False)
-
-
-        ensemble_adapted = pd.merge(ensemble_adapted, demog_df,left_index=True, right_index=True, how='inner')
-        ensemble_adapted = [ensemble_adapted]
-        result_col = cv(data=ensemble_adapted, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted_added.....', col_name=data_name,residuals=False)
+        # result_col = cv(data=[ensemble_adapted], controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted.....', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
+        #
+        #
+        # ensemble_adapted = pd.merge(ensemble_adapted, demog_df,left_index=True, right_index=True, how='inner')
+        # ensemble_adapted = [ensemble_adapted]
+        # result_col = cv(data=ensemble_adapted, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......ensemble_adapted_added.....', col_name=data_name,residuals=False, ESTIMATORS=ESTIMATORS)
 
 
 
