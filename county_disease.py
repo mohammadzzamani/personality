@@ -1076,7 +1076,7 @@ def main():
     print ('labels_df.shape: ', labels_df.shape)
 
     # control_df.to_csv('csv/controls.csv')
-    with open("corr_ses_demog_with_disease.txt", "a") as myfile:
+    with open("corr_ses_demog_with_disease.txt", "w") as myfile:
         for col in demog_df.columns:
 
             print ('col:' )
