@@ -181,7 +181,7 @@ def load_topics(cursor, index, users = None, gft = 500):
     print ('topic_df.shape after pivot: ' , topic_df.shape)
     return topic_df
 
-def load_controls(cursor, index, control_feats , control_feats_name = None, topic_df = None ):
+def load_controls(cursor, index, control_feats , control_feats_name = None, topic_df = None , drop_nan = False ):
     print('load_controls...')
 
     if control_feats_name is None:
@@ -198,7 +198,8 @@ def load_controls(cursor, index, control_feats , control_feats_name = None, topi
     query = cursor.execute(sql)
     result =  query.fetchall()
     control_df = pd.DataFrame(data = result, columns = [index] + control_feats_name)
-    # control_df.dropna(axis=0, how='any', inplace=True)
+    if drop_nan:
+        control_df.dropna(axis=0, how='any', inplace=True)
     print ( control_df.shape)
     return control_df
 
@@ -222,7 +223,8 @@ def load_data( index = 'cnty'):
     if(cursor is not None):
 
         demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
-        labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
+        labels_df = load_controls(cursor, index= index, control_feats= disease_feats, drop_nan=True)
+        print ('shapes:::::::::: ', demog_df.shape , ' , ' , labels_df.shape)
         # personality_df = personality_df.iloc[:200,:]
 
         demog_df.set_index(index, inplace=True)
@@ -230,10 +232,10 @@ def load_data( index = 'cnty'):
         # control_df.set_index('user_id', inplace=True)
 
 
-        topic_df = load_topics(cursor, index=index)
-        topic_df = topic_df.iloc[:200,:]
-        ngrams_df = load_ngrams(cursor, index=index, users=topic_df, threshold= 20000)
-        nbools_df = load_ngrams(cursor, index=index, users=topic_df, ngrams_table=nbools_table)
+        topic_df = load_topics(cursor, index=index , users= labels_df)
+        # topic_df = topic_df.iloc[:200,:]
+        ngrams_df = load_ngrams(cursor, index=index, users=labels_df, threshold= 20000)
+        nbools_df = load_ngrams(cursor, index=index, users=labels_df, ngrams_table=nbools_table)
 
         # ngrams_df = load_ngrams(cursor) #, users=personality_df)
         # [personality_df, ngrams_df ]= match_ids([personality_df, ngrams_df ])
