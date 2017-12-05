@@ -137,7 +137,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
     else:
         sql = "select group_id , feat, value, group_norm from {0} " \
               "where not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\' ) ".format(ngrams_table)
-    print ('sql: ' , sql)
+    # print ('sql: ' , sql)
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = [index , 'feat', 'value', 'group_norm'])
