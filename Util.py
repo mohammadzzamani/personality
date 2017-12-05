@@ -299,10 +299,12 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_reduction=None, 
             print ('i , dim_size ....... ' ,i, ' , ',  dim_sizes[i])
             if dim_sizes is not None:
                 [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain, dim_size=dim_sizes[i])
-            else:
-                [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
-            Xtest = fSelector.transform(Xtest)
-            X = fSelector.transform(X)
+                Xtest = fSelector.transform(Xtest)
+                X = fSelector.transform(X)
+            # else:
+            #     [Xtrain , fSelector] = dimension_reduction(Xtrain, ytrain)
+
+
         # except:
         # print ( data.shape, ' , ', X.shape, ' , ', Xtrain.shape , ' , ', Xtest.shape)
         # print (np.isnan(Xtrain).any())
