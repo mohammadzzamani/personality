@@ -523,6 +523,10 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
 
     [ngrams_df, nbools_df, topic_df, demog_df, personality_df] = match_ids([ngrams_df, nbools_df, topic_df, demog_df, personality_df])
 
+    print (ngrams_df.iloc[:10].index)
+    print (topic_df.iloc[:10].index)
+    print (demog_df.iloc[:10].index)
+    print (personality_df.iloc[:10].index)
 
     # nbools_df.fillna(0, inplace=True)
 
