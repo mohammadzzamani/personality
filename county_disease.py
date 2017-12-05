@@ -690,12 +690,22 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
                 print (personality.shape)
 
 
-            matched_data = match_ids(data + [personality] + [demog_df])
+            matched_data = match_ids(data + [personality] + [demog_df] + [foldsdf])
             # print len(matched_data)
 
-            demog = [matched_data[len(matched_data)-1]]
-            personality = matched_data[len(matched_data)-2]
-            data = [ matched_data[i] for i in range(len(matched_data)-2)]
+
+
+            foldsdf = [matched_data[len(matched_data)-1]]
+            demog = [matched_data[len(matched_data)-2]]
+            personality = matched_data[len(matched_data)-3]
+            data = [ matched_data[i] for i in range(len(matched_data)-3)]
+
+            if col == '03res_aar':
+                # print (personality)
+                for d in data:
+                    print (d.shape ,' , ', d.isnull().values.any())
+
+
             # print ( len(demog))
             # exit()
             # inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])

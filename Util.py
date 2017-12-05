@@ -270,6 +270,8 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_sizes = None):
     test_ids = foldsdf[foldsdf['fold'] == fold].index.tolist()
     train_ids = foldsdf[foldsdf['fold'] != fold].index.tolist()
 
+
+
     try:
         ytrain = groupLabels.loc[train_ids].values if groupLabels.shape[1] <= 1 else groupLabels['fold_'+str(fold)].loc[train_ids].values
     except:
