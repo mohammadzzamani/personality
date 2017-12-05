@@ -338,7 +338,7 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_sizes = None):
     return groupX, groupXtrain, groupXtest, ytrain , ytest
 
 
-def dimension_reduction__(X, y, univariate = True, pca = True, dim_size = 400):
+def dimension_reduction(X, y, univariate = True, pca = True, dim_size = 400):
     print ('dimension_reduction...')
 
     # if dim_size > 100:
@@ -374,7 +374,7 @@ def dimension_reduction__(X, y, univariate = True, pca = True, dim_size = 400):
     return [newX , fSelector]
 
 
-def dimension_reduction(X, y, univariate = True, pca = True, dim_size = (300, 60)):
+def dimension_reduction__(X, y, univariate = True, pca = True, dim_size = (300, 60)):
     print ('dimension_reduction...')
 
     # if dim_size > 100:
