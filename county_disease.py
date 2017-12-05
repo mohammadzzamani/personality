@@ -228,7 +228,7 @@ def load_data( index = 'cnty'):
         demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
         labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
         print ('shapes:::::::::: ', demog_df.shape , ' , ' , labels_df.shape)
-        labels_df = labels_df.iloc[:200,:]
+        # labels_df = labels_df.iloc[:200,:]
 
         demog_df.set_index(index, inplace=True)
         labels_df.set_index(index, inplace=True)
