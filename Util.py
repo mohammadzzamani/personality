@@ -344,18 +344,21 @@ def dimension_reduction(X, y, univariate = True, pca = True, dim_size = 400):
     # else:
     #     alpha = 50.0
     n_components = min(dim_size, X.shape[1])
-    print (dim_size, ' , ', X.shape[1], ' , ',  n_components)
+    print ('oldX.shape: ' ' , ', X.shape, ' , n_components: ',  n_components)
     # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')) ])'
-    if univariate & pca:
-        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
-        # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha=60.0)), ("3_rpca", RandomizedPCA(n_components=max(min(500, X.shape[1])), random_state=42, whiten=False, iterated_power=3))])'
-    elif univariate:
-        featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+'))])'
-    elif pca:
-        featureSelectionString = 'Pipeline([ ("1_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
+    # if univariate & pca:
+    #     featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+')), ("2_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
+    #     # featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha=60.0)), ("3_rpca", RandomizedPCA(n_components=max(min(500, X.shape[1])), random_state=42, whiten=False, iterated_power=3))])'
+    # elif univariate:
+    featureSelectionString = 'Pipeline([ ("1_univariate_select", SelectFwe(f_regression, alpha='+str(alpha)+'))])'
     fSelector = eval(featureSelectionString)
     newX = fSelector.fit_transform(X, y.ravel())
+    print ('newX.shape: ' , newX.shape)
+    # elif pca:
 
+    featureSelectionString = 'Pipeline([ ("1_rpca", RandomizedPCA(n_components=min('+str(n_components)+',X.shape[1]), random_state=42, whiten=False, iterated_power=3))])'
+    fSelector = eval(featureSelectionString)
+    newX = fSelector.fit_transform(X, y.ravel())
     print ('newX.shape: ' , newX.shape)
 
     # featureSelectionString = 'Pipeline([ ("2_rpca", PCA(n_components='+str(n_components)+', random_state=42, whiten=False, iterated_power=3))])'
