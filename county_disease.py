@@ -512,8 +512,9 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     print ('cross_validation...')
 
     # min_max transform controls
+    demog_df.fillna(demog_df.mean(),inplace=True)
     [demog_df , demog_scaler] = transform(demog_df, type='minmax')#, range=(1,2))
-    [personality_df , personality_scaler] = transform(personality_df, type='minmax')
+    # [personality_df , personality_scaler] = transform(personality_df, type='minmax')
 
 
     ngrams_df.fillna(0, inplace=True)
