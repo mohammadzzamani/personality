@@ -136,7 +136,7 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
     query = cursor.execute(sql)
     result =  query.fetchall()
     language_df = pd.DataFrame(data = result, columns = [index , 'feat', 'value', 'group_norm'])
-    language_df.feat = language_df.feat.map(lambda x: words.index(x))
+    # language_df.feat = language_df.feat.map(lambda x: words.index(x))
 
 
     language_df.set_index(['cnty','feat'], inplace=True)
