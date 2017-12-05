@@ -915,7 +915,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         index = index + test_ids
 
         if residuals:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True, dim_sizes = dim_sizes)
+            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=False)
         else:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
 
@@ -930,8 +930,8 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         for j in range(len(ESTIMATORS)):
             # print ('j: ' , j, '  , len(ESTIMATORS): ', len(ESTIMATORS))
 
-            if j==len(ESTIMATORS)-1 and residuals:
-                [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=True)
+            # if j==len(ESTIMATORS)-1 and residuals:
+            #     [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i)
 
             estimator = ESTIMATORS[j]
             estimator.fit(Xtrain, ytrain)
