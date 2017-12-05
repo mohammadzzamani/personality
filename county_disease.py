@@ -567,6 +567,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # print ('columns:' , data.columns[0:5], ' , ', language_df.columns[0:5], ' , ', demog_df.columns, ' , ', personality_df.columns)
 
 
+    # separately_adapted= []
+    # separately_adapted_cols = []
+    # for col in demog_df:
+    #     separately_adapted.append([multiply(demog_df[[col]], ngrams_df), multiply(demog_df[[col]], nbools_df), multiply(demog_df[[col]], topic_df)])
+    #     separately_adapted_cols = separately_adapted_cols  + [col]
 
     adapted_ngrams = multiply(demog_df, ngrams_df) #, output_filename = 'csv/multiplied_topic.csv')
     adapted_topics = multiply(demog_df, topic_df) #, output_filename = 'csv/multiplied_topic.csv')
@@ -656,6 +661,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     groupDataName = [  'lang', 'adapted' , 'added', 'lang_residualized']
     # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
     dim_sizes = [[(150, 30), (100, 2), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 30), (100, 2), (100,10), (100, 60)], [(150, 30), (100, 2), (100,10)]]
+
+    # groupData = [  langData ] +  separately_adapted  + [added_langData , langData]
+    # groupDataName = [ 'lang' ] + separately_adapted_cols +  ['added', 'lang_residualized']
+    # dim_sizes = [(150, 30), (100, 2), (100,10), (100, 100) ]
+
 
 
     # groupData = [ [ngrams_df, nbools_df, topic_df, adapted_ngrams, adapted_nbools, adapted_topics, age_ngrams, age_nbools, age_topics, gender_ngrams, gender_nbools, gender_topics]]
