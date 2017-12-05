@@ -1081,7 +1081,7 @@ def main():
 
             print ('col:' )
             myfile.write('\ncol: ' + col+ '\n')
-            myfile.write( labels_df.corrwith(demog_df[col]))
+            myfile.write( str(labels_df.corrwith(demog_df[col])))
             print (labels_df.corrwith(demog_df[col]))
     #
     # return
