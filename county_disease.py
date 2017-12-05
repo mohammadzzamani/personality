@@ -674,7 +674,7 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
                 inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= True, dim_sizes = dim_sizes[data_index])
             else:
                 inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= False, dim_sizes = dim_sizes[data_index])
-            
+
             print ( 'inferred.shape....: ' , inferred.shape)
             inferred_col = inferred if inferred_col is None else \
                 pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
@@ -685,7 +685,7 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
         inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
         inferred_col = [inferred_col]
 
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name)
+        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
 
 
 
@@ -888,6 +888,7 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 
 def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.7, residuals = False, col_name='y', ESTIMATORS = None, dim_sizes = None):
     print ('cv...')
+    print ('residuals : ' , residuals)
     # data.fillna(data.mean(), inplace=True)
     # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
 
@@ -914,6 +915,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         test_ids = foldsdf[foldsdf['fold'] == i].index.tolist()
         index = index + test_ids
 
+        print ('residuals : ' , residuals)
         if residuals:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=False)
         else:
