@@ -39,8 +39,8 @@ topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$cnty$16to16'
 # topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
 # topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'topDeaths_comp_10to15'
-ngrams_table = 'feat$1to3gram$'+msg_table+'$cnty$16to16$0_5$pmi3_0'
-nbools_table = 'feat$1to3gram$'+msg_table+'$cnty$16to1$0_5$pmi3_0'
+ngrams_table = 'feat$1to3gram$'+msg_table+'$cnty$16to16$0_5$pmi3_0_updated'
+nbools_table = 'feat$1to3gram$'+msg_table+'$cnty$16to1$0_5$pmi3_0_updated'
 # personality_feats = [ 'big5_neu', 'big5_ope', 'big5_agr', 'big5_con', 'big5_ext',]
 disease_feats = ['03res_aar', '01hea_aar', '02mal_aar',  '04acc_aar', '05cer_aar',
                  '06alz_aar', '07dia_aar', '08flu_aar', '09nep_aar', '10sui_aar',
@@ -131,10 +131,10 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
         ids = '\' , \''.join(users.index.astype(str).values.tolist())
         print (users.iloc[:10].index)
         sql = "select group_id , feat, value, group_norm from {0} where group_id in ( \'{1}\' ) " \
-              "and not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\', \'?\', \'???\', \'?????\', \'???????\', \'????\', \'??????\', \'????????\') ".format(ngrams_table, ids)
+              "and not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\', \'\?\', \'???\', \'?????\', \'???????\', \'????\', \'??????\', \'????????\') ".format(ngrams_table, ids)
     else:
         sql = "select group_id , feat, value, group_norm from {0} " \
-              "where not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\' , \'?\', \'???\', \'?????\', \'???????\', \'????\' , \'??????\' , \'????????\') ".format(ngrams_table)
+              "where not feat in (\'!!!!!!!!!!!!!!!!!!!!!!!!\' , \'........................\' , \'\?\', \'???\', \'?????\', \'???????\', \'????\' , \'??????\' , \'????????\') ".format(ngrams_table)
     print ('sql: ' , sql)
     query = cursor.execute(sql)
     result =  query.fetchall()
