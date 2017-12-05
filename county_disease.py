@@ -47,11 +47,11 @@ disease_feats = ['03res_aar', '01hea_aar', '02mal_aar',  '04acc_aar', '05cer_aar
                  '11sep_aar', '12liv_aar', '13hyp_aar', '14par_aar', '15pne_aar']
 # demog_feats = ['demog_age_fixed', 'demog_gender']
 ses_demog_feats = ['hsgradHC03_VC93ACS3yr$10', 'bachdegHC03_VC94ACS3yr$10' , 'edu_index'  ,
-                   'logincomeHC01_VC85ACS3yr$10' , 'unemployAve_BLSLAUS$0910'	, 'femalePOP165210D$10']
-                   #'hispanicPOP405210D$10',  'blackPOP255210D$10', 'forgnbornHC03_VC134ACS3yr$10',
-                   #'county_density', 'marriedaveHC03_AC3yr$10', 'median_age']
-ses_demog_feats_name = ['hsgrad', 'bachdeg', 'edu', 'income' , 'unemployment', 'female']
-                        #'hispanic' , 'black', 'foreign' , 'density' , 'married' , 'age' ]
+                   'logincomeHC01_VC85ACS3yr$10' , 'unemployAve_BLSLAUS$0910'	, 'femalePOP165210D$10',
+                   'hispanicPOP405210D$10',  'blackPOP255210D$10', 'forgnbornHC03_VC134ACS3yr$10',
+                   'county_density', 'marriedaveHC03_AC3yr$10', 'median_age']
+ses_demog_feats_name = ['hsgrad', 'bachdeg', 'edu', 'income' , 'unemployment', 'female',
+                        'hispanic' , 'black', 'foreign' , 'density' , 'married' , 'age' ]
 # control_feats = personality_feats + demog_feats
 
 
@@ -228,7 +228,7 @@ def load_data( index = 'cnty'):
         demog_df = load_controls(cursor,index= index, control_feats=ses_demog_feats, control_feats_name = ses_demog_feats_name)
         labels_df = load_controls(cursor, index= index, control_feats= disease_feats)
         print ('shapes:::::::::: ', demog_df.shape , ' , ' , labels_df.shape)
-        labels_df = labels_df.iloc[:200,:]
+        # labels_df = labels_df.iloc[:200,:]
 
         demog_df.set_index(index, inplace=True)
         labels_df.set_index(index, inplace=True)
