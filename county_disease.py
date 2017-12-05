@@ -143,6 +143,9 @@ def load_ngrams(cursor, index, users=None, ngrams_table = ngrams_table, threshol
     print ( 'duplicates: ' , language_df.index.duplicated().any())
     language_df.reset_index(inplace=True)
 
+
+    print (language_df[language_df.index.duplicated()])
+
     if threshold > 0:
         language_df.set_index(index, inplace=True)
         language_df = language_df.loc[language_df.groupby(index)['value'].sum() > threshold]
