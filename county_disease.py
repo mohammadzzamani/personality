@@ -732,17 +732,17 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes)
             inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
 
-            print ( 'inferred.shape....: ' , inferred.shape)
-            inferred_col = inferred if inferred_col is None else \
-                pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
-            print ( 'inferred_col.shape....: ' , inferred_col.shape)
-            # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
-            # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-            # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
-        inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
-        inferred_col = [inferred_col]
-
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
+        #     print ( 'inferred.shape....: ' , inferred.shape)
+        #     inferred_col = inferred if inferred_col is None else \
+        #         pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
+        #     print ( 'inferred_col.shape....: ' , inferred_col.shape)
+        #     # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+        #     # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+        #     # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        # inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
+        # inferred_col = [inferred_col]
+        #
+        # result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
 
 
 
@@ -981,7 +981,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         else:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_sizes= dim_sizes)
 
-        # return None
+        return None
 
 
 
