@@ -33,14 +33,14 @@ user= ''
 password = ''
 database = 'county_disease'
 host = ''
-msg_table = 'messages_en'
+msg_table = 'msgs_2011to13'
 # topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16$1kusers'
 topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$cnty$16to16'
 # topic_table = 'feat$cat_fb22_all_500t_cp_w$'+msg_table+'$user_id$16to16'
 # topic_table = 'feat$cat_met_a30_2000_cp_w$'+msg_table+'$user_id$16to16'
 control_table = 'topDeaths_comp_10to15'
-ngrams_table = 'feat$1to3gram$'+msg_table+'$cnty$16to16$0_5'
-nbools_table = 'feat$1to3gram$'+msg_table+'$cnty$16to1$0_5'
+ngrams_table = 'feat$1to3gram$'+msg_table+'$cnty$16to16$0_5$pmi3_0'
+nbools_table = 'feat$1to3gram$'+msg_table+'$cnty$16to1$0_5$pmi3_0'
 # personality_feats = [ 'big5_neu', 'big5_ope', 'big5_agr', 'big5_con', 'big5_ext',]
 disease_feats = ['03res_aar', '01hea_aar', '02mal_aar',  '04acc_aar', '05cer_aar',
                  '06alz_aar', '07dia_aar', '08flu_aar', '09nep_aar', '10sui_aar',
@@ -717,17 +717,17 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
             # inferred = cv(data=data, controls = [demog_df], labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
             inferred =  cv(data=data, controls = demog, labels=personality, foldsdf = foldsdf, folds=folds, pre='...'+data_name+'...'+col+'...', col_name=data_name, residuals= residuals, dim_sizes = dim_sizes[data_index])
 
-            print ( 'inferred.shape....: ' , inferred.shape)
-            inferred_col = inferred if inferred_col is None else \
-                pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
-            print ( 'inferred_col.shape....: ' , inferred_col.shape)
-            # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
-            # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
-            # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
-        inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
-        inferred_col = [inferred_col]
-
-        result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
+        #     print ( 'inferred.shape....: ' , inferred.shape)
+        #     inferred_col = inferred if inferred_col is None else \
+        #         pd.merge(inferred_col, inferred, left_index=True, right_index=True, how='inner')
+        #     print ( 'inferred_col.shape....: ' , inferred_col.shape)
+        #     # [inferred, reported] = match_ids([inferred_col, personality_df[[col]]])
+        #     # print (col, ' : ' , inferred.shape, ' , ', reported.shape)
+        #     # evaluate(reported, inferred, store=False, pre='>>>>>ADAPTED>>>>personalityVSinferred_'+col+'_')
+        # inferred_col = pd.merge(inferred_col, demog_df,left_index=True, right_index=True, how='inner')
+        # inferred_col = [inferred_col]
+        #
+        # result_col = cv(data=inferred_col, controls = demog_df, labels=personality_df[[col]], foldsdf = foldsdf, folds=folds, pre='......'+col+'......', col_name=data_name,residuals=False)
 
 
 
@@ -966,7 +966,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         else:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_sizes= dim_sizes)
 
-        # return None
+        return None
 
 
 
