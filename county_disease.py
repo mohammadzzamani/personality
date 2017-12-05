@@ -914,9 +914,12 @@ def infer_personality(data, labels, foldsdf, folds, pre, col_name= 'y'):
 
 def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 300, subsample=0.75, max_depth=8, max_features = 0.7, residuals = False, col_name='y', ESTIMATORS = None, dim_sizes = None):
     print ('cv...')
-    print ('residuals : ' , residuals)
+
     # data.fillna(data.mean(), inplace=True)
     # print ('data shapes: ' , data.shape, ' , ', labels.shape, ' , ', foldsdf.shape )
+
+
+
 
     if ESTIMATORS is None:
         ESTIMATORS = [

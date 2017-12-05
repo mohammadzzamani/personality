@@ -287,8 +287,15 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_sizes = None):
     groupXtest = None
 
     for i in range(len(groupData)):
+
+
+
         # print ' >>>> i: ' , i
         data = groupData[i]
+
+        print (data.shape , ' --- ' , data.isnull().values.any())
+        print (groupLabels.shape , ' --- ' , groupLabels.isnull().values.any())
+
         X = data.values
         Xtrain = data.loc[train_ids].values
         Xtest = data.loc[test_ids].values
