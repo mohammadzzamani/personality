@@ -919,7 +919,10 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         if residuals:
             [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(controls, labels, foldsdf, i, dim_reduction=False)
         else:
-            [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
+            if dim_sizes is not None:
+                [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=True, dim_sizes= dim_sizes)
+            else:
+                [ X, Xtrain, Xtest, ytrain , ytest] = split_train_test(data, labels, foldsdf, i, dim_reduction=False)
 
 
 
