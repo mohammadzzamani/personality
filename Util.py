@@ -313,7 +313,7 @@ def split_train_test(groupData, groupLabels, foldsdf, fold, dim_sizes = None):
             print (np.isnan(Xtrain).any())
             print (np.isnan(ytrain).any())
 
-            
+
 
             Xtest = fSelector.transform(Xtest)
             X = fSelector.transform(X)
@@ -342,7 +342,7 @@ def dimension_reduction(X, y, univariate = True, pca = True, dim_size = 400):
     print ('dimension_reduction...')
 
     # if dim_size > 100:
-    alpha = [ 10.0 ,20.0, 30.0 , 50.0 , 100.0, 200.0]
+    alpha = [ 2.0, 4.0, 5.0, 7.5, 10.0 ,20.0, 30.0 , 50.0 , 100.0, 200.0]
     # else:
     #     alpha = 50.0
     n_components = min(dim_size, X.shape[1])
