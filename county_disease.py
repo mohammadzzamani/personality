@@ -1208,7 +1208,7 @@ def main():
         personality = labels_df[[col]]
         personality.dropna(axis=0, how='any', inplace=True)
         [personality, demog_df, foldsdf] = match_ids([personality, demog_df, foldsdf])
-        inferred =  cv(data=demog_df, controls = demog_df, labels=personality, foldsdf = foldsdf, folds=folds, pre='...controls...'+col+'...', col_name=col, residuals= False , ESTIMATORS=ESTIMATORS)
+        inferred =  cv(data=[demog_df], controls = demog_df, labels=personality, foldsdf = foldsdf, folds=folds, pre='...controls...'+col+'...', col_name=col, residuals= False , ESTIMATORS=ESTIMATORS)
 
     exit()
 
