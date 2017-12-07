@@ -42,7 +42,7 @@ control_table = 'topDeaths_comp_10to15'
 ngrams_table = 'feat$1to3gram$'+msg_table+'$cnty$16to16$0_5$pmi3_0_updated'
 nbools_table = 'feat$1to3gram$'+msg_table+'$cnty$16to1$0_5$pmi3_0_updated'
 # personality_feats = [ 'big5_neu', 'big5_ope', 'big5_agr', 'big5_con', 'big5_ext',]
-disease_feats = ['03res_aar', '01hea_aar', '02mal_aar',  '04acc_aar', '05cer_aar',
+disease_feats = [ '01hea_aar', '02mal_aar', '03res_aar', '04acc_aar', '05cer_aar',
                  '06alz_aar', '07dia_aar', '08flu_aar', '09nep_aar', '10sui_aar',
                  '11sep_aar', '12liv_aar', '13hyp_aar', '14par_aar', '15pne_aar']
 # demog_feats = ['demog_age_fixed', 'demog_gender']
@@ -664,8 +664,11 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     # dim_sizes = [[(150, 60), (100, 1), (100,10)], [(200, 1), (150, 0.5), (150, 0.5)], [(150, 60), (100, 1), (100,10), (100, 60)], [(150, 60), (100, 1), (100,10)]]
     dim_sizes = [[(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)], [(150, 30.0), (100, 2.0), (100,10.0), (100, 60.0)], [(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)]]
 
-    groupData = [ langData, adapted]
-    groupDataName = [ 'lang_residualized', 'adapted_residualized']
+    added = langData + [demog_df]
+    added_adapted = adapted + [demog_df]
+
+    groupData = [ langData, adapted, added, added_adapted]
+    groupDataName = [ 'res', 'adapted_res' , 'added_res', 'added_adapted_res' ]
     dim_sizes = [[(150, 30.0), (100, 2.0), (100,10.0)], [(200, 1.0), (150, 0.5), (150, 0.5)]]
 
 
@@ -758,7 +761,7 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
         ESTIMATORS = [
                     mean_est(),
                     RidgeCV(alphas=alphas),
-                    GradientBoostingRegressor(n_estimators= 250, loss='ls', random_state=1, subsample=0.75, max_depth=8), #, min_impurity_decrease=0.05),
+                    GradientBoostingRegressor(n_estimators= 500, loss='ls', random_state=1, subsample=0.75, max_depth=8), #, min_impurity_decrease=0.05),
                 ]
 
 
@@ -994,7 +997,8 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         ESTIMATORS = [
                 mean_est(),
                 RidgeCV(alphas=alphas),
-                # GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65), #, min_impurity_decrease=0.05),
+                GradientBoostingRegressor(n_estimators= 500, random_state=1, subsample=0.7, max_depth=15, max_features=0.8), #, min_impurity_decrease=0.05),
+                GradientBoostingRegressor(n_estimators= 500, random_state=1, subsample=0.7, max_depth=15, max_features=0.8, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features),# min_impurity_decrease=0.02),
                 # GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
@@ -1003,7 +1007,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 # KNeighborsRegressor(n_neighbors=5)
         ]
 
-    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_200' , 'gbr250', 'gbr_200_mid', 'gbr_250_mid' ,'ridgecv_res']
+    ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_500' , 'gbr500_i', 'gbr_200_mid', 'gbr_250_mid' ,'ridgecv_res']
     YpredsAll = None
     # YpredsAllTrain = None
     index = []
@@ -1042,13 +1046,14 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
             ypred = estimator.predict(Xtest)
             ypred = np.reshape(ypred ,newshape =(ypred.shape[0],1))
 
-            if j==len(ESTIMATORS)-1 and residuals:
+            if residuals:
                 store = True
             else:
                 store = False
 
 
-            if j==len(ESTIMATORS)-1 and residuals:
+            if residuals:
+                Ypreds_controls = stack_folds_preds(ypred, Ypreds_controls, 'horizontal')
                 evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=store)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
@@ -1087,14 +1092,19 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
+        if residuals:
+            Ypreds_controls = stack_folds_preds(ytest, Ypreds_controls, 'horizontal')
+            YpredsAll_controls = stack_folds_preds(Ypreds_controls, YpredsAll_controls, 'vertical')
         print ('ypredsAll.shape: ' , YpredsAll.shape)
 
 
 
     for j in range(YpredsAll.shape[1]-1):
+        evaluate(YpredsAll_controls[:,YpredsAll_controls.shape[1]-1].transpose(), YpredsAll_controls[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_controls_')
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
-    result = pd.DataFrame(index=index, data= YpredsAll[:,1], columns=[col_name])
+
+    result = pd.DataFrame(index=index, data= YpredsAll[:,2], columns=[col_name])
 
     # return YpredsAllTrain if residuals else result
     return result
@@ -1190,11 +1200,7 @@ def residualized_control(data, controls, labels, foldsdf, folds, pre, scaler=Non
     # return YpredsAllTrain if residuals else result
     return result
 
-
-def main():
-    print('myMain...')
-    ngrams_df, nbools_df, topic_df, demog_df, labels_df = load_data()
-
+def only_controls(demog_df, labels_df):
     folds = 10
     demog_df.fillna(demog_df.mean(),inplace=True)
     [demog_df , demog_scaler] = transform(demog_df, type='minmax')#, range=(1,2))
@@ -1211,6 +1217,13 @@ def main():
         inferred =  cv(data=[demog_df], controls = demog_df, labels=personality, foldsdf = foldsdf, folds=folds, pre='...controls...'+col+'...', col_name=col, residuals= False , ESTIMATORS=ESTIMATORS)
 
     exit()
+
+
+def main():
+    print('myMain...')
+    ngrams_df, nbools_df, topic_df, demog_df, labels_df = load_data()
+
+    # only_controls(demog_df, labels_df)
 
     if topic_df is not None:
         print ('topic_df.shape: ', topic_df.shape)
