@@ -234,6 +234,8 @@ def load_data( index = 'cnty'):
         labels_df.set_index(index, inplace=True)
         # control_df.set_index('user_id', inplace=True)
 
+    if True:
+        return None, None, None, demog_df, labels_df
 
         topic_df = load_topics(cursor, index=index , users= labels_df)
         # topic_df = topic_df.iloc[:200,:]
@@ -1192,6 +1194,24 @@ def residualized_control(data, controls, labels, foldsdf, folds, pre, scaler=Non
 def main():
     print('myMain...')
     ngrams_df, nbools_df, topic_df, demog_df, labels_df = load_data()
+
+    folds = 10
+    demog_df.fillna(demog_df.mean(),inplace=True)
+    [demog_df , demog_scaler] = transform(demog_df, type='minmax')#, range=(1,2))
+    foldsdf = k_fold(demog_df, index='cnty', folds=folds)
+    ESTIMATORS = [
+                    mean_est(),
+                    RidgeCV(alphas=alphas),
+                    GradientBoostingRegressor(n_estimators= 250, loss='ls', random_state=1, subsample=0.75, max_depth=8), #, min_impurity_decrease=0.05),
+                ]
+    for col in labels_df.columns:
+        personality = labels_df[[col]]
+        personality.dropna(axis=0, how='any', inplace=True)
+        [personality, demog_df, foldsdf] = match_ids([personality, demog_df, foldsdf])
+        inferred =  cv(data=demog_df, controls = demog_df, labels=personality, foldsdf = foldsdf, folds=folds, pre='...controls...'+col+'...', col_name=col, residuals= False , ESTIMATORS=ESTIMATORS)
+
+    exit()
+
     if topic_df is not None:
         print ('topic_df.shape: ', topic_df.shape)
     print ('ses_demog_df.shape: ', demog_df.shape)
