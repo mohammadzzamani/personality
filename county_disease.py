@@ -1009,6 +1009,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
     ESTIMATORS_NAME = [ 'mean' , 'ridgecv', 'gbr_500' , 'gbr500_i', 'gbr_200_mid', 'gbr_250_mid' ,'ridgecv_res']
     YpredsAll = None
+    YpredsAll_controls = None
     # YpredsAllTrain = None
     index = []
     for i in range(folds):
@@ -1035,6 +1036,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         # Xtest = fSelector.transform(Xtest)
 
         Ypreds = None
+        Ypreds_controls = None
         for j in range(len(ESTIMATORS)):
             # print ('j: ' , j, '  , len(ESTIMATORS): ', len(ESTIMATORS))
 
