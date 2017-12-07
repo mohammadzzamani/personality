@@ -1056,23 +1056,31 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
             if residuals:
                 Ypreds_controls = stack_folds_preds(ypred, Ypreds_controls, 'horizontal')
+                print ( ytest[:10])
                 evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=store)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
                 ypredTrain = estimator.predict(X)
                 ypredTrain = np.reshape(ypredTrain ,newshape =(ypredTrain.shape[0],1))
+                print ( labels[:10])
+                print ( ypredTrain[:10])
                 res_labels = np.subtract(labels, ypredTrain)
+                print ( res_labels[:10])
                 [ X1, Xtrain1, Xtest1, ytrain1 , ytest1] = split_train_test(data, res_labels, foldsdf, i, dim_sizes= dim_sizes)
-
+                print ('...............')
+                print ( ytrain1[:10])
+                print ( ytest1[:10])
                 estimator = RidgeCV(alphas=alphas)
                 estimator.fit(Xtrain1, ytrain1)
                 ypred1 = estimator.predict(Xtest1)
+                print ( '--------------')
+                print(ypred1[:10])
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
 
                 evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=store)
-
+                print ( ypred[:10])
                 ypred = np.add(ypred, ypred1)
-
-
+                print ( ypred[:10])
+                print ( ytest[:10])
 
             Ypreds = stack_folds_preds(ypred, Ypreds, 'horizontal')
             try:
@@ -1097,12 +1105,13 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         if residuals:
             Ypreds_controls = stack_folds_preds(ytest, Ypreds_controls, 'horizontal')
             YpredsAll_controls = stack_folds_preds(Ypreds_controls, YpredsAll_controls, 'vertical')
-        print ('ypredsAll.shape: ' , YpredsAll.shape)
+        print ('ypredsAll.shape: ' , YpredsAll.shape, ' , ', YpredsAll_controls.shape)
 
 
 
     for j in range(YpredsAll.shape[1]-1):
-        evaluate(YpredsAll_controls[:,YpredsAll_controls.shape[1]-1].transpose(), YpredsAll_controls[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_controls_')
+        if residuals:
+            evaluate(YpredsAll_controls[:,YpredsAll_controls.shape[1]-1].transpose(), YpredsAll_controls[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_controls_')
         evaluate(YpredsAll[:,YpredsAll.shape[1]-1].transpose(), YpredsAll[:,j].transpose(), pre=pre+'_'+ESTIMATORS_NAME[j]+'_')
 
 
