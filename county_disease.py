@@ -234,8 +234,8 @@ def load_data( index = 'cnty'):
         labels_df.set_index(index, inplace=True)
         # control_df.set_index('user_id', inplace=True)
 
-    if True:
-        return None, None, None, demog_df, labels_df
+        # if True:
+        #     return None, None, None, demog_df, labels_df
 
         topic_df = load_topics(cursor, index=index , users= labels_df)
         # topic_df = topic_df.iloc[:200,:]
