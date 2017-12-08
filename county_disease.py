@@ -1102,10 +1102,12 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
 
         Ypreds = stack_folds_preds(ytest, Ypreds, 'horizontal')
         YpredsAll = stack_folds_preds(Ypreds, YpredsAll, 'vertical')
+        print ('ypredsAll.shape: ' , YpredsAll.shape)
         if residuals:
             Ypreds_controls = stack_folds_preds(ytest, Ypreds_controls, 'horizontal')
             YpredsAll_controls = stack_folds_preds(Ypreds_controls, YpredsAll_controls, 'vertical')
-        print ('ypredsAll.shape: ' , YpredsAll.shape, ' , ', YpredsAll_controls.shape)
+            print ('ypredsAll.shape: ' , YpredsAll_controls.shape)
+
 
 
 
