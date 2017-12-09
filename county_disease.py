@@ -670,7 +670,8 @@ def cross_validation(index = 'cnty', topic_df = None, ngrams_df=None, nbools_df=
     groupData = [ langData, adapted, added, added_adapted]
     groupDataName = [ 'res', 'adapted_res' , 'added_res', 'added_adapted_res' ]
     # dim_sizes = [[(150, 30.0), (100, 2.0), (200,20.0)], [(200, 1.0), (100, 0.5), (200, 1.0)] ,[(150, 30.0), (100, 2.0), (200,20.0), (200, 100)],  [(200, 1.0), (100, 0.5), (200, 1.0), (200, 100)] ]
-    dim_sizes = [[(40, 30.0), (20, 2.0), (60,20.0)], [(40, 1.0), (20, 0.5), (60, 1.0)] ,[(40, 30.0), (20, 2.0), (60,20.0), (60, 100)],  [(20, 1.0), (40, 0.5), (50, 1.0), (50, 100)] ]
+    # dim_sizes = [[(40, 30.0), (20, 2.0), (60,20.0)], [(40, 1.0), (20, 0.5), (60, 1.0)] ,[(40, 30.0), (20, 2.0), (60,20.0), (60, 100)],  [(40, 1.0), (20, 0.5), (60, 1.0), (60, 100)] ]
+    dim_sizes = [[(50, 30.0), (25, 2.0), (75,20.0)], [(50, 1.0), (25, 0.5), (75, 1.0)] ,[(50, 30.0), (25, 2.0), (75,20.0), (75, 100)],  [(50, 1.0), (25, 0.5), (75, 1.0), (75, 100)] ]
 
 
     # groupData = separately_adapted + [  langData ,added_langData , langData]
@@ -1078,6 +1079,11 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
 
                 evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=store)
+                #####
+                ypred1_train = estimator.predict(Xtrain1)
+                ypred1_train = np.reshape(ypred1_train ,newshape =(ypred1_train.shape[0],1))
+                evaluate(ytrain1, ypred1_train, pre='train__', store=store)
+                ####
                 print ( ypred[:10])
                 ypred = np.add(ypred, ypred1)
 
