@@ -999,8 +999,8 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
         ESTIMATORS = [
                 mean_est(),
                 RidgeCV(alphas=alphas),
-                GradientBoostingRegressor(n_estimators= 500, random_state=1, subsample=0.7, max_depth=15, max_features=0.8), #, min_impurity_decrease=0.05),
-                GradientBoostingRegressor(n_estimators= 500, random_state=1, subsample=0.7, max_depth=15, max_features=0.8, min_impurity_decrease=0.05),
+                GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=6, max_features=0.8), #, min_impurity_decrease=0.05),
+                GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=6, max_features=0.8, min_impurity_decrease=0.1),
                 # GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features),# min_impurity_decrease=0.02),
                 # GradientBoostingRegressor(n_estimators= 200, random_state=1, subsample=0.7, max_depth=10, max_features=0.65, min_impurity_decrease=0.05),
                 # GradientBoostingRegressor(n_estimators= 250, random_state=2, subsample= subsample, max_depth=max_depth, max_features= max_features, min_impurity_decrease=0.02),
@@ -1056,8 +1056,16 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 store = False
 
 
+
+
             if residuals:
                 Ypreds_controls = stack_folds_preds(ypred, Ypreds_controls, 'horizontal')
+                #####
+                ypred_train = estimator.predict(Xtrain)
+                ypred_train = np.reshape(ypred_train ,newshape =(ypred_train.shape[0],1))
+                evaluate(ytrain, ypred_train, pre='train__', store=store)
+                ####
+
                 print ( ytest[:10])
                 evaluate(ytest, ypred, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_controls_', store=store)
                 print ('<<<<<<<<<< residualized control >>>>>>  j : ' , j)
@@ -1079,11 +1087,7 @@ def cv(data, controls, labels, foldsdf, folds, pre, scaler=None, n_estimators = 
                 ypred1 = np.reshape(ypred1 ,newshape =(ypred1.shape[0],1))
 
                 evaluate(ytest1, ypred1, pre=pre+'_'+str(i)+'_'+ESTIMATORS_NAME[j]+'_residuals_', store=store)
-                #####
-                ypred1_train = estimator.predict(Xtrain1)
-                ypred1_train = np.reshape(ypred1_train ,newshape =(ypred1_train.shape[0],1))
-                evaluate(ytrain1, ypred1_train, pre='train__', store=store)
-                ####
+
                 print ( ypred[:10])
                 ypred = np.add(ypred, ypred1)
 
